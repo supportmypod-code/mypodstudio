@@ -613,46 +613,44 @@ function useGPS(){
   }, err=>locStatus(err.code===1?"Location is blocked. Allow it in your browser's site settings, or type your address.":"Could not get your location. Try again or type your address.","bad"),
   {enableHighAccuracy:true,timeout:12000,maximumAge:60000});
 }
-/* ---------- Address search (Google Places Autocomplete, REST) ---------- */
-// Key is restricted to this website's address in Google Cloud (HTTP referrers) and to the Places API (New).
-const GMAPS_KEY = "AIzaSyBfDRKThmDpqK8ZpWxnWBLjiUlpLjP9eCA";
-let sugList = [], sugTimer = null, sugSeq = 0, sugToken = (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random());
+/* ---------- Address search (Geoapify autocomplete, OpenStreetMap as backup) ---------- */
+const GEOAPIFY_KEY = "8c4891d1888d493d9c3570801b30aac8";
+let sugList = [], sugTimer = null, sugSeq = 0;
 function sugHide(){ const b=$('locSug'); b.hidden=true; b.textContent=""; }
-function sugShow(list){
+function sugShow(list, credit){
   const box=$('locSug'); box.textContent=""; sugList=list;
   if(!list.length) return sugHide();
   list.forEach(pr=>{
     const b=document.createElement('button'); b.type="button"; b.setAttribute('role','option');
-    const sf=pr.structuredFormat||{}; b.textContent=(sf.mainText&&sf.mainText.text)||pr.text.text; const sm=document.createElement('small'); sm.textContent=(sf.secondaryText&&sf.secondaryText.text)||""; b.appendChild(sm);
+    b.textContent=pr.main; const sm=document.createElement('small'); sm.textContent=pr.sub||""; b.appendChild(sm);
     b.addEventListener('click',()=>sugPick(pr)); box.appendChild(b);
   });
-  const g=document.createElement('div'); g.className="gl"; g.textContent="Powered by Google"; box.appendChild(g); box.hidden=false;
+  const g=document.createElement('div'); g.className="gl"; g.textContent=credit; box.appendChild(g); box.hidden=false;
 }
 async function sugFetch(q){
   const seq=++sugSeq;
   try{
-    const r=await fetch("https://places.googleapis.com/v1/places:autocomplete",{method:"POST",
-      headers:{"Content-Type":"application/json","X-Goog-Api-Key":GMAPS_KEY},
-      body:JSON.stringify({input:q,sessionToken:sugToken,includedRegionCode:"in",languageCode:"en",
-        locationBias:{circle:{center:{latitude:22.62,longitude:88.42},radius:30000}}})});
-    if(!r.ok) throw new Error("places"); const d=await r.json();
+    const r=await fetch("https://api.geoapify.com/v1/geocode/autocomplete?format=json&limit=5&lang=en&filter=countrycode:in&bias=proximity:88.42,22.62&text="+encodeURIComponent(q)+"&apiKey="+GEOAPIFY_KEY);
+    const d=await r.json().catch(()=>({}));
+    if(!r.ok){ console.warn("Geoapify:", d.message||r.status); throw new Error("geoapify"); }
     if(seq!==sugSeq) return;
-    sugShow((d.suggestions||[]).map(x=>x.placePrediction).filter(Boolean).slice(0,5));
-  }catch(e){ if(seq===sugSeq) sugHide(); }
+    sugShow((d.results||[]).filter(x=>isFinite(x.lat)&&isFinite(x.lon)).map(x=>({lat:+x.lat,lng:+x.lon,full:x.formatted,
+      main:x.address_line1||x.name||x.formatted,sub:x.address_line2||""})),"Powered by Geoapify");
+  }catch(e){ if(seq===sugSeq) sugFallback(q,seq); }
 }
-async function sugPick(pr){
-  locStatus("Checking that address…","");
+// Backup when Geoapify is unavailable: free OpenStreetMap search around Kolkata.
+async function sugFallback(q,seq){
   try{
-    const r=await fetch("https://places.googleapis.com/v1/places/"+encodeURIComponent(pr.placeId)+"?sessionToken="+encodeURIComponent(sugToken),
-      {headers:{"X-Goog-Api-Key":GMAPS_KEY,"X-Goog-FieldMask":"location,formattedAddress,displayName"}});
-    if(!r.ok) throw new Error("place"); const d=await r.json();
-    const lat=+(+d.location.latitude).toFixed(6), lng=+(+d.location.longitude).toFixed(6), ok=inArea(lat,lng);
-    const name=(d.displayName&&d.displayName.text)||((pr.structuredFormat&&pr.structuredFormat.mainText)||pr.text).text;
-    sugToken=(crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random()); sugHide();
-    setLoc({lat,lng,ok,area:d.formattedAddress||pr.text.text,short:name.slice(0,24)});
-    $('locType').value=""; closeLoc();
-    if(!ok) toast("That location is outside our doorstep area.");
-  }catch(e){ locStatus("Could not look up that address. Try again or use your current location.","bad"); }
+    const r=await fetch("https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=0&limit=5&accept-language=en&countrycodes=in&viewbox=88.25,22.75,88.60,22.45&q="+encodeURIComponent(q+", Kolkata"));
+    if(!r.ok) throw new Error("osm"); const d=await r.json(); if(seq!==sugSeq) return;
+    sugShow(d.map(x=>{ const n=x.display_name.split(", "); return {lat:+x.lat,lng:+x.lon,full:n.slice(0,4).join(", "),main:n[0],sub:n.slice(1,4).join(", ")}; }),"Search by OpenStreetMap");
+  }catch(e){ sugHide(); }
+}
+function sugPick(pr){
+  const lat=+pr.lat.toFixed(6), lng=+pr.lng.toFixed(6), ok=inArea(lat,lng); sugHide();
+  setLoc({lat,lng,ok,area:pr.full||pr.main,short:pr.main.slice(0,24)});
+  $('locType').value=""; closeLoc();
+  if(!ok) toast("That location is outside our doorstep area.");
 }
 document.addEventListener('DOMContentLoaded',()=>{
   const t=$('locType'); if(!t) return;
