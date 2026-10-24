@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="MyPod"><meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta property="og:type" content="website"><meta property="og:title" content="MyPod Car Care — Clean Cars. Zero Hassle."><meta property="og:description" content="Doorstep and drive-through car wash in Newtown, Kolkata. Book a slot online in under a minute.">
-<meta property="og:image" content="https://YOUR-DOMAIN/og-image.png"><meta name="twitter:card" content="summary_large_image">
+<meta property="og:image" content="https://supportmypod-code.github.io/mypodstudio/og-image.png"><meta name="twitter:card" content="summary_large_image">
 <meta name="description" content="Book MyPod doorstep or drive-through car and bike wash in Newtown, Kolkata. Pick a slot, apply a coupon and get a booking ID instantly.">
 <title>MyPod Car Care — Doorstep Car Wash in Newtown, Kolkata</title><script type="application/ld+json">{"@context":"https://schema.org","@type":"AutoWash","name":"MyPod Car Care","telephone":"+919886950617","description":"Doorstep and drive-through car care in Newtown, Kolkata","areaServed":"Newtown, Kolkata","address":{"@type":"PostalAddress","addressLocality":"Newtown","addressRegion":"West Bengal","addressCountry":"IN"}}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&family=Sora:wght@600;700;800&display=swap">
@@ -35,7 +35,7 @@ header{position:sticky;top:0;z-index:30;height:68px;display:flex;align-items:cen
 .actions{display:flex;gap:10px;align-items:center}.actions .btn{padding:11px 18px;font-size:14px}
 .hamb{display:none;width:42px;height:42px;border:1px solid var(--line2);border-radius:12px;background:transparent;color:var(--text);font-size:20px;cursor:pointer}
 .field{width:100%;padding:13px 12px;border:1px solid #3a3f46;border-radius:10px;background:#16191d;color:var(--text);outline:none}.field:focus{border-color:var(--y)}
-.msg{font-size:12px;color:var(--y);min-height:17px;margin-top:9px}.fine{text-align:center;color:var(--muted);font-size:11px;margin-top:10px}
+.msg{font-size:12px;color:var(--y);min-height:17px;margin-top:9px}.hsw{position:fixed;left:0;top:0;width:1px;height:1px;opacity:0;overflow:hidden;pointer-events:none}.fine{text-align:center;color:var(--muted);font-size:11px;margin-top:10px}
 .lead{color:var(--muted);line-height:1.65;max-width:560px}
 .toast{position:fixed;bottom:20px;left:50%;transform:translate(-50%,120px);opacity:0;background:#16191d;border:1px solid var(--line2);padding:14px 20px;border-radius:12px;z-index:60;transition:.3s;box-shadow:0 10px 40px #000;max-width:calc(100% - 32px)}.toast.show{transform:translate(-50%,0);opacity:1}
 .booking{background:linear-gradient(180deg,rgba(18,21,25,.96),rgba(10,11,13,.96));border:1px solid var(--line2);border-radius:22px;padding:22px;box-shadow:0 30px 80px rgba(0,0,0,.6),0 0 0 1px rgba(255,213,27,.06),0 0 80px rgba(255,213,27,.07)}
@@ -273,6 +273,25 @@ footer{background:transparent;padding:0;border-top:1px solid var(--line)}
 .loc{border:1px solid var(--line2);background:rgba(255,255,255,.04);border-radius:12px;padding:10px 14px;font-weight:600;font-size:14px}
 .loc:hover{background:rgba(255,213,27,.1);color:var(--text);border-color:var(--y);transform:none}.loc:hover .pin{color:var(--y)}
 .locopt .btn,.lbtn{border-radius:10px}
+.opt .oimg{display:block;width:100%;height:auto;aspect-ratio:2/1;object-fit:cover;border-radius:9px;margin-bottom:10px;border:1px solid var(--line)}
+.opt input:checked+span .oimg{border-color:var(--y)}
+
+/* booking celebration (10 seconds) */
+.cele{position:fixed;inset:0;z-index:110;pointer-events:none;overflow:hidden}
+.cele canvas{position:absolute;inset:0;width:100%;height:100%}
+.cele-banner{position:absolute;left:50%;top:max(18px,env(safe-area-inset-top));transform:translateX(-50%);width:min(560px,calc(100% - 24px));padding:16px 20px 18px;text-align:center;border-radius:20px;background:rgba(10,11,13,.92);border:1px solid rgba(255,213,27,.55);box-shadow:0 20px 60px rgba(0,0,0,.6),0 0 60px rgba(255,213,27,.25);animation:cBan .6s cubic-bezier(.2,1.4,.4,1) both}
+.cele-banner.out{animation:cOut .6s ease forwards}
+.cele-title{display:flex;justify-content:center;flex-wrap:wrap;font:800 clamp(28px,6vw,44px)/1.1 var(--disp);letter-spacing:-.02em;color:var(--y);text-shadow:0 0 24px rgba(255,213,27,.45)}
+.cele-title span{display:inline-block;animation:cBounce .9s cubic-bezier(.3,1.6,.5,1) both}
+.cele-title span.sp{width:.3em}
+.cele-line{margin:6px 0 0;color:#e8ebee;font-size:14px;line-height:1.5}
+.cele-bar{margin-top:12px;height:3px;border-radius:3px;background:rgba(255,255,255,.12);overflow:hidden}
+.cele-bar i{display:block;height:100%;width:100%;background:var(--y);transform-origin:left;animation:cBar 10s linear forwards}
+@keyframes cBan{from{opacity:0;transform:translate(-50%,-30px) scale(.85)}}
+@keyframes cOut{to{opacity:0;transform:translate(-50%,-20px) scale(.95)}}
+@keyframes cBounce{from{opacity:0;transform:translateY(-26px) scale(.4) rotate(-12deg)}}
+@keyframes cBar{to{transform:scaleX(0)}}
+@media(prefers-reduced-motion:reduce){.cele-banner,.cele-title span,.cele-bar i{animation:none!important}.cele-bar i{animation:cBar 10s linear forwards!important}}
 </style></head><body>
 <header><a class="brand" href="#home" aria-label="MyPod Car Care home"><img src="logo.png" width="588" height="146" alt="MyPod Car Care"></a><nav class="nav" id="nav" aria-label="Main"><a href="#services">Services</a><a href="#how">How it works</a><a href="#contact">Visit &amp; contact</a><a href="#manage">My booking</a></nav><div class="actions"><button class="loc" id="hdrLoc" type="button" aria-label="Change location"><svg class="pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21Z"/><circle cx="12" cy="9.5" r="2.5"/></svg><span id="hdrLocT">Newtown</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button><a class="btn" href="#booking">Book now</a><button class="hamb" type="button" aria-label="Menu" aria-expanded="false" onclick="var n=document.getElementById('nav');this.setAttribute('aria-expanded',n.classList.toggle('open'))">☰</button></div></header>
 <main><section class="hero" id="home"><div class="wrap grid"><div class="hero-copy">
@@ -290,8 +309,8 @@ footer{background:transparent;padding:0;border-top:1px solid var(--line)}
 
 <section class="pane" data-pane="1">
 <div class="opts" role="radiogroup" aria-label="Service type">
-<label class="opt"><input type="radio" name="serviceMode" value="Doorstep" checked><span><b>🏠 Doorstep</b><small>We come to you in Newtown</small></span></label>
-<label class="opt"><input type="radio" name="serviceMode" value="Drive-through"><span><b>🚗 Drive-through</b><small>MyPod Detailing Studio</small></span></label>
+<label class="opt"><input type="radio" name="serviceMode" value="Doorstep" checked><span><img class="oimg" src="images/doorstep.svg" width="320" height="160" alt="" loading="lazy"><b>Doorstep</b><small>We come to you in Newtown</small></span></label>
+<label class="opt"><input type="radio" name="serviceMode" value="Drive-through"><span><img class="oimg" src="images/drivethrough.svg" width="320" height="160" alt="" loading="lazy"><b>Drive-through</b><small>MyPod Detailing Studio</small></span></label>
 </div>
 <div class="lbl">Your vehicle</div>
 <div class="opts" role="radiogroup" aria-label="Vehicle">
@@ -324,12 +343,12 @@ footer{background:transparent;padding:0;border-top:1px solid var(--line)}
 <input class="field" id="customerName" autocomplete="name" placeholder="Full name" style="margin-bottom:8px">
 <input class="field" id="customerPhone" type="tel" autocomplete="tel" inputmode="tel" placeholder="Mobile number (10 digits)" style="margin-bottom:8px">
 <input class="field" id="customerEmail" type="email" autocomplete="email" inputmode="email" placeholder="Email address (we send your confirmation here)" required>
-<div class="couponrow"><input class="field" id="couponCode" autocomplete="off" placeholder="Coupon code (optional)" maxlength="40"><button class="secondary-btn" type="button" id="applyCoupon">Apply</button></div>
+<div class="couponrow"><input class="field" id="couponCode" autocomplete="off" placeholder="Coupon code (required)" maxlength="40" required aria-required="true" autocapitalize="characters" spellcheck="false"><button class="secondary-btn" type="button" id="applyCoupon">Apply</button></div>
 <div class="small-note" id="couponMsg"></div>
 <div class="summary" id="summary" aria-live="polite"></div>
 <div class="nav2"><button class="btn ghost" type="button" data-back>← Back</button><button class="btn" type="submit" id="bookBtn">Confirm booking →</button></div>
 <div class="msg" id="msg" role="status" aria-live="polite"></div>
-<div class="fine">Your slot is confirmed only after the booking is saved. You get a booking ID right away.</div>
+<div class="fine">A valid MyPod coupon code is needed for every booking, doorstep or drive-through. Each coupon works once. Your slot is confirmed only after the booking is saved.</div>
 <div class="booking-result" id="bookingResult" role="status" aria-live="polite" tabindex="-1"></div>
 </section>
 </form>
@@ -419,6 +438,31 @@ const todayStr = () => ymd(new Date());
 function setMsg(el, text, cls){ el.textContent = text; el.className = (el.className.split(" ")[0]) + (cls ? " "+cls : ""); }
 function toast(s){ const el=$('toast'); el.textContent=s; el.classList.add('show'); clearTimeout(toast.t); toast.t=setTimeout(()=>el.classList.remove('show'),4200); }
 
+/* ---------- Haptics ---------- */
+/* Android (Chrome/Edge/Samsung Internet): Vibration API.
+   iPhone (Safari 17.4+, also the installed web app): Safari has no vibrate(), so a hidden "switch" checkbox is toggled,
+   which makes iOS play its system tap. Desktop and unsupported browsers ignore this quietly. */
+const haptic = (() => {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const canVibrate = typeof navigator.vibrate === "function";
+  const PATTERNS = { tick:[12], select:[8], medium:[22], success:[18,50,30], error:[45,60,45,60,70] };
+  let label = null;
+  function iosEl(){
+    if (label) return label;
+    const w = document.createElement('div'); w.className = "hsw"; w.setAttribute('aria-hidden','true');
+    w.innerHTML = '<input type="checkbox" id="hsw" switch tabindex="-1"><label for="hsw" tabindex="-1"></label>';
+    document.body.appendChild(w); label = w.querySelector('label'); return label;
+  }
+  function iosTaps(n){ const l = iosEl(); for (let i=0;i<n;i++) setTimeout(() => l.click(), i*75); }
+  return function(kind){
+    if (reduce) return;
+    try {
+      if (canVibrate) { navigator.vibrate(PATTERNS[kind] || PATTERNS.tick); return; }
+      iosTaps(kind==="success" ? 2 : kind==="error" ? 3 : 1);
+    } catch(e){}
+  };
+})();
+
 /* ---------- API (live Apps Script, or demo mode in the browser) ---------- */
 async function api(action, payload){
   const body = Object.assign({action, website: $('website').value}, payload);
@@ -447,19 +491,32 @@ function demoBackend(action, p){
     db.forEach(b => { if(active(b) && b.date===p.date && b.serviceMode===p.serviceMode) taken[b.time]=(taken[b.time]||0)+1; });
     return {ok:true, slots:SLOTS.map(t => ({time:t, available:!taken[t]}))};
   }
+  const PREFIX = {"Promotional Car Wash":"CW","Ceramic Protection":"CER","Paint Protection Film (PPF)":"PPF","Promotional Bike Wash":"BW"};
+  const OFFER = {CER:{t:"percent",v:20},PPF:{t:"percent",v:10},CW:{t:"fixed",v:299},BW:{t:"fixed",v:99}};
+  const usedCodes = () => db.filter(b => active(b) && b.couponCode).map(b => b.couponCode);
+  const demoCoupon = (code, serviceName) => {                 // demo accepts MP-CW-001 to MP-CW-200 style codes
+    const c = String(code).trim().toUpperCase(), m = /^MP-(CER|PPF|CW|BW)-(\d{3})$/.exec(c);
+    if (!m || +m[2] < 1 || +m[2] > 200) throw new Error("Coupon code not found. (Demo codes look like MP-CW-001)");
+    if (m[1] !== PREFIX[serviceName]) throw new Error("This coupon is not valid for " + serviceName + ".");
+    if (usedCodes().indexOf(c) >= 0) throw new Error("This coupon has already been used.");
+    return {code:c, offer:OFFER[m[1]]};
+  };
+  const demoDiscount = (o, price) => price==null ? 0 : o.t==="percent" ? Math.round(price*o.v/100) : Math.max(0, price - o.v);
   if (action === "validateCoupon") {
-    if (String(p.couponCode).trim().toUpperCase() !== "MP-CW-003") return {ok:false, message:"Coupon code not found. (Demo code: MP-CW-003)"};
-    const item = CATALOG[p.vehicleType].find(x => x.name===p.serviceName);
-    return {ok:true, code:"MP-CW-003", discount:item.price==null?0:Math.round(item.price*0.1), message:"10% off applied"};
+    try { const c = demoCoupon(p.couponCode, p.serviceName), item = CATALOG[p.vehicleType].find(x => x.name===p.serviceName);
+      return {ok:true, code:c.code, discount:demoDiscount(c.offer,item.price), message:c.offer.t==="percent" ? c.offer.v+"% off applied" : "Flyer offer "+inr(c.offer.v)+" applied"};
+    } catch(err){ return {ok:false, message:err.message}; }
   }
   if (action === "createBooking") {
     if (db.some(b => active(b) && b.date===p.date && b.time===p.time && b.serviceMode===p.serviceMode))
       return {ok:false, message:"Sorry, this slot was just booked. Please choose another time."};
     const item = CATALOG[p.vehicleType].find(x => x.name===p.serviceName);
-    const disc = p.couponCode ? Math.round((item.price||0)*0.1) : 0;
+    if (!String(p.couponCode||"").trim()) return {ok:false, message:"A valid coupon code is required to book."};
+    let c; try { c = demoCoupon(p.couponCode, p.serviceName); } catch(err){ return {ok:false, message:err.message}; }
+    const disc = demoDiscount(c.offer, item.price);
     const b = {bookingId:"MP-"+p.date.replace(/-/g,"")+"-"+Math.random().toString(36).slice(2,8).toUpperCase(), status:"Confirmed",
       customerName:p.customerName, email:p.customerEmail, phone:cleanPhone(p.customerPhone), serviceMode:p.serviceMode, address:p.address, vehicleType:p.vehicleType,
-      serviceName:p.serviceName, couponCode:p.couponCode||"", listPrice:item.price, discount:disc, price:item.price==null?null:item.price-disc, date:p.date, time:p.time};
+      serviceName:p.serviceName, couponCode:c.code, listPrice:item.price, discount:disc, price:item.price==null?null:item.price-disc, date:p.date, time:p.time};
     db.push(b); store.set('mypod_demo', JSON.stringify(db));
     return {ok:true, booking:b};
   }
@@ -567,7 +624,8 @@ function check2(){
   return null;
 }
 function nextStep(){
-  if(state.step===2){ const e=check2(); if(e){ setMsg($('msg2'),e[0],"bad"); if(e[1]&&e[1].focus) e[1].focus(); return; } setMsg($('msg2'),"",""); }
+  if(state.step===2){ const e=check2(); if(e){ haptic("error"); setMsg($('msg2'),e[0],"bad"); if(e[1]&&e[1].focus) e[1].focus(); return; } setMsg($('msg2'),"",""); }
+  haptic("tick");
   go(state.step+1);
 }
 function renderSvc(){
@@ -583,7 +641,7 @@ function renderSvc(){
 }
 function initWizard(){
   document.querySelectorAll('[data-next]').forEach(b=>b.addEventListener('click',nextStep));
-  document.querySelectorAll('[data-back]').forEach(b=>b.addEventListener('click',()=>go(state.step-1)));
+  document.querySelectorAll('[data-back]').forEach(b=>b.addEventListener('click',()=>{ haptic("select"); go(state.step-1); }));
   $('hdrLoc').addEventListener('click',openLoc); $('locOpen').addEventListener('click',openLoc);
   $('locEnable').addEventListener('click',useGPS); $('locUseTyped').addEventListener('click',useTyped); $('locClose').addEventListener('click',closeLoc);
   $('locModal').addEventListener('click',e=>{ if(e.target===$('locModal')) closeLoc(); });
@@ -643,8 +701,8 @@ async function applyCoupon(silent){
   try {
     const r = await api('validateCoupon', {couponCode:code, vehicleType:vehicle(), serviceName:service().name});
     state.coupon = {code:r.code, discount:r.discount};
-    setMsg($('couponMsg'), "✓ " + r.message, "ok");
-  } catch(err){ setMsg($('couponMsg'), err.message, "bad"); }
+    setMsg($('couponMsg'), "✓ " + r.message, "ok"); if (!silent) haptic("success");
+  } catch(err){ setMsg($('couponMsg'), err.message, "bad"); if (!silent) haptic("error"); }
   renderSummary();
 }
 function renderSummary(){
@@ -666,23 +724,30 @@ function restoreCustomer(){
     $('customerName').value=c.name||""; $('customerPhone').value=c.phone||""; $('customerEmail').value=c.email||""; $('address').value=c.address||""; $('landmark').value=c.landmark||"";
   }catch(e){}
 }
-function fail(msg, focusEl){ setMsg($('msg'), msg, "bad"); if(focusEl) focusEl.focus(); }
+function fail(msg, focusEl){ haptic("error"); setMsg($('msg'), msg, "bad"); if(focusEl) focusEl.focus(); }
 
 async function submitBooking(ev){
   ev.preventDefault();
   if (state.busy) return;
   if (state.step < 3) return nextStep();
   $('bookingResult').classList.remove('show');
-  const e = check2(); if (e) { go(2,true); setMsg($('msg2'), e[0], "bad"); return; }
+  const e = check2(); if (e) { haptic("error"); go(2,true); setMsg($('msg2'), e[0], "bad"); return; }
   if ($('customerName').value.trim().length < 2) return fail("Enter your full name.", $('customerName'));
   if (!validPhone($('customerPhone').value)) return fail("Enter a valid 10-digit mobile number.", $('customerPhone'));
   if (!validEmail($('customerEmail').value)) return fail("Enter a valid email address. We send your confirmation there.", $('customerEmail'));
+  // A valid coupon is required for every booking (doorstep and drive-through).
+  if (!$('couponCode').value.trim()) return fail("Enter your MyPod coupon code to book. A valid coupon is needed for doorstep and drive-through.", $('couponCode'));
+  if (!state.coupon || state.coupon.code.toUpperCase() !== $('couponCode').value.trim().toUpperCase()) {
+    state.busy = true; $('bookBtn').disabled = true; $('bookBtn').textContent = "Checking coupon…";
+    try { await applyCoupon(true); } finally { state.busy = false; $('bookBtn').disabled = false; $('bookBtn').textContent = "Confirm booking →"; }
+    if (!state.coupon) { return fail("That coupon cannot be used for this booking. " + ($('couponMsg').textContent || "Check the code and try again."), $('couponCode')); }
+  }
   const s = service(), door = mode()==="Doorstep", L = state.loc;
   const payload = {serviceMode:mode(), vehicleType:vehicle(), serviceName:s.name, couponCode:state.coupon?state.coupon.code:"",
     address: door ? ($('address').value.trim()+", "+$('addrArea').value.trim()) : STUDIO_ADDRESS, landmark: door ? $('landmark').value.trim() : "",
     lat: door && L && L.lat!=null ? L.lat : null, lng: door && L && L.lng!=null ? L.lng : null,
     date:$('date').value, time:state.slot, customerName:$('customerName').value.trim(), customerPhone:cleanPhone($('customerPhone').value), customerEmail:$('customerEmail').value.trim()};
-  unlockAudio();
+  unlockAudio(); haptic("medium");
   state.busy = true; $('bookBtn').disabled = true; $('bookBtn').textContent = "Saving your booking…"; setMsg($('msg'), "", "");
   try {
     const r = await api('createBooking', payload);
@@ -690,7 +755,7 @@ async function submitBooking(ev){
     setMsg($('msg'), "Booking confirmed. " + (LIVE ? "A confirmation email is on its way to " + $('customerEmail').value.trim() + "." : "Save your booking ID."), "ok");
     toast("Booking confirmed: " + r.booking.bookingId);
     loadSlots();
-  } catch(err){ setMsg($('msg'), err.message, "bad"); loadSlots(); }
+  } catch(err){ haptic("error"); setMsg($('msg'), err.message, "bad"); loadSlots(); }
   finally { state.busy=false; $('bookBtn').disabled=false; $('bookBtn').textContent="Confirm booking →"; }
 }
 
@@ -727,7 +792,7 @@ function showConfirmation(b, email){
   const box = $('bookingResult'); fillConfirmation(box, b); box.classList.add('show');
   fillConfirmation($('okBody'), b);
   $('okSub').textContent = (LIVE && email) ? "A confirmation email is on its way to " + email + "." : "Save your booking ID. You will need it to manage this booking.";
-  openModal(); playChime();
+  openModal(); playChime(); haptic("success"); celebrate();
 }
 
 /* ---------- Success pop-up and sound ---------- */
@@ -746,7 +811,6 @@ function playChime(){
       g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.22, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, end);
       o.connect(g); g.connect(actx.destination); o.start(t); o.stop(end + 0.05);
     });
-    if (navigator.vibrate) navigator.vibrate([60, 40, 60]);
   } catch(e){}
 }
 function openModal(){
@@ -807,6 +871,8 @@ $('date').addEventListener('change', () => { syncQuick(); loadSlots(); });
 $('applyCoupon').addEventListener('click', () => applyCoupon(false));
 $('couponCode').addEventListener('input', () => { state.coupon=null; setMsg($('couponMsg'),"",""); renderSummary(); });
 $('booking').addEventListener('submit', submitBooking);
+$('booking').addEventListener('change', e => { if (e.target.matches('input[type="radio"]')) haptic("select"); });
+$('quickDates').addEventListener('click', e => { if (e.target.closest('button')) haptic("select"); });
 $('manageForm').addEventListener('submit', findBooking);
 onMode(); renderSummary(); initWizard();
 
@@ -882,4 +948,56 @@ async function loadNextSlot(){
   } catch(e) { /* keep the default text */ }
 }
 renderServiceCards(); loadNextSlot();
+
+/* ---------- Booking celebration: confetti + animated message for 10 seconds ---------- */
+const CELEBRATION_TITLE = "Thank you!";                                    // change these two lines to your own words
+const CELEBRATION_LINE  = "Your booking is confirmed. Team MyPod will take care of the rest.";
+const CELEBRATION_MS    = 10000;
+function celebrate(){
+  try {
+    const old = document.getElementById('cele'); if (old) old.remove();
+    const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const root = document.createElement('div'); root.className = "cele"; root.id = "cele"; root.setAttribute('aria-hidden','true');
+    const ban = document.createElement('div'); ban.className = "cele-banner";
+    const t = document.createElement('div'); t.className = "cele-title";
+    [...CELEBRATION_TITLE].forEach((ch,i) => { const sp = document.createElement('span'); if (ch === " ") sp.className = "sp"; sp.textContent = ch === " " ? "\u00a0" : ch; sp.style.animationDelay = (0.15 + i*0.055) + "s"; t.appendChild(sp); });
+    const l = document.createElement('p'); l.className = "cele-line"; l.textContent = CELEBRATION_LINE;
+    const bar = document.createElement('div'); bar.className = "cele-bar"; bar.appendChild(document.createElement('i'));
+    ban.append(t, l, bar);
+    let cv = null, raf = 0;
+    if (!reduce) { cv = document.createElement('canvas'); root.appendChild(cv); }
+    root.appendChild(ban); document.body.appendChild(root);
+
+    if (cv) {
+      const ctx = cv.getContext('2d'), dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const size = () => { cv.width = innerWidth*dpr; cv.height = innerHeight*dpr; ctx.setTransform(dpr,0,0,dpr,0,0); };
+      size(); addEventListener('resize', size);
+      const COLORS = ["#ffd51b","#ffffff","#35e08a","#ff9f1c","#7fd0ff","#ff5c8a"], parts = [];
+      const make = (x,y,vx,vy) => parts.push({x,y,vx,vy,w:6+Math.random()*7,h:4+Math.random()*6,r:Math.random()*6.28,vr:(Math.random()-.5)*.35,c:COLORS[(Math.random()*COLORS.length)|0],life:0,round:Math.random()<.25});
+      const burst = (x,y,dir) => { for (let i=0;i<70;i++){ const a = (-Math.PI/2) + dir*(Math.random()*0.9) + (Math.random()-.5)*0.4, v = 9 + Math.random()*10; make(x,y,Math.cos(a)*v,Math.sin(a)*v); } };
+      const start = performance.now();
+      burst(0, innerHeight, 0.9); burst(innerWidth, innerHeight, -0.9);
+      setTimeout(() => { burst(innerWidth*0.2, innerHeight, 0.4); burst(innerWidth*0.8, innerHeight, -0.4); }, 900);
+      setTimeout(() => { burst(0, innerHeight, 0.9); burst(innerWidth, innerHeight, -0.9); }, 2400);
+      const frame = now => {
+        const age = now - start;
+        ctx.clearRect(0,0,innerWidth,innerHeight);
+        if (age < CELEBRATION_MS - 3000 && Math.random() < 0.55) make(Math.random()*innerWidth, -12, (Math.random()-.5)*2, 2+Math.random()*3);   // gentle rain
+        const fade = age > CELEBRATION_MS - 1200 ? Math.max(0, (CELEBRATION_MS - age)/1200) : 1;
+        for (let i = parts.length-1; i >= 0; i--) {
+          const p = parts[i]; p.life++; p.vy += 0.22; p.vx *= 0.992; p.vy *= 0.992; p.x += p.vx; p.y += p.vy; p.r += p.vr;
+          if (p.y > innerHeight + 30) { parts.splice(i,1); continue; }
+          ctx.save(); ctx.globalAlpha = fade; ctx.translate(p.x,p.y); ctx.rotate(p.r); ctx.fillStyle = p.c;
+          if (p.round) { ctx.beginPath(); ctx.arc(0,0,p.w/2,0,6.28); ctx.fill(); } else ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);
+          ctx.restore();
+        }
+        if (age < CELEBRATION_MS) raf = requestAnimationFrame(frame);
+      };
+      raf = requestAnimationFrame(frame);
+      root._stop = () => { cancelAnimationFrame(raf); removeEventListener('resize', size); };
+    }
+    setTimeout(() => ban.classList.add('out'), CELEBRATION_MS - 600);
+    setTimeout(() => { if (root._stop) root._stop(); root.remove(); }, CELEBRATION_MS);
+  } catch(e) { /* the celebration is decoration; never block the booking */ }
+}
 </script></body></html>
