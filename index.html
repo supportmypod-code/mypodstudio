@@ -494,9 +494,9 @@ function demoBackend(action, p){
   const PREFIX = {"Promotional Car Wash":"CW","Ceramic Protection":"CER","Paint Protection Film (PPF)":"PPF","Promotional Bike Wash":"BW"};
   const OFFER = {CER:{t:"percent",v:20},PPF:{t:"percent",v:10},CW:{t:"fixed",v:299},BW:{t:"fixed",v:99}};
   const usedCodes = () => db.filter(b => active(b) && b.couponCode).map(b => b.couponCode);
-  const demoCoupon = (code, serviceName) => {                 // demo accepts MP-CW-001 to MP-CW-200 style codes
+  const demoCoupon = (code, serviceName) => {                 // demo accepts MP-CW-001 to MP-CW-300 style codes
     const c = String(code).trim().toUpperCase(), m = /^MP-(CER|PPF|CW|BW)-(\d{3})$/.exec(c);
-    if (!m || +m[2] < 1 || +m[2] > 200) throw new Error("Coupon code not found. (Demo codes look like MP-CW-001)");
+    if (!m || +m[2] < 1 || +m[2] > 300) throw new Error("Coupon code not found. (Demo codes look like MP-CW-001)");
     if (m[1] !== PREFIX[serviceName]) throw new Error("This coupon is not valid for " + serviceName + ".");
     if (usedCodes().indexOf(c) >= 0) throw new Error("This coupon has already been used.");
     return {code:c, offer:OFFER[m[1]]};
