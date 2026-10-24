@@ -37,17 +37,57 @@ header{position:sticky;top:0;z-index:30;height:68px;display:flex;align-items:cen
 .field{width:100%;padding:13px 12px;border:1px solid #3a3f46;border-radius:10px;background:#16191d;color:var(--text);outline:none}.field:focus{border-color:var(--y)}
 .msg{font-size:12px;color:var(--y);min-height:17px;margin-top:9px}.hsw{position:fixed;left:0;top:0;width:1px;height:1px;opacity:0;overflow:hidden;pointer-events:none}.fine{text-align:center;color:var(--muted);font-size:11px;margin-top:10px}
 .lead{color:var(--muted);line-height:1.65;max-width:560px}
-.lpill{position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);left:50%;z-index:70;transform:translate(-50%,-140%);opacity:0;pointer-events:none;background:#000;color:#fff;border:1px solid #1d1f23;border-radius:999px;padding:8px 10px 8px 18px;display:flex;align-items:center;gap:14px;min-width:min(300px,calc(100% - 24px));max-width:calc(100% - 24px);box-shadow:0 10px 40px rgba(0,0,0,.7);transition:transform .5s cubic-bezier(.2,1.2,.3,1),opacity .3s,min-width .35s;font:inherit;cursor:pointer}
-.lpill.show{transform:translate(-50%,0);opacity:1;pointer-events:auto}
-.lpill b{font-weight:800;font-size:17px;letter-spacing:-.3px;flex:1;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.lpill b i{font-style:normal;color:var(--y)}
-.lpill small{display:block;font-size:11px;font-weight:500;color:#9aa0a6;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lpill{position:fixed;top:calc(env(safe-area-inset-top,0px) + 76px);left:50%;z-index:70;width:min(300px,calc(100% - 24px));transform:translate(-50%,-26px) scale(.55);opacity:0;pointer-events:none;background:#000;border:1px solid #23262b;border-radius:30px;box-shadow:0 12px 40px rgba(0,0,0,.75);overflow:hidden;color:#fff;transition:transform .65s cubic-bezier(.2,1.3,.3,1),opacity .3s,width .45s cubic-bezier(.2,1,.3,1),border-radius .45s,border-color .3s}
+.lpill.show{transform:translate(-50%,0) scale(1);opacity:1;pointer-events:auto}
+.lpill.soon{animation:lpglow 2.4s ease-in-out infinite}
+@keyframes lpglow{50%{box-shadow:0 12px 40px rgba(0,0,0,.75),0 0 0 6px rgba(46,204,89,.2)}}
+.lpill.open{width:min(380px,calc(100% - 24px));border-radius:26px;border-color:#6b5d10;animation:none;max-height:calc(100vh - 92px - env(safe-area-inset-top,0px));max-height:calc(100dvh - 92px - env(safe-area-inset-top,0px));overflow-y:auto;overscroll-behavior:contain}
+.lp-scrim{position:fixed;inset:0;z-index:69;background:rgba(0,0,0,.5);backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:opacity .35s}
+.lp-scrim.on{opacity:1;pointer-events:auto}
+.lp-bar{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:10px;width:100%;padding:8px 10px 8px 16px;cursor:pointer}
+.lp-bar:focus-visible{outline:2px solid var(--y);outline-offset:-3px;border-radius:30px}
+.lp-live{flex:none;width:9px;height:9px;border-radius:50%;background:#2ecc59;animation:lpping 1.8s infinite}
+@keyframes lpping{0%{box-shadow:0 0 0 0 rgba(46,204,89,.6)}70%,100%{box-shadow:0 0 0 9px rgba(46,204,89,0)}}
+.lp-txt{flex:1;min-width:0;display:block}
+.lp-txt b{display:block;font-weight:800;font-size:15px;color:var(--y);letter-spacing:-.2px}
+.lp-txt small{display:block;font-size:11.5px;color:#9aa0a6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .lring{position:relative;flex:none;height:34px;min-width:84px;display:grid;place-items:center;padding:0 14px}
 .lring svg{position:absolute;inset:0;width:100%;height:100%}
 .lring rect{fill:none;stroke-width:3}
-.lring .tr{stroke:#1a3a22}.lring .pr{stroke:#2ecc59;stroke-linecap:round;transition:stroke-dashoffset .6s}
+.lring .tr{stroke:#1a3a22}.lring .pr{stroke:#2ecc59;stroke-linecap:round;transition:stroke-dashoffset .8s}
 .lring span{position:relative;font-weight:800;font-size:13px;white-space:nowrap}
-@media (prefers-reduced-motion:reduce){.lpill{transition:opacity .2s}}
+.lp-panel{display:grid;grid-template-rows:0fr;visibility:hidden;transition:grid-template-rows .5s cubic-bezier(.2,1,.3,1),visibility 0s .5s}
+.lpill.open .lp-panel{grid-template-rows:1fr;visibility:visible;transition-delay:0s}
+.lp-in{overflow:hidden;min-height:0}
+.lp-body{padding:6px 16px 16px;opacity:0;transform:translateY(-10px);transition:opacity .3s,transform .45s}
+.lpill.open .lp-body{opacity:1;transform:none;transition-delay:.12s}
+.lp-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px}
+.lp-top b{display:block;font-size:17px}.lp-top small{color:#8a8f96;font-size:12px}
+.lp-chip{flex:none;font-size:11px;font-weight:800;padding:4px 9px;border-radius:99px;background:#12361d;color:#4be37a}
+.lp-det{margin:0 0 4px;display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:13px}
+.lp-det dt{color:#8a8f96}.lp-det dd{margin:0;color:#fff;font-weight:600;overflow-wrap:anywhere}
+.lp-body h5{margin:16px 0 8px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--y)}
+.lp-track{list-style:none;margin:0;padding:0}
+.lp-track li{position:relative;display:flex;gap:12px;padding:0 0 14px;font-size:13px;color:#7d828a}
+.lp-track li:last-child{padding-bottom:0}
+.lp-track li::before{content:"";position:absolute;left:8px;top:18px;bottom:-2px;width:2px;background:#26292e}
+.lp-track li:last-child::before{display:none}
+.lp-track li.done::before{background:#2ecc59}
+.lp-track i{flex:none;width:18px;height:18px;border-radius:50%;border:2px solid #3a3f46;background:#000;display:grid;place-items:center;font-style:normal;font-size:10px;line-height:1;color:#000}
+.lp-track li.done{color:#fff}.lp-track li.done i{background:#2ecc59;border-color:#2ecc59}
+.lp-track li.now{color:#fff}.lp-track li.now i{border-color:var(--y);animation:lpnow 1.6s infinite}
+@keyframes lpnow{0%{box-shadow:0 0 0 0 rgba(255,213,27,.55)}70%,100%{box-shadow:0 0 0 8px rgba(255,213,27,0)}}
+.lp-track b{display:block;font-weight:700}.lp-track small{display:block;font-size:11.5px;color:#8a8f96;margin-top:1px}
+.lp-note{margin:10px 0 0;font-size:11.5px;color:#7d828a;line-height:1.5}
+.lp-mgr{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;align-items:center;padding:12px;border:1px solid #2a2a2a;border-radius:14px;background:#0d0d0d}
+.lp-mgr .av{grid-row:1/3;width:40px;height:40px;border-radius:50%;background:var(--y);color:#111;display:grid;place-items:center;font-weight:900;font-size:17px}
+.lp-mgr b{font-size:14px}.lp-mgr small{color:#9aa0a6;font-size:12.5px}
+.lp-mgr .btns{grid-column:1/3;display:flex;gap:8px;margin-top:8px}
+.lp-mgr .btns a,.lp-act button{flex:1;text-align:center;padding:10px;border-radius:10px;border:1px solid #444;background:#1a1a1a;color:#fff;font:inherit;font-size:13px;font-weight:700;text-decoration:none;cursor:pointer}
+.lp-mgr .btns a.call{background:var(--y);border-color:var(--y);color:#111}
+.lp-act{display:flex;gap:8px;margin-top:12px}
+.lp-hide{all:unset;display:block;margin:12px auto 0;font-size:12px;color:#7d828a;cursor:pointer;text-decoration:underline}
+@media (prefers-reduced-motion:reduce){.lpill,.lp-panel,.lp-body{transition-duration:.01s!important}.lpill.soon,.lp-live,.lp-track li.now i{animation:none}}
 .acctbtn{position:relative;display:inline-flex;align-items:center;gap:7px;padding:9px 12px;border-radius:10px;border:1px solid var(--line2);background:rgba(255,255,255,.04);color:var(--text);font:inherit;font-weight:600;font-size:13px;cursor:pointer}
 .acctbtn:hover{border-color:var(--y);color:var(--y)}.acctbtn svg{width:17px;height:17px}
 .dot{display:inline-grid;place-items:center;min-width:17px;height:17px;padding:0 5px;border-radius:9px;background:#ff4d4d;color:#fff;font-size:11px;font-weight:800;font-style:normal;margin-left:6px}
@@ -548,15 +588,13 @@ function demoBackend(action, p){
     db.forEach(b => { if(active(b) && b.date===p.date && b.serviceMode===p.serviceMode) taken[b.time]=(taken[b.time]||0)+1; });
     return {ok:true, slots:SLOTS.map(t => ({time:t, available:!taken[t]}))};
   }
-  const PREFIX = {"Promotional Car Wash":"CW","Ceramic Protection":"CER","Paint Protection Film (PPF)":"PPF","Promotional Bike Wash":"BW"};
-  const OFFER = {CER:{t:"percent",v:20},PPF:{t:"percent",v:10},CW:{t:"fixed",v:299},BW:{t:"fixed",v:99}};
+  const TEST_CODE = "MPTEST-4829", OFFER = {t:"percent", v:50};     // demo preview has just this one single-use test coupon
   const usedCodes = () => db.filter(b => active(b) && b.couponCode).map(b => b.couponCode);
-  const demoCoupon = (code, serviceName) => {                 // demo accepts MP-CW-001 to MP-CW-300 style codes
-    const c = String(code).trim().toUpperCase(), m = /^MP-(CER|PPF|CW|BW)-(\d{3})$/.exec(c);
-    if (!m || +m[2] < 1 || +m[2] > 300) throw new Error("Coupon code not found. (Demo codes look like MP-CW-001)");
-    if (m[1] !== PREFIX[serviceName]) throw new Error("This coupon is not valid for " + serviceName + ".");
+  const demoCoupon = (code, serviceName) => {
+    const c = String(code).trim().toUpperCase();
+    if (c !== TEST_CODE) throw new Error("Coupon code not found.");
     if (usedCodes().indexOf(c) >= 0) throw new Error("This coupon has already been used.");
-    return {code:c, offer:OFFER[m[1]]};
+    return {code:c, offer:OFFER};
   };
   const demoDiscount = (o, price) => price==null ? 0 : o.t==="percent" ? Math.round(price*o.v/100) : Math.max(0, price - o.v);
   if (action === "validateCoupon") {
@@ -913,39 +951,83 @@ function showConfirmation(b, email){
   openModal(); playChime(); haptic("success"); celebrate();
 }
 
-/* ---------- Live booking pill (Dynamic Island style) ---------- */
+/* ---------- Live booking pill: tap to open details, tracking and the service manager ---------- */
 const livePill = (() => {
-  const KEY = "mypod_live_booking"; let el, timer, data;
+  const KEY="mypod_live_booking", HIDE="mypod_pill_hidden", H=3600000;
+  const MGR_NAME="Chanchal Hazra", MGR_MAIL="supportmypod@gmail.com";
+  const wn="918167504253", MGR_TEL="+"+wn, MGR_SHOW="+91 81675 04253";   // service manager
+  let el, scrim, timer, data, open=false;
   const startMs = b => { const [y,m,d]=b.date.split("-"), t=/(\d+):(\d+) (AM|PM)/.exec(b.time); let h=+t[1]%12; if(t[3]==="PM")h+=12; return new Date(+y,+m-1,+d,h,+t[2]).getTime(); };
+  const f = k => el.querySelector('[data-f="'+k+'"]');
+  const dayText = b => { const [y,m,d]=b.date.split("-"); return new Date(+y,+m-1,+d).toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'}); };
   function build(){
-    el = document.createElement('button'); el.type="button"; el.className="lpill"; el.setAttribute('aria-live','polite');
-    el.innerHTML = '<b><i>MyPod</i><small></small></b><div class="lring"><svg aria-hidden="true"><rect class="tr" x="1.5" y="1.5" rx="16" pathLength="100"/><rect class="pr" x="1.5" y="1.5" rx="16" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100"/></svg><span></span></div>';
+    scrim=document.createElement('div'); scrim.className="lp-scrim"; document.body.appendChild(scrim);
+    el=document.createElement('div'); el.className="lpill"; el.setAttribute('role','region'); el.setAttribute('aria-label','Your upcoming booking');
+    el.innerHTML='<button class="lp-bar" type="button" aria-expanded="false" aria-controls="lpPanel"><i class="lp-live" aria-hidden="true"></i><span class="lp-txt"><b>MyPod</b><small data-f="sub"></small></span><span class="lring"><svg aria-hidden="true"><rect class="tr" x="1.5" y="1.5" rx="16" pathLength="100"/><rect class="pr" x="1.5" y="1.5" rx="16" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100"/></svg><span data-f="ring"></span></span></button>'+
+    '<div class="lp-panel" id="lpPanel"><div class="lp-in"><div class="lp-body">'+
+    '<div class="lp-top"><div><b data-f="svc"></b><small data-f="id"></small></div><span class="lp-chip" data-f="chip"></span></div>'+
+    '<dl class="lp-det"><dt>When</dt><dd data-f="when"></dd><dt>Where</dt><dd data-f="where"></dd><dt>Amount</dt><dd data-f="amt"></dd></dl>'+
+    '<h5>Tracking</h5><ol class="lp-track" data-f="track"></ol><p class="lp-note">Status follows your booked time. For the crew\'s live location, call the service manager.</p>'+
+    '<h5>Service manager</h5><div class="lp-mgr"><span class="av" aria-hidden="true">C</span><b></b><small data-f="phone"></small><div class="btns"><a class="call" data-f="call">Call</a><a data-f="wa" target="_blank" rel="noopener">WhatsApp</a></div></div>'+
+    '<div class="lp-act"><button type="button" data-f="cal">Add to calendar</button><button type="button" data-f="mine">My bookings</button></div>'+
+    '<button type="button" class="lp-hide" data-f="hide">Hide this alert</button></div></div></div>';
     document.body.appendChild(el);
-    const sizeRects = () => { const r=el.querySelector('.lring').getBoundingClientRect(); el.querySelectorAll('rect').forEach(x=>{x.setAttribute('width',Math.max(r.width-3,0));x.setAttribute('height',Math.max(r.height-3,0));}); };
-    el._size = sizeRects;
-    el.addEventListener('click', () => { const x=$('bookingResult'); if (x && x.classList.contains('show')) x.scrollIntoView({behavior:"smooth",block:"center"}); else el.classList.remove('show'); });
+    el.querySelector('.lp-mgr b').textContent=MGR_NAME;
+    f('phone').textContent=(MGR_SHOW||"")+(MGR_SHOW?" · ":"")+MGR_MAIL;
+    if(MGR_TEL){ f('call').href="tel:"+MGR_TEL; } else f('call').hidden=true;
+    f('wa').href=wn?"https://wa.me/"+wn+"?text="+encodeURIComponent("Hi Chanchal, about my MyPod booking"):"#"; if(!wn) f('wa').hidden=true;
+    el.querySelector('.lp-bar').addEventListener('click',()=>toggle());
+    scrim.addEventListener('click',()=>toggle(false));
+    addEventListener('keydown',e=>{ if(e.key==="Escape"&&open) toggle(false); });
+    f('cal').addEventListener('click',()=>{ if(!data) return; const url=URL.createObjectURL(new Blob([icsFor(Object.assign({address:"MyPod"},data))],{type:"text/calendar"})); const a=document.createElement('a'); a.href=url; a.download=data.bookingId+".ics"; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),1000); });
+    f('mine').addEventListener('click',()=>{ toggle(false); if(typeof acct!=='undefined') acct.open('up'); });
+    f('hide').addEventListener('click',()=>{ toggle(false); try{sessionStorage.setItem(HIDE,data.bookingId);}catch(e){} setTimeout(()=>el.classList.remove('show'),250); });
   }
-  function label(ms){
-    if (ms <= 0) return "Now";
-    const m = Math.ceil(ms/60000);
-    if (m < 60) return m + " min" + (m===1?"":"s");
-    const h = Math.floor(m/60); if (h < 24) return h + "h " + (m%60) + "m";
-    return Math.ceil(ms/864e5) + " days";
+  function toggle(force){
+    open = force===undefined ? !open : force;
+    el.classList.toggle('open',open); scrim.classList.toggle('on',open); el.querySelector('.lp-bar').setAttribute('aria-expanded',String(open));
+    try{ haptic("select"); }catch(e){} tick();
+  }
+  function size(){ const r=el.querySelector('.lring'); el.querySelectorAll('rect').forEach(x=>{ x.setAttribute('width',Math.max(r.offsetWidth-3,0)); x.setAttribute('height',Math.max(r.offsetHeight-3,0)); }); }
+  function label(ms){ const m=Math.ceil(ms/60000); if(m<60) return m+" min"+(m===1?"":"s"); const h=Math.floor(m/60); if(h<24) return h+"h "+(m%60)+"m"; return Math.ceil(ms/864e5)+" days"; }
+  function steps(d,now){
+    const at=startMs(d), left=at-now, door=d.serviceMode!=="Drive-through";
+    const list=[
+      {t:"Booking confirmed",s:d.bookingId,done:true},
+      {t:"Reminder sent",s:"We email you 24 hours and 1 hour before",done:left<=24*H},
+      {t:door?"Crew on the way":"Head to the studio",s:door?"About 30 minutes before your slot":"Arrive a few minutes early",done:left<=30*60000},
+      {t:"Service in progress",s:"Your car is being cared for",done:now>=at},
+      {t:"Completed",s:"Thank you for choosing MyPod",done:now>=at+60*60000}];
+    const cur=list.findIndex(x=>!x.done); return {list,cur};
   }
   function tick(){
-    if (!data) return; const now=Date.now(), at=startMs(data), left=at-now;
-    if (now > at + 3600e3) { clear(); return; }
-    const frac = Math.min(1, Math.max(0.04, (now-data.created)/Math.max(at-data.created,1)));
-    el.querySelector('.pr').style.strokeDashoffset = String(100 - frac*100);
-    el.querySelector('.lring span').textContent = left > 0 ? label(left) : "In progress";
-    el.querySelector('small').textContent = data.serviceName + " · " + data.time;
-    el._size();
+    if(!data||!el) return; const now=Date.now(), at=startMs(data), left=at-now;
+    if(now>at+2*H){ clear(); return; }
+    const created=data.created||now-864e5, frac=left<=0?1:Math.min(1,Math.max(0.04,(now-created)/Math.max(at-created,1)));
+    el.querySelector('.pr').style.strokeDashoffset=String(100-frac*100);
+    f('ring').textContent=left>0?label(left):now<at+60*60000?"In progress":"Done";
+    f('sub').textContent=data.serviceName+" · "+data.time;
+    el.classList.toggle('soon',left>0&&left<=H);
+    f('svc').textContent=data.serviceName; f('id').textContent="Booking ID "+data.bookingId;
+    f('chip').textContent=left>0?"Upcoming":now<at+60*60000?"In progress":"Completed";
+    f('when').textContent=dayText(data)+" · "+data.time;
+    f('where').textContent=data.serviceMode==="Drive-through"?"MyPod Studio, Action Area I, Newtown":(data.address||"Your doorstep");
+    f('amt').textContent=data.price==null?"Final quote by MyPod":inr(data.price);
+    if(open){
+      const tr=f('track'), st=steps(data,now); tr.textContent="";
+      st.list.forEach((x,i)=>{ const li=document.createElement('li'); li.className=x.done?"done":i===st.cur?"now":""; const ic=document.createElement('i'); ic.textContent=x.done?"✓":""; const w=document.createElement('div'); const b=document.createElement('b'); b.textContent=x.t; const sm=document.createElement('small'); sm.textContent=x.s; w.append(b,sm); li.append(ic,w); tr.appendChild(li); });
+    }
+    size();
   }
-  function show(b){ data=b; if(!el) build(); el.classList.add('show'); tick(); clearInterval(timer); timer=setInterval(tick,30000); }
-  function clear(){ data=null; clearInterval(timer); if(el) el.classList.remove('show'); try{localStorage.removeItem(KEY);}catch(e){} }
+  function show(b){
+    try{ if(sessionStorage.getItem(HIDE)===b.bookingId) return; }catch(e){}
+    data=b; if(!el) build(); void el.offsetWidth; el.classList.add('show'); tick(); setTimeout(size,700);
+    clearInterval(timer); timer=setInterval(tick,30000);
+  }
+  function clear(){ data=null; open=false; clearInterval(timer); if(el){ el.classList.remove('show','open','soon'); scrim.classList.remove('on'); } try{localStorage.removeItem(KEY);}catch(e){} }
   return {
-    set(b){ const d={bookingId:b.bookingId,serviceName:b.serviceName,date:b.date,time:b.time,created:Date.now()}; try{ startMs(d); }catch(e){ return; } store.set(KEY,JSON.stringify(d)); setTimeout(()=>show(d),700); },
-    restore(){ try{ const d=JSON.parse(store.get(KEY)||"null"); if(d && d.date && d.time && Date.now() < startMs(d)+3600e3) show(d); else if(d) clear(); }catch(e){} }
+    set(b){ const d={bookingId:b.bookingId,serviceName:b.serviceName,date:b.date,time:b.time,serviceMode:b.serviceMode,address:b.address,price:b.price,vehicleType:b.vehicleType,created:Date.now()}; try{ startMs(d); }catch(e){ return; } try{sessionStorage.removeItem(HIDE);}catch(e){} store.set(KEY,JSON.stringify(d)); setTimeout(()=>show(d),700); },
+    restore(){ try{ const d=JSON.parse(store.get(KEY)||"null"); if(d&&d.date&&d.time&&Date.now()<startMs(d)+2*H) show(d); else if(d) clear(); }catch(e){} }
   };
 })();
 window.addEventListener('load', () => livePill.restore());
@@ -1066,7 +1148,7 @@ const acct = (() => {
 document.querySelectorAll('a.brand').forEach(a => a.addEventListener('click', e => { e.preventDefault(); window.scrollTo(0,0); location.reload(); }));
 (function(){
   const el=$('ptr'), TRIGGER=90, MAX=130; let y0=null, dy=0, busy=false;
-  const blocked = t => document.body.style.overflow==="hidden" || (t.closest && t.closest('input,textarea,select,.isheet,.modal-card,.locsug'));
+  const blocked = t => document.body.style.overflow==="hidden" || (t.closest && t.closest('input,textarea,select,.isheet,.modal-card,.locsug,.lpill'));
   addEventListener('touchstart', e => { y0=null; if(busy||e.touches.length!==1||window.scrollY>0||blocked(e.target)) return; y0=e.touches[0].clientY; dy=0; }, {passive:true});
   addEventListener('touchmove', e => {
     if(y0===null) return; dy=e.touches[0].clientY-y0;
