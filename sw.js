@@ -1,5 +1,5 @@
 /* MyPod service worker. Bump VERSION on every release so customers get the new files. */
-const VERSION = "mypod-v7";
+const VERSION = "mypod-v8";
 const CORE = ["./", "index.html", "manifest.webmanifest", "logo.png", "icons/icon-192.png", "icons/icon-512.png"];
 self.addEventListener("install", e => e.waitUntil(caches.open(VERSION).then(c => c.addAll(CORE)).then(() => self.skipWaiting())));
 self.addEventListener("activate", e => e.waitUntil(caches.keys().then(k => Promise.all(k.filter(x => x !== VERSION).map(x => caches.delete(x)))).then(() => self.clients.claim())));

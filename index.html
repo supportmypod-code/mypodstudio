@@ -428,7 +428,8 @@ body{touch-action:pan-y pinch-zoom}
 <input class="field" id="customerName" autocomplete="name" placeholder="Full name" style="margin-bottom:8px">
 <input class="field" id="customerPhone" type="tel" autocomplete="tel" inputmode="tel" placeholder="Mobile number (10 digits)" style="margin-bottom:8px">
 <input class="field" id="customerEmail" type="email" autocomplete="email" inputmode="email" placeholder="Email address (we send your confirmation here)" required>
-<div class="couponrow"><input class="field" id="couponCode" autocomplete="off" placeholder="Coupon code (required)" maxlength="40" required aria-required="true" autocapitalize="characters" spellcheck="false"><button class="secondary-btn" type="button" id="applyCoupon">Apply</button></div>
+<div class="couponrow"><input class="field" id="couponCode" autocomplete="off" placeholder="Coupon code (e.g. MP-CW-132)" maxlength="40" required aria-required="true" aria-describedby="couponHint" autocapitalize="characters" spellcheck="false"><button class="secondary-btn" type="button" id="applyCoupon">Apply</button></div>
+<div class="small-note" id="couponHint">Enter the code printed on your flyer. Spaces or “dash” are accepted; we’ll format it for you (for example, MP-CW-132).</div>
 <div class="small-note" id="couponMsg"></div>
 <div class="summary" id="summary" aria-live="polite"></div>
 <div class="nav2"><button class="btn ghost" type="button" data-back>← Back</button><button class="btn" type="submit" id="bookBtn">Confirm booking →</button></div>
@@ -510,7 +511,8 @@ const store = {
   get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } },
   set(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
 };
-const SLOTS = ["8:30 AM","9:15 AM","10:00 AM","10:45 AM","11:30 AM","12:15 PM","1:00 PM","1:45 PM","2:30 PM","3:15 PM","4:00 PM","4:45 PM"];
+const SLOTS = ["8:30 AM","9:15 AM","10:00 AM","10:45 AM","11:30 AM","12:15 PM","1:00 PM","1:45 PM","2:30 PM","3:15 PM","4:00 PM","4:45 PM","5:30 PM","6:00 PM"];
+const LAST_SLOT_MINUTES = 18 * 60;
 const CATALOG = {
   Car: [
     {name:"Promotional Car Wash", price:299,  detail:"Flyer offer · ₹299"},
@@ -822,6 +824,19 @@ function buildQuickDates(){
 function syncQuick(){ document.querySelectorAll('#quickDates button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.date===$('date').value))); }
 function slotMinutes(t){ const m=/(\d+):(\d+) (AM|PM)/.exec(t); let h=+m[1]%12; if(m[3]==="PM")h+=12; return h*60+ +m[2]; }
 function isPast(t){ if($('date').value!==todayStr())return false; const n=new Date(); return slotMinutes(t) < n.getHours()*60+n.getMinutes()+60; }
+function normalizeCouponCode(value){
+  const raw=String(value||"").trim().toUpperCase();
+  const compact=raw.replace(/\bAUTO\b|\bDASH\b/g,"").replace(/[\s‐‑‒–—-]+/g,"");
+  const match=/^MP(CER|PPF|CW|BW)(\d{1,3})$/.exec(compact);
+  if(!match) return raw;
+  const number=Number(match[2]);
+  return number>=1&&number<=300 ? "MP-"+match[1]+"-"+String(number).padStart(3,"0") : raw;
+}
+function formatCouponInput(){
+  const input=$('couponCode'), formatted=normalizeCouponCode(input.value);
+  if(formatted!==input.value) input.value=formatted;
+  return formatted;
+}
 
 async function loadSlots(){
   state.slot=""; renderSummary();
@@ -836,7 +851,7 @@ async function loadSlots(){
     if (seq !== state.seq) return;
     box.innerHTML = "";
     let open = 0;
-    r.slots.forEach(s => {
+    r.slots.filter(s => slotMinutes(s.time) <= LAST_SLOT_MINUTES).forEach(s => {
       const off = !s.available || isPast(s.time); if(!off) open++;
       const label = document.createElement('label'); label.className="chip";
       const input = document.createElement('input'); input.type="radio"; input.name="slot"; input.value=s.time; input.disabled=off;
@@ -850,7 +865,7 @@ async function loadSlots(){
 
 /* ---------- Coupon and price summary ---------- */
 async function applyCoupon(silent){
-  const code = $('couponCode').value.trim();
+  const code = formatCouponInput();
   state.coupon = null;
   if (!code) { setMsg($('couponMsg'), "", ""); renderSummary(); return; }
   setMsg($('couponMsg'), "Checking coupon…", "");
@@ -893,7 +908,8 @@ async function submitBooking(ev){
   if (!validEmail($('customerEmail').value)) return fail("Enter a valid email address. We send your confirmation there.", $('customerEmail'));
   // A valid coupon is required for every booking (doorstep and drive-through).
   if (!$('couponCode').value.trim()) return fail("Enter your MyPod coupon code to book. A valid coupon is needed for doorstep and drive-through.", $('couponCode'));
-  if (!state.coupon || state.coupon.code.toUpperCase() !== $('couponCode').value.trim().toUpperCase()) {
+  const couponCode = formatCouponInput();
+  if (!state.coupon || state.coupon.code.toUpperCase() !== couponCode) {
     state.busy = true; $('bookBtn').disabled = true; $('bookBtn').textContent = "Checking coupon…";
     try { await applyCoupon(true); } finally { state.busy = false; $('bookBtn').disabled = false; $('bookBtn').textContent = "Confirm booking →"; }
     if (!state.coupon) { return fail("That coupon cannot be used for this booking. " + ($('couponMsg').textContent || "Check the code and try again."), $('couponCode')); }
@@ -1236,6 +1252,7 @@ document.querySelectorAll('input[name="vehicle"]').forEach(r => r.addEventListen
 $('service').addEventListener('change', onServiceChange);
 $('date').addEventListener('change', () => { syncQuick(); loadSlots(); });
 $('applyCoupon').addEventListener('click', () => applyCoupon(false));
+$('couponCode').addEventListener('blur', formatCouponInput);
 $('couponCode').addEventListener('input', () => { state.coupon=null; setMsg($('couponMsg'),"",""); renderSummary(); });
 $('booking').addEventListener('submit', submitBooking);
 $('booking').addEventListener('change', e => { if (e.target.matches('input[type="radio"]')) haptic("select"); });
@@ -1309,7 +1326,7 @@ async function loadNextSlot(){
     for (let i = 0; i < 3; i++) {
       const d = new Date(); d.setDate(d.getDate() + i);
       const r = await api('getSlots', {serviceMode:"Doorstep", date:ymd(d)});
-      const open = r.slots.find(s => s.available && (i > 0 || slotMinutes(s.time) >= minsNow));
+      const open = r.slots.find(s => s.available && slotMinutes(s.time) <= LAST_SLOT_MINUTES && (i > 0 || slotMinutes(s.time) >= minsNow));
       if (open) { el.textContent = "Next open slot · " + (i===0 ? "Today" : i===1 ? "Tomorrow" : d.toLocaleDateString("en-IN",{weekday:"long"})) + " " + open.time; return; }
     }
   } catch(e) { /* keep the default text */ }
