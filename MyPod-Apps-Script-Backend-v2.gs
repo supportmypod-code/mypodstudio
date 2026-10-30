@@ -500,7 +500,7 @@ function checkCoupon_(codeInput, serviceName) {
   const today = Utilities.formatDate(new Date(), TIME_ZONE, "yyyy-MM-dd");
   for (let i = 1; i < rows.length; i++) {
     const r = rows[i];
-    if (String(r[col.coupon_code]).trim().toUpperCase() !== code) continue;
+    if (normalizeCouponCode_(r[col.coupon_code]) !== code) continue;
     const status = String(r[col.status]).trim().toLowerCase();
     const limit = Number(r[col.usage_limit] || 1), used = Number(r[col.used_count] || 0);
     if (status === "redeemed" || used >= limit) throw new Error("This coupon has already been used.");
@@ -514,7 +514,7 @@ function checkCoupon_(codeInput, serviceName) {
     const num = Number(String(r[col.offer_value]).replace(/[^0-9.]/g, ""));
     if (!isFinite(num) || num <= 0) throw new Error("This coupon is not set up correctly. Please contact MyPod.");
     const percent = offerType.indexOf("percent") >= 0;
-    return { code: String(r[col.coupon_code]).trim().toUpperCase(), type: percent ? "percent" : "fixed", value: num, rowNumber: i + 1,
+    return { code: code, type: percent ? "percent" : "fixed", value: num, rowNumber: i + 1,
              label: percent ? num + "% off applied" : "Flyer offer ₹" + num + " applied" };
   }
   badCouponTry_();
@@ -558,10 +558,10 @@ function redeemCoupon_(coupon, bookingId, name, phone) {
 // A cancelled booking gives its coupon back (only if that coupon is still tied to this booking).
 function releaseCoupon_(code, bookingId) {
   try {
-    const c = String(code || "").trim().toUpperCase(); if (!c) return;
+    const c = normalizeCouponCode_(code); if (!c) return;
     const data = loadCoupons_(), col = data.col, sh = data.sheet;
     for (let i = 1; i < data.rows.length; i++) {
-      if (String(data.rows[i][col.coupon_code]).trim().toUpperCase() !== c) continue;
+      if (normalizeCouponCode_(data.rows[i][col.coupon_code]) !== c) continue;
       if (String(data.rows[i][col.booking_id]) !== String(bookingId)) return;
       const row = i + 1, set = (h, v) => sh.getRange(row, col[h] + 1).setValue(v);
       set("status", "Active"); set("used_count", 0);
