@@ -409,6 +409,15 @@ body{background-image:none}
 .btn.pri{box-shadow:none}
 .kiosk,.att,.tv{box-shadow:none}
 .tile,.summary,.job,.hero{background-image:none}
+.dsq{display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;margin-top:16px;background:#13161a;border:2px solid #2a2d31;border-radius:14px;padding:14px}
+.dsq img{display:block;background:#ffffff;border-radius:8px;-webkit-flex:none;flex:none}
+.dsq .dst{margin-left:18px;min-width:0}
+.dsq .dst small{display:block;color:#ffd51b;letter-spacing:.12em;text-transform:uppercase;font-size:12px;font-weight:700}
+.dsq .dst b{display:block;font-size:24px;line-height:1.15;margin:4px 0 6px;color:#f4f5f6}
+.dsq .dst p{margin:0;color:#c3c8ce;font-size:15px}
+.fullnote{border:2px solid #ffd51b;border-radius:14px;padding:18px 20px;margin-top:6px;background:#13161a}
+.fullnote b{display:block;font-size:28px;line-height:1.15;color:#ffd51b}
+.fullnote p{margin:8px 0 0;color:#c3c8ce;font-size:16px}
 </style>
 <script>
 /* Small helpers so this page runs on old Safari (iOS 9, iPad 2). */
@@ -450,6 +459,7 @@ body{background-image:none}
   <section id="tv" class="tv" hidden aria-label="Waiting-room display">
     <div class="tvh"><h2>Your vehicle status</h2><div class="clock" id="tclock"></div></div>
     <div id="jobs"></div>
+    <div id="tvqr"></div>
     <p class="note">This screen sits in the waiting area and updates by itself. Complete a booking on the kiosk and your token appears at the top as "Queued". Staff would move jobs forward from a tablet; here they advance on a timer.</p>
   </section>
 
@@ -580,8 +590,8 @@ function render(){
   var sc=$('screen');
   if(S.step==='welcome'){
     h='<div class="hero"><span class="kicker">Booking open · Newtown, Kolkata</span><div class="big">Clean cars.<br>Zero <em>hassle.</em></div><p>Pick a service, choose a slot and get your token in under a minute. No queue at the counter.</p></div>'+
-      '<div class="offer"><span><b>Today</b> 20% off Interior Gold after 6 PM</span><span>Walk-in bay open now</span></div>'+
-      '<button class="btn pri start" data-a="start">Touch to start</button>';
+      '<div class="offer"><span><b>Today</b> 20% off Interior Gold after 6 PM</span><span>'+(dayFull()?'Fully booked for today':'Walk-in bay open now')+'</span></div>'+
+      (dayFull()?fullHtml():'<button class="btn pri start" data-a="start">Touch to start</button>'+qrCard('small'));
     f='<div class="cart"><small>Open daily</small><em>'+fmtMin(HRS.open)+' to '+fmtMin(HRS.close)+'</em></div>';
   }
   else if(S.step==='vehicle'){
@@ -600,11 +610,12 @@ function render(){
   else if(S.step==='slot'){
     h='<h2>When should we start today?</h2><p class="sub">Start now, or pick one of the open times left today.</p>';
     if(SB.loading){h+='<div class="tile"><h3>Checking today\'s open times…</h3><p>One moment please.</p></div>'}
+    else if(dayFull()){h+=fullHtml()}
     else{
       var plan=slotPlan(),nowV=plan.now===null?null:fmtMin(plan.now);
       if(S.slot&&!(S.startNow?S.slot===nowV:plan.grid.indexOf(parseMin(S.slot))>=0)){S.slot=null;S.startNow=false}
       if(nowV)h+='<div role="button" tabindex="0" class="tile walk" data-a="slotnow" data-v="'+nowV+'" aria-pressed="'+(S.startNow&&S.slot===nowV)+'"><span class="dot"></span><div><h3>Start now</h3><p>'+(plan.now-plan.t0<=10?'We can begin at '+nowV+'.':'The next free time is '+nowV+'.')+' Hand over your keys and relax in the lounge.</p></div></div>';
-      else h+='<div class="tile walk off"><span class="dot"></span><div><h3>Start now</h3><p>Not available right now. We are closed for today or fully booked.</p></div></div>';
+      else h+='<div class="tile walk off"><span class="dot"></span><div><h3>Start now</h3><p>'+(Math.max(HRS.open,Math.ceil((nowMinute()+5)/5)*5)+HRS.job>HRS.close?'Walk-in bookings for today have ended. We are open '+fmtMin(HRS.open)+' to '+fmtMin(HRS.close)+'.':'Every time left today is already booked.')+'</p></div></div>';
       if(plan.grid.length)h+='<div class="group"><h4>Or pick a time today, '+todayLabel()+'</h4><div class="slotday">'+plan.grid.map(function(m){var v=fmtMin(m);return '<button class="slot" data-a="slot" data-v="'+v+'" aria-pressed="'+(!S.startNow&&S.slot===v)+'">'+v+'</button>'}).join('')+'</div></div>';
       else if(!nowV)h+='<p class="sub">No more open times today. Please ask our team, or book another day on our website.</p>';
     }
@@ -627,7 +638,7 @@ function render(){
   else if(S.step==='done'){
     var sum=chosen().map(function(x){return x.name}).join(', ');
     h='<h2>You are booked in, '+esc(S.name.split(' ')[0])+'.</h2><div class="two"><div class="col"><div class="token"><small>Your token</small><b>'+S.token+'</b></div><p class="sub" style="margin:0">'+(S.paid?'Payment received.':'Pay at the counter on arrival.')+' Watch your status on the lounge TV.</p>'+(S.email?'<p class="sub" style="margin:8px 0 0">Your invoice will be emailed to <b>'+esc(S.email)+'</b>.</p>':'')+'</div>'+
-      '<div class="wa"><small>WhatsApp to +91 '+esc(S.phone)+'</small>Hi '+esc(S.name.split(' ')[0])+', your booking at MyPod Detailing Studio is confirmed.\nToken '+S.token+' · '+esc(S.plate)+'\n'+esc(sum)+'\n'+slotText()+'\nWe will message you when it is ready.</div></div>';
+      '<div class="wa"><small>WhatsApp to +91 '+esc(S.phone)+'</small>Hi '+esc(S.name.split(' ')[0])+', your booking at MyPod Detailing Studio is confirmed.\nToken '+S.token+' · '+esc(S.plate)+'\n'+esc(sum)+'\n'+slotText()+'\nWe will message you when it is ready.</div></div>'+qrCard('small');
     f='<div class="cart"><small>Screen resets in</small><strong id="cd">20</strong></div><div class="btns"><button class="btn pri" data-a="restart">New booking</button></div>';
   }
   if(!f){
@@ -764,7 +775,21 @@ function p2(n){return (n<10?'0':'')+n}
 function ymd(d){return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate())}
 /* ---------- Today's open slots: 9 AM to 9 PM, 40-minute buffer after every job ---------- */
 var HRS={open:540,close:1260,buffer:40,step:40,job:60};   /* every booking uses the same fixed block (job + buffer), whatever the work */
-var SB={loading:false,ready:false,busy:[],nowMin:0,date:'',at:0};
+var SB={loading:false,ready:false,busy:[],nowMin:0,date:'',at:0,count:0,limit:25};
+/* Doorstep QR code (scans to the MyPod website). */
+var QR_BIG={w:315,src:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAATsAAAE7AQAAAACKpxtqAAACx0lEQVR42u2aMY7zNhCFv7E2oDv5BvRNuLlYRN2MPkJuQN+AKgLIiMSXgvLuHyDFdikoNhSkp2Yw8+Y9Dk38aD0v/HCdwBN4Ak/gz4CLmZldeVo0u8IjmtmNR2Q3M7NL53H0kjbwCdtY7mBa20cnSR1nD5KKT9jmJKnilENsm2xzBSaTlPsMz8f343IDiSVkxMsg1r137vklPKNAv/3l//z8/Q/cClz+7j08rbgkba74BDgpTRWnzHRUXMfFdQF4mtkHwHRQ87CxhAS8zMw6z55jFZjqoEKQNlcI0b4/9p09kf065mCX/TpmZoblBlPd7fb8PPUjs9y6hESLy9fvw7qEuXdZuIRESxvAFaDuV3yaZdcxM/XeuQiqg6SENiBE28CnSVoh9Mw9X9S8ueIlhhXfWrkUbWPMIXYengKTtI7NTRRoSXRoxdSzqTiyJ1aaLBxWvGLzqVFax8wZnjTVYQUmScoh2uak1ADdc0/xidrchG2u+DRVGCXZ1ra+ZeGYgWGxO9T3W1een/NbMnZuKjJTBXzi2BrpUIcVf1JzpgUkiGFtusdJaWKQ8ql7MpNt4NtpoRSlJn82Jyla97qHOqxjDlEtIBw1tjHmoLOxUxtD651Eja/h5B4V4DjaaY2dY27RUurUPc1ztSOMUentNA5Z2H3nao49tyRqRD2+O1fXpuICLHfm4WU3r7jbdbmD3ArAfn07MPr2XAwqPk3gSiunNrdoE9S+x4DLDdgND1ZZfJorL1+QAc/PdKn0fJg6fk0q2O3K0yS7LvdHNKnA3HlxFQCcmtIZc4jWLMY5Y/+lsSsHMXwzkWTtHLr3KSmPNqxh1stuBKu8bjDL7OZTz8X1L+BD5vS0z6lVFSYVHvEMD8AS0qyXec2mD3iaWhLRcXj+64bGcVdM4pi4n5b0uLly+HeTytfAomdqtvPa9wk8gSfwfwD+AwsdpTlxZaJ1AAAAAElFTkSuQmCC'};
+var QR_SMALL={w:180,src:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0AQAAAAAVtjufAAABiUlEQVR42u2XsY3EMAwEh4fLlx2o/7LcwbKC/cBv4IMLCXxySmQwWBGjJUVX+LTmxef1ja/Hq6qnq+kqmqrqVX0lCNHI0EoW838DJfCcC87lprTPrUo+Yrq9y/99b2G4Bpnev/eYrj46MA3xon6FAv0tXZDX6pckSZBDIqwkiRf1rchGdkyCN/VfwIwPXNx367NZXyQCxcQOsom0yoc4IWAhxSzzTyIFK0os7EX9CiUPcIYUQJpdf9oSWAY59jL/2533MXmOXPWPFUmSSUSiVf8brsZAa+buQZv9c0RrZjQZ2pzN/kme0jKWIuL1/iMUK44V3Z+LfBrDCChUqdEun2BMUIwBaTf/4oS0qHDw/dps+j8R4JAgYNn/F2MjjboCce/mj0VsIRyh1foliYiEiCJAy/7n1zNynOzzTxK4es50t8Is8wcZsGVH9yO57M/f6SeKssrnmZ8nlYthprTJ54mfSkkChd7XP5NKDXM86/N5aCgRSq5MdvOfKqyY6jCU6NX5/Pt//Y/xH67gUxjO02bpAAAAAElFTkSuQmCC'};
+function qrCard(size){
+  var q=size==='big'?QR_BIG:QR_SMALL;
+  return '<div class="dsq"><img src="'+q.src+'" width="'+q.w+'" height="'+q.w+'" alt="QR code for the MyPod website"><div class="dst"><small>Doorstep service</small><b>We come to you</b><p>Scan to check available time slots and book doorstep service on our website.</p></div></div>';
+}
+function localToday(){var n=0;qGet().forEach(function(r){if(r.date===SB.date)n++});return n}
+/* The day is full when the server count (plus bookings still waiting to sync from this iPad) reaches the daily limit. */
+function dayFull(){return SB.ready&&(SB.count+localToday())>=(SB.limit||25)}
+function fullHtml(){
+  return '<div class="fullnote"><b>Fully booked for today</b><p>We have reached our limit of '+(SB.limit||25)+' bookings for today. Please visit us again tomorrow, or book doorstep service on our website.</p></div>'+qrCard('big');
+}
+var tvq=$('tvqr');if(tvq)tvq.innerHTML=qrCard('big');
 function fmtMin(m){var h=Math.floor(m/60),mm=m%60;return ((h%12)||12)+':'+p2(mm)+' '+(h>=12?'PM':'AM')}
 function parseMin(t){var m=/^(\d{1,2}):(\d{2}) (AM|PM)$/.exec(String(t||'').trim());if(!m)return NaN;var h=Number(m[1])%12;if(m[3]==='PM')h+=12;return h*60+Number(m[2])}
 function todayLabel(){var d=new Date();return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()]+' '+d.getDate()+' '+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()]}
@@ -799,8 +824,8 @@ function loadBusy(){
   SB.loading=true;
   postJson({action:'getKioskSlots',website:''},8000,function(ok,d){
     SB.loading=false;SB.ready=!!ok;
-    if(ok){SB.busy=d.busy||[];SB.nowMin=d.nowMin;SB.date=d.date;SB.at=new Date().getTime();if(d.hours){HRS.open=d.hours.open;HRS.close=d.hours.close;HRS.buffer=d.hours.buffer;HRS.step=d.hours.buffer}}
-    if(S.step==='slot')render();
+    if(ok){SB.count=Number(d.count)||0;SB.limit=Number(d.limit)||25;SB.busy=d.busy||[];SB.nowMin=d.nowMin;SB.date=d.date;SB.at=new Date().getTime();if(d.hours){HRS.open=d.hours.open;HRS.close=d.hours.close;HRS.buffer=d.hours.buffer;HRS.step=d.hours.buffer}}
+    if(S.step==='slot'||S.step==='welcome')render();
   });
 }
 var REJKEY='mypod_kiosk_rejected';
@@ -867,7 +892,7 @@ function syncQueue(){
   var rec=q[0],id=rec.bookingId;
   postOne(rec,function(st,d){
     syncing=false;
-    if(st==='ok'){qSet(qGet().filter(function(r){return r.bookingId!==id}));syncQueue()}
+    if(st==='ok'){qSet(qGet().filter(function(r){return r.bookingId!==id}));if(SB.ready&&d&&!d.duplicate&&rec.date===SB.date)SB.count++;syncQueue()}
     else if(st==='reject'){
       rec.error=(d&&d.message)||'rejected';
       rejSet(rejGet().concat([rec]));
@@ -878,6 +903,8 @@ function syncQueue(){
   });
 }
 setInterval(syncQueue,30000);
+setInterval(function(){if(S.step==='welcome'&&!SB.loading)loadBusy()},90000);
+setTimeout(function(){if(!SB.loading)loadBusy()},1500);
 if(window.addEventListener)window.addEventListener('online',syncQueue);
 syncQueue();
 
