@@ -774,7 +774,7 @@ var QKEY='mypod_kiosk_queue',syncing=false;
 function p2(n){return (n<10?'0':'')+n}
 function ymd(d){return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate())}
 /* ---------- Today's open slots: 9 AM to 9 PM, 40-minute buffer after every job ---------- */
-var HRS={open:540,close:1260,buffer:40,step:40,job:60};   /* every booking uses the same fixed block (job + buffer), whatever the work */
+var HRS={open:540,close:1260,buffer:0,step:40,job:40,bays:2};   /* every booking uses the same fixed block (job + buffer), whatever the work */
 var SB={loading:false,ready:false,busy:[],nowMin:0,date:'',at:0,count:0,limit:25};
 /* Doorstep QR code (scans to the MyPod website). */
 var QR_BIG={w:315,src:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAATsAAAE7AQAAAACKpxtqAAACx0lEQVR42u2aMY7zNhCFv7E2oDv5BvRNuLlYRN2MPkJuQN+AKgLIiMSXgvLuHyDFdikoNhSkp2Yw8+Y9Dk38aD0v/HCdwBN4Ak/gz4CLmZldeVo0u8IjmtmNR2Q3M7NL53H0kjbwCdtY7mBa20cnSR1nD5KKT9jmJKnilENsm2xzBSaTlPsMz8f343IDiSVkxMsg1r137vklPKNAv/3l//z8/Q/cClz+7j08rbgkba74BDgpTRWnzHRUXMfFdQF4mtkHwHRQ87CxhAS8zMw6z55jFZjqoEKQNlcI0b4/9p09kf065mCX/TpmZoblBlPd7fb8PPUjs9y6hESLy9fvw7qEuXdZuIRESxvAFaDuV3yaZdcxM/XeuQiqg6SENiBE28CnSVoh9Mw9X9S8ueIlhhXfWrkUbWPMIXYengKTtI7NTRRoSXRoxdSzqTiyJ1aaLBxWvGLzqVFax8wZnjTVYQUmScoh2uak1ADdc0/xidrchG2u+DRVGCXZ1ra+ZeGYgWGxO9T3W1een/NbMnZuKjJTBXzi2BrpUIcVf1JzpgUkiGFtusdJaWKQ8ql7MpNt4NtpoRSlJn82Jyla97qHOqxjDlEtIBw1tjHmoLOxUxtD651Eja/h5B4V4DjaaY2dY27RUurUPc1ztSOMUentNA5Z2H3nao49tyRqRD2+O1fXpuICLHfm4WU3r7jbdbmD3ArAfn07MPr2XAwqPk3gSiunNrdoE9S+x4DLDdgND1ZZfJorL1+QAc/PdKn0fJg6fk0q2O3K0yS7LvdHNKnA3HlxFQCcmtIZc4jWLMY5Y/+lsSsHMXwzkWTtHLr3KSmPNqxh1stuBKu8bjDL7OZTz8X1L+BD5vS0z6lVFSYVHvEMD8AS0qyXec2mD3iaWhLRcXj+64bGcVdM4pi4n5b0uLly+HeTytfAomdqtvPa9wk8gSfwfwD+AwsdpTlxZaJ1AAAAAElFTkSuQmCC'};
@@ -802,20 +802,14 @@ function localBusy(){
   qGet().forEach(function(r){var s0=parseMin(r.time);if(r.date===today&&!isNaN(s0))out.push([s0,s0+HRS.job+HRS.buffer])});
   return out;
 }
-function isFree(t,busy){
-  var end=t+HRS.job+HRS.buffer,i;
-  for(i=0;i<busy.length;i++){if(t<busy[i][1]&&end>busy[i][0])return false}
-  return true;
-}
-/* Start now = the earliest free time from right now. The list = a time every 40 minutes from opening (9:00, 9:40, 10:20 ...). */
+/* Two bays: a time is free while fewer than HRS.bays bookings overlap its 40-minute slot. */
+function bayLoad(t,busy){var end=t+HRS.job+HRS.buffer,n=0,i;for(i=0;i<busy.length;i++){if(t<busy[i][1]&&end>busy[i][0])n++}return n}
+function isFree(t,busy){return bayLoad(t,busy)<HRS.bays}
+/* Start now = the earliest time from right now when a bay is free. It is never switched off: the daily limit is what closes it. */
 function slotPlan(){
-  var busy=(SB.ready?SB.busy:[]).concat(localBusy()),t0=Math.max(HRS.open,Math.ceil((nowMinute()+5)/5)*5),grid=[],t=t0,guard=0,startAt=null,clash,i;
-  while(t+HRS.job<=HRS.close&&guard++<300){
-    clash=null;
-    for(i=0;i<busy.length;i++){if(t<busy[i][1]&&t+HRS.job+HRS.buffer>busy[i][0]){clash=busy[i];break}}
-    if(clash){t=Math.ceil(clash[1]/5)*5;continue}
-    startAt=t;break;
-  }
+  var busy=(SB.ready?SB.busy:[]).concat(localBusy()),t0=Math.max(HRS.open,Math.ceil((nowMinute()+5)/5)*5),grid=[],t,startAt=null,guard=0;
+  for(t=t0;t+HRS.job<=HRS.close&&guard++<400;t+=5){if(isFree(t,busy)){startAt=t;break}}
+  if(startAt===null)startAt=t0;
   for(t=HRS.open;t+HRS.job<=HRS.close;t+=HRS.step){if(t>=t0&&isFree(t,busy))grid.push(t)}
   return {now:startAt,t0:t0,grid:grid};
 }
@@ -824,7 +818,7 @@ function loadBusy(){
   SB.loading=true;
   postJson({action:'getKioskSlots',website:''},8000,function(ok,d){
     SB.loading=false;SB.ready=!!ok;
-    if(ok){SB.count=Number(d.count)||0;SB.limit=Number(d.limit)||25;SB.busy=d.busy||[];SB.nowMin=d.nowMin;SB.date=d.date;SB.at=new Date().getTime();if(d.hours){HRS.open=d.hours.open;HRS.close=d.hours.close;HRS.buffer=d.hours.buffer;HRS.step=d.hours.buffer}}
+    if(ok){SB.count=Number(d.count)||0;SB.limit=Number(d.limit)||25;SB.busy=d.busy||[];SB.nowMin=d.nowMin;SB.date=d.date;SB.at=new Date().getTime();if(d.hours){HRS.open=d.hours.open;HRS.close=d.hours.close;HRS.job=d.hours.slot||40;HRS.buffer=0;HRS.step=d.hours.slot||40}HRS.bays=Number(d.bays)||2;}
     if(S.step==='slot'||S.step==='welcome')render();
   });
 }
