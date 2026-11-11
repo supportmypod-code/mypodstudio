@@ -506,7 +506,8 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
         <button class="btn" type="button" id="aClear">Clear log</button>
         <span class="note" id="aLogMsg" role="status" aria-live="polite"></span>
       </div>
-      <p class="note">Prototype: records are saved on this device only. Rows marked sample are examples. A live version would save to a shared sheet or database.</p>
+      <p class="note" id="aSync" role="status" aria-live="polite"></p>
+      <p class="note">Every IN and OUT is saved on this device and sent to the Attendances tab of the shared Google Sheet. If the internet is down it waits and sends later. Rows marked sample are examples and are not sent. Selfies stay on this device.</p>
     </div>
     <div id="aBox" hidden></div>
     <div id="aCsv" hidden><div><p>Touch and hold the text below, choose Select All, then Copy.</p><textarea id="aCsvT" readonly></textarea><button class="btn pri" type="button" id="aCsvX">Close</button></div></div>
@@ -886,6 +887,7 @@ function send(rec,ms,cb){
   });
 }
 function postJson(rec,ms,cb){send(rec,ms,function(st,d){cb(st==='ok',d)})}
+window.MPSEND=send;window.MPKEY=KIOSK_KEY; /* shared with the Staff attendance tab */
 function postOne(rec,cb){send(rec,25000,cb)}
 function syncQueue(){
   if(syncing)return;
@@ -939,7 +941,7 @@ render();
 </script>
 
 <script>
-/* Staff attendance: pick name, selfie (live camera or phone camera), stamped photo, IN / OUT. Saved in this browser only. */
+/* Staff attendance: pick name, selfie (live camera or phone camera), stamped photo, IN / OUT. Saved in this browser and sent to the Attendances tab of the Google Sheet. */
 (function(){
 var $=function(i){return document.getElementById(i)};
 var KEY='mypod_att_v1',SKEY='mypod_staff_v1';
@@ -1017,7 +1019,43 @@ function renderLog(){
       (r.outTs?'<div class="ev">'+th(r,'out')+'<span>'+tm(r.outTs)+'</span></div>':'<span class="chip '+(stale?'warn':'in')+'">'+(stale?'No exit recorded':'On shift')+'</span>')+
       '</td><td class="num">'+(r.outTs?hrs(r.outTs-r.inTs):stale?'—':hrs(Date.now()-r.inTs))+'</td></tr>'}).join('')+'</tbody></table></div>';
 }
-function renderAll(){renderStaff();renderCap();renderAct();renderLog()}
+/* ---- send every IN / OUT to the Attendances tab of the Google Sheet (queued, retried) ---- */
+var QK='mypod_att_q_v1',RK='mypod_att_rej_v1',sending=false;
+function ymdl(t){var d=new Date(t);return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
+function pack(r,type){
+  var st=sb(r.staffId)||{name:'Unknown',role:''},ts=type==='IN'?r.inTs:r.outTs;
+  return {action:'attendance',kioskKey:window.MPKEY,website:'',source:'Kiosk',
+    eventId:'ATT-'+r.id+'-'+type,shiftId:r.id,type:type,
+    staffId:r.staffId,staffName:st.name,role:st.role,
+    date:ymdl(r.inTs),inTime:tm(r.inTs),inIso:new Date(r.inTs).toISOString(),
+    outTime:type==='OUT'?tm(r.outTs):'',outIso:type==='OUT'?new Date(r.outTs).toISOString():'',
+    hours:type==='OUT'?Math.round((r.outTs-r.inTs)/36000)/100:'',
+    sentAt:new Date(ts).toISOString()};
+}
+function enqueue(type,r){var q=ld(QK,[]);q.push(pack(r,type));wr(QK,q);sync()}
+function showSync(){
+  var el=$('aSync');if(!el)return;
+  var n=ld(QK,[]).length,j=ld(RK,[]).length;
+  el.textContent=(n?n+' waiting to send to the Google Sheet. It will retry by itself.':'All IN / OUT records are sent to the Google Sheet.')+(j?' '+j+' could not be accepted by the sheet.':'');
+}
+function sync(){
+  if(sending||!window.MPSEND){showSync();return}
+  var q=ld(QK,[]);if(!q.length){showSync();return}
+  sending=true;var rec=q[0];
+  window.MPSEND(rec,25000,function(st,d){
+    sending=false;
+    if(st==='ok'||st==='reject'){
+      if(st==='reject'){rec.error=(d&&d.message)||'rejected';wr(RK,ld(RK,[]).concat([rec]))}
+      wr(QK,ld(QK,[]).filter(function(r){return r.eventId!==rec.eventId}));
+      sync();
+    }else showSync();
+  });
+}
+setInterval(sync,30000);
+if(window.addEventListener)window.addEventListener('online',sync);
+setTimeout(sync,2000);
+
+function renderAll(){renderStaff();renderCap();renderAct();renderLog();showSync()}
 
 /* camera */
 function startCam(){
@@ -1042,8 +1080,9 @@ function confirmMark(){
   var s=sb(sel),op=openShift(sel),now=Date.now(),type=op?'OUT':'IN';
   stamp(s.name,type,now);
   var photo=$('aCv').toDataURL('image/jpeg',.6);
-  if(op){op.outTs=now;op.outPhoto=photo}else{shifts.push({id:'h'+now,staffId:s.id,inTs:now,outTs:null,inPhoto:photo})}
-  persist();
+  var rec=op;
+  if(op){op.outTs=now;op.outPhoto=photo}else{rec={id:'h'+now,staffId:s.id,inTs:now,outTs:null,inPhoto:photo};shifts.push(rec)}
+  persist();enqueue(type,rec);
   flash={t:s.name+(op?' checked out':' checked in'),s:(op?'Exit':'Entry')+' recorded at '+tms(now)+(op?' · '+hrs(now-op.inTs)+' on shift':''),img:photo};
   sel=null;mode='idle';msg='';renderAll();
   clearTimeout(ft);ft=setTimeout(function(){flash=null;renderAct()},7000);
