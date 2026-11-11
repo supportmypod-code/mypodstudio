@@ -812,7 +812,7 @@ function loadBusy(){
     if(S.step==='slot')render();
   });
 }
-var REJKEY='mypod_kiosk_rejected';
+var REJKEY='mypod_kiosk_rejected',LASTERR='';
 var MEMQ=(function(){try{return JSON.parse(localStorage.getItem(QKEY)||'[]')}catch(e){return []}})();
 var MEMR=(function(){try{return JSON.parse(localStorage.getItem(REJKEY)||'[]')}catch(e){return []}})();
 function qGet(){return MEMQ.slice()}
@@ -823,7 +823,7 @@ function badge(){
   var n=qGet().length,r=rejGet().length,b=document.getElementById('syncbadge');
   if(!n&&!r){if(b&&b.parentNode)b.parentNode.removeChild(b);return}
   if(!b){b=document.createElement('div');b.id='syncbadge';b.style.cssText='position:fixed;left:8px;bottom:8px;z-index:99999;background:#b00020;color:#fff;font:12px Arial,sans-serif;padding:6px 10px;border-radius:8px;opacity:.92';document.body.appendChild(b)}
-  b.textContent=(n?n+' booking(s) waiting to sync. ':'')+(r?r+' rejected by server. ':'')+'Tell the manager.';
+  b.textContent=(n?n+' booking(s) waiting to sync. ':'')+(r?r+' rejected by server. ':'')+'Tell the manager.'+(LASTERR?' ['+LASTERR+']':'');
 }
 function postOne(rec,cb){
   try{
@@ -832,13 +832,14 @@ function postOne(rec,cb){
     x.onload=function(){
       var d=null;
       if(x.status>=200&&x.status<300){try{d=JSON.parse(x.responseText)}catch(e){d=null}}
+      LASTERR=d?'':('HTTP '+x.status+', not JSON: '+String(x.responseText||'').replace(/<[^>]*>|\s+/g,' ').trim().slice(0,70));
       if(d&&d.ok===true)cb('ok',d);
       else if(d&&d.ok===false&&!/lock|timeout|try again|too many times|quota|service invoked/i.test(String(d.message||'')))cb('reject',d); /* the server read it and said no: retrying will never help */
       else cb('retry',d); /* network trouble, HTML error page, or a temporary server problem */
     };
-    x.onerror=function(){cb('retry',null)};x.ontimeout=function(){cb('retry',null)};
+    x.onerror=function(){LASTERR='no reply (blocked or offline)';cb('retry',null)};x.ontimeout=function(){LASTERR='timed out';cb('retry',null)};
     x.send(JSON.stringify(rec));
-  }catch(e){cb('retry',null)}
+  }catch(e){LASTERR='send failed: '+e.message;cb('retry',null)}
 }
 function syncQueue(){
   if(syncing)return;
