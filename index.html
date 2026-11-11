@@ -154,6 +154,7 @@ header{position:sticky;top:0;z-index:30;height:68px;display:flex;align-items:cen
 .chip input:checked+span{border-color:var(--y);background:var(--y);color:#111;font-weight:800}
 .chip input:focus-visible+span{outline:2px solid #fff;outline-offset:2px}
 .chip input:disabled+span{opacity:.35;text-decoration:line-through;cursor:not-allowed}
+.chip input:disabled+span:after{content:" \2715";font-weight:800}
 .chip input:disabled{cursor:not-allowed}
 .slots .small-note{grid-column:1/-1;margin:0}
 .addon-wrap{margin-top:16px;padding-top:14px;border-top:1px solid #343434}
@@ -893,7 +894,8 @@ const store = {
   set(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
 };
 const SLOTS = ["8:30 AM","9:15 AM","10:00 AM","10:45 AM","11:30 AM","12:15 PM","1:00 PM","1:45 PM","2:30 PM","3:15 PM","4:00 PM","4:45 PM","5:30 PM","6:00 PM"];
-const LAST_SLOT_MINUTES = 18 * 60;
+const LAST_SLOT_MINUTES = 19 * 60;   // last slot a customer can start: 7:00 PM
+const DEMO_END_MINUTES = 20 * 60;   // demo (not available) times are shown in the gaps up to 8:00 PM
 /* Menu and prices from MY_POD_Master_Service_Pricing.xlsx. The booking backend (Apps Script) keeps its own copy: change both together. */
 const SIZES = {
   Car:[{name:"Hatchback",hint:"Swift, i20, Tiago"},{name:"Sedan",hint:"City, Verna, Slavia"},{name:"SUV",hint:"Creta, Fortuner, XUV700"}],
@@ -1351,11 +1353,21 @@ async function loadSlots(){
     if (seq !== state.seq) return;
     box.innerHTML = "";
     let open = 0;
-    r.slots.filter(s => slotMinutes(s.time) <= LAST_SLOT_MINUTES).forEach(s => {
-      const off = !s.available || isPast(s.time); if(!off) open++;
-      const label = document.createElement('label'); label.className="chip";
-      const input = document.createElement('input'); input.type="radio"; input.name="slot"; input.value=s.time; input.disabled=off;
-      input.addEventListener('change', () => { state.slot = s.time; renderSummary(); });
+    const real = r.slots.filter(s => slotMinutes(s.time) <= LAST_SLOT_MINUTES);
+    const fmtMin = m => { const h = Math.floor(m / 60); return ((h % 12) || 12) + ":" + String(m % 60).padStart(2, "0") + " " + (h >= 12 ? "PM" : "AM"); };
+    const list = [];
+    real.forEach((s, i) => {
+      const a = slotMinutes(s.time), b = i + 1 < real.length ? slotMinutes(real[i + 1].time) : a + 100;
+      list.push({time: s.time, off: !s.available || isPast(s.time), demo: false});
+      // Demo times in the gap between two slots: shown as not available (the buffer between bookings), never selectable.
+      for (let t = a + 40; t < b && t < DEMO_END_MINUTES; t += 40) list.push({time: fmtMin(t), off: true, demo: true});
+    });
+    list.forEach(s => {
+      if (!s.off) open++;
+      const label = document.createElement('label'); label.className = "chip";
+      const input = document.createElement('input'); input.type = "radio"; input.name = "slot"; input.value = s.time; input.disabled = s.off;
+      if (s.off) input.setAttribute('aria-label', s.time + " not available");
+      if (!s.demo) input.addEventListener('change', () => { state.slot = s.time; renderSummary(); });
       const span = document.createElement('span'); span.textContent = s.time;
       label.append(input, span); box.appendChild(label);
     });
