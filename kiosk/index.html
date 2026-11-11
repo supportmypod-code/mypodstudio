@@ -382,6 +382,33 @@ body{background:#07080a;background-image:radial-gradient(900px 500px at 85% -5%,
   .hero .big{font-size:38px}
   .screen h2{font-size:28px}
 }
+
+/* ===== v5: big on-screen keyboard that fills the screen, lighter painting for iPad 2 ===== */
+*{touch-action:manipulation}
+.kb{max-width:none;width:100%;margin:4px 0 0}
+.kb .row{margin:0 0 8px}
+.kb .row button{height:62px;font-size:26px;border-radius:12px}
+.kb .row button+button{margin-left:8px}
+.kb .wide{font-size:20px!important}
+.kb .row.sym button{font-size:22px}
+.kb .row.sym button.txt{font-size:17px}
+.kb .row button.fn{font-family:'Inter',-apple-system,'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:20px;font-weight:700}
+.kb.pad{max-width:560px;margin-left:auto;margin-right:auto}
+.kb.pad .row button{height:72px;font-size:34px}
+.kb.pad .row button.fn{font-size:22px}
+@media (max-width:899px){
+  .kb .row button{height:78px;font-size:30px}
+  .kb .row button+button{margin-left:10px}
+  .kb .row{margin-bottom:10px}
+  .kb.pad .row button{height:92px;font-size:38px}
+  .field span{font-size:26px}
+}
+.tile.walk.off{opacity:.5}
+/* flatter painting = quicker taps on an iPad 2 */
+body{background-image:none}
+.btn.pri{box-shadow:none}
+.kiosk,.att,.tv{box-shadow:none}
+.tile,.summary,.job,.hero{background-image:none}
 </style>
 <script>
 /* Small helpers so this page runs on old Safari (iOS 9, iPad 2). */
@@ -555,7 +582,7 @@ function render(){
     h='<div class="hero"><span class="kicker">Booking open · Newtown, Kolkata</span><div class="big">Clean cars.<br>Zero <em>hassle.</em></div><p>Pick a service, choose a slot and get your token in under a minute. No queue at the counter.</p></div>'+
       '<div class="offer"><span><b>Today</b> 20% off Interior Gold after 6 PM</span><span>Walk-in bay open now</span></div>'+
       '<button class="btn pri start" data-a="start">Touch to start</button>';
-    f='<div class="cart"><small>Open daily</small><em>9:00 AM to 9:30 PM · Bays free: 2 of 4</em></div>';
+    f='<div class="cart"><small>Open daily</small><em>'+fmtMin(HRS.open)+' to '+fmtMin(HRS.close)+'</em></div>';
   }
   else if(S.step==='vehicle'){
     h='<h2>What are we detailing?</h2><p class="sub">Pick your vehicle, then its size or type. Price depends on it.</p>'+
@@ -571,14 +598,15 @@ function render(){
       '<div class="group"><h4>Add-ons</h4><div class="grid">'+add.map(tile).join('')+'</div></div>';
   }
   else if(S.step==='slot'){
-    h='<h2>When should we start today?</h2><p class="sub">Your work takes about '+dur(mins())+'. Only the open times left today are shown.</p>';
+    h='<h2>When should we start today?</h2><p class="sub">Start now, or pick one of the open times left today.</p>';
     if(SB.loading){h+='<div class="tile"><h3>Checking today\'s open times…</h3><p>One moment please.</p></div>'}
     else{
-      var plan=slotPlan(mins()),nowV=plan.now===null?null:fmtMin(plan.now);
+      var plan=slotPlan(),nowV=plan.now===null?null:fmtMin(plan.now);
       if(S.slot&&!(S.startNow?S.slot===nowV:plan.grid.indexOf(parseMin(S.slot))>=0)){S.slot=null;S.startNow=false}
-      if(nowV)h+='<div role="button" tabindex="0" class="tile walk" data-a="slotnow" data-v="'+nowV+'" aria-pressed="'+(S.startNow&&S.slot===nowV)+'"><span class="dot"></span><div><h3>Start now</h3><p>We can begin at '+nowV+'. Hand over your keys and relax in the lounge.</p></div></div>';
-      if(!nowV&&!plan.grid.length)h+='<div class="tile"><h3>No more open times today</h3><p>We are open '+fmtMin(HRS.open)+' to '+fmtMin(HRS.close)+'. Please ask our team, or book another day on our website.</p></div>';
-      else if(plan.grid.length)h+='<div class="group"><h4>'+(nowV?'Or pick a time today, ':'Today, ')+todayLabel()+'</h4><div class="slotday">'+plan.grid.map(function(m){var v=fmtMin(m);return '<button class="slot" data-a="slot" data-v="'+v+'" aria-pressed="'+(!S.startNow&&S.slot===v)+'">'+v+'</button>'}).join('')+'</div></div>';
+      if(nowV)h+='<div role="button" tabindex="0" class="tile walk" data-a="slotnow" data-v="'+nowV+'" aria-pressed="'+(S.startNow&&S.slot===nowV)+'"><span class="dot"></span><div><h3>Start now</h3><p>'+(plan.now-plan.t0<=10?'We can begin at '+nowV+'.':'The next free time is '+nowV+'.')+' Hand over your keys and relax in the lounge.</p></div></div>';
+      else h+='<div class="tile walk off"><span class="dot"></span><div><h3>Start now</h3><p>Not available right now. We are closed for today or fully booked.</p></div></div>';
+      if(plan.grid.length)h+='<div class="group"><h4>Or pick a time today, '+todayLabel()+'</h4><div class="slotday">'+plan.grid.map(function(m){var v=fmtMin(m);return '<button class="slot" data-a="slot" data-v="'+v+'" aria-pressed="'+(!S.startNow&&S.slot===v)+'">'+v+'</button>'}).join('')+'</div></div>';
+      else if(!nowV)h+='<p class="sub">No more open times today. Please ask our team, or book another day on our website.</p>';
     }
   }
   else if(S.step==='details'){
@@ -612,15 +640,35 @@ function render(){
   if(S.step==='done')startCountdown();else stopCountdown();
 }
 function kb(){
-  var rows=['1234567890','QWERTYUIOP','ASDFGHJKL','ZXCVBNM'];
-  var sym=S.field==='email'?'<div class="row sym">'+['@','.','-','_','.com','.in','@gmail.com'].map(function(c){return '<button data-a="key" data-v="'+c+'"'+(c.length>2?' class="txt"':'')+'>'+c+'</button>'}).join('')+'</div>':'';
-  var out='<div class="kb">'+sym+rows.map(function(r,i){
-    var keys=r.split('').map(function(c){return '<button data-a="key" data-v="'+c+'">'+(S.field==='email'?c.toLowerCase():c)+'</button>'}).join('');
-    if(i===3)keys+='<button class="wide" data-a="key" data-v="DEL" aria-label="Backspace">Del</button>';
-    return '<div class="row">'+keys+'</div>'}).join('')+
-    '<div class="row"><button class="wide" data-a="key" data-v=" ">space</button><button class="wide" data-a="nextfield">Next field</button></div></div>';
-  return out;
+  var f=S.field,lower=(f==='email');
+  var L=function(r){return r.split('').map(function(c){return '<button data-a="key" data-v="'+c+'">'+(lower?c.toLowerCase():c)+'</button>'}).join('')};
+  var R=function(inner){return '<div class="row">'+inner+'</div>'};
+  var del=function(cls){return '<button class="'+cls+'" data-a="key" data-v="DEL" aria-label="Backspace">Del</button>'};
+  var next=function(cls){return '<button class="'+cls+'" data-a="nextfield">Next field</button>'};
+  var space='<button class="wide" data-a="key" data-v=" ">space</button>';
+  if(f==='phone'){   /* number pad only */
+    return '<div class="kb pad">'+R(L('123'))+R(L('456'))+R(L('789'))+R(del('fn')+L('0')+next('fn'))+'</div>';
+  }
+  if(f==='name'){    /* letters only */
+    return '<div class="kb">'+R(L('QWERTYUIOP'))+R(L('ASDFGHJKL'))+R(L('ZXCVBNM')+del('wide'))+R(space+next('wide'))+'</div>';
+  }
+  if(f==='plate'){   /* letters and numbers */
+    return '<div class="kb">'+R(L('1234567890'))+R(L('QWERTYUIOP'))+R(L('ASDFGHJKL'))+R(L('ZXCVBNM')+del('wide'))+R(space+next('wide'))+'</div>';
+  }
+  /* email: letters, numbers and the symbols an address needs */
+  var sym=['@','.','-','_','.com','.in','@gmail.com'].map(function(c){return '<button data-a="key" data-v="'+c+'"'+(c.length>2?' class="txt"':'')+'>'+c+'</button>'}).join('');
+  return '<div class="kb"><div class="row sym">'+sym+'</div>'+R(L('1234567890'))+R(L('QWERTYUIOP'))+R(L('ASDFGHJKL'))+R(L('ZXCVBNM')+del('wide'))+R(next('wide'))+'</div>';
 }
+/* Switch field without rebuilding the whole screen (fast on iPad 2) */
+function setField(f){
+  S.field=f;
+  if(S.step!=='details'){return}
+  var fs=document.querySelectorAll('.field'),i,k,el;
+  for(i=0;i<fs.length;i++){el=fs[i];el.className=el.className.replace(' act','')+(el.getAttribute('data-v')===f?' act':'')}
+  k=document.querySelector('.kb');if(k)k.outerHTML=kb();
+}
+var PH={name:'e.g. Arjun Das',phone:'10 digits',plate:'WB 02 AB 1234',email:'name@example.com'};
+function fieldBad(f){return f==='name'?S.name.trim().length<2:f==='phone'?S.phone.length!==10:f==='plate'?S.plate.trim().length<4:!emailOk()}
 function typeKey(k){
   var f=S.field,v=S[f];
   if(k==='DEL')v=v.slice(0,-1);
@@ -629,7 +677,11 @@ function typeKey(k){
   else if(f==='plate'){if(k!==' '||v.length)v=(v+k).toUpperCase().slice(0,13)}
   else{if(v.length<28)v=v?v+k.toLowerCase():k}
   if(f==='name'){/* capitalise words */ v=v.replace(/(^|\s)([a-z])/g,function(m,a,b){return a+b.toUpperCase()})}
-  S[f]=v;render();
+  S[f]=v;
+  if(S.tried&&f==='email'){render();return}
+  var box=document.querySelector('.field.act'),sp=box&&box.getElementsByTagName('span')[0];
+  if(sp){sp.className=v?'':'ph';sp.textContent=v||PH[f]}
+  if(box&&S.tried){box.className=box.className.replace(' bad','')+(fieldBad(f)?' bad':'')}
 }
 /* deterministic faux QR */
 function drawQR(){
@@ -661,7 +713,8 @@ function clocks(){var t=MP.time(Date.now());$('kclock').textContent=t;$('tclock'
 clocks();setInterval(clocks,20000);setInterval(tickJobs,1000);renderJobs();
 
 /* events */
-document.addEventListener('click',function(e){
+var lastTouch=0,tp=null;
+function onTap(e){
   var t=e.target.closest('[data-tab]');
   if(t){var m={k:'kiosk',t:'tv',a:'att'},w=t.dataset.tab;Object.keys(m).forEach(function(x){$(m[x]).hidden=x!==w;$('tab-'+x).setAttribute('aria-selected',x===w)});if(w==='t')renderJobs();if(window.mpTab)window.mpTab(w);return}
   var b=e.target.closest('[data-a]');if(!b||b.disabled)return;
@@ -672,9 +725,9 @@ document.addEventListener('click',function(e){
   else if(a==='svc'){S.sel[v]=!S.sel[v];S.slot=null;S.startNow=false;render()}
   else if(a==='slot'){S.slot=v;S.startNow=false;render()}
   else if(a==='slotnow'){S.slot=v;S.startNow=true;render()}
-  else if(a==='field'){S.field=v;render()}
+  else if(a==='field'){setField(v)}
   else if(a==='key')typeKey(v);
-  else if(a==='nextfield'){S.field=NEXTF[S.field];render()}
+  else if(a==='nextfield'){setField(NEXTF[S.field])}
   else if(a==='method'){S.method=v;render()}
   else if(a==='restart'){S=fresh();render()}
   else if(a==='back'){var order=['welcome','vehicle','services','slot','details','pay'];var i=order.indexOf(S.step);go(order[Math.max(0,i-1)])}
@@ -685,13 +738,22 @@ document.addEventListener('click',function(e){
     else if(S.step==='details'){if(!canNext()){S.tried=true;render();return}go('pay')}
     else if(S.step==='pay'){confirmBooking()}
   }
-});
+}
+document.addEventListener('click',function(e){if(new Date().getTime()-lastTouch<700)return;onTap(e)},false);
+document.addEventListener('touchstart',function(e){var t=e.touches[0];tp=(e.touches.length===1)?{x:t.clientX,y:t.clientY,m:false}:null},false);
+document.addEventListener('touchmove',function(e){if(tp){var t=e.touches[0];if(Math.abs(t.clientX-tp.x)>10||Math.abs(t.clientY-tp.y)>10)tp.m=true}},false);
+document.addEventListener('touchend',function(e){
+  var was=tp;tp=null;
+  if(!was||was.m||!e.target.closest)return;
+  if(!e.target.closest('[data-a],[data-tab]'))return;
+  e.preventDefault();lastTouch=new Date().getTime();onTap({target:e.target});
+},false);
 document.addEventListener('keydown',function(e){
   if(!e.key||S.step!=='details'||e.ctrlKey||e.metaKey||e.altKey||$('kiosk').hidden)return;
   if(e.key==='Backspace'){typeKey('DEL');e.preventDefault()}
   else if(e.key.length===1&&/[a-zA-Z0-9 ]/.test(e.key)){typeKey(e.key.toUpperCase());e.preventDefault()}
   else if(e.key.length===1&&/[@._-]/.test(e.key)){if(S.field==='email')typeKey(e.key);e.preventDefault()}
-  else if(e.key==='Tab'){S.field=NEXTF[S.field];render();e.preventDefault()}
+  else if(e.key==='Tab'){setField(NEXTF[S.field]);e.preventDefault()}
 });
 /* ---------- Send each booking to the shared Google Sheet (same Apps Script as the website) ---------- */
 var SHEET_URL='https://script.google.com/macros/s/AKfycbx74xNj_y54Q5fY8HT2veK_EkzL0Q_fm3L86R-Miei4qGZtbMZDH-YIIn9AwYNta8m9tA/exec';
@@ -701,7 +763,7 @@ var QKEY='mypod_kiosk_queue',syncing=false;
 function p2(n){return (n<10?'0':'')+n}
 function ymd(d){return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate())}
 /* ---------- Today's open slots: 9 AM to 9 PM, 40-minute buffer after every job ---------- */
-var HRS={open:540,close:1260,buffer:40,step:40};
+var HRS={open:540,close:1260,buffer:40,step:40,job:60};   /* every booking uses the same fixed block (job + buffer), whatever the work */
 var SB={loading:false,ready:false,busy:[],nowMin:0,date:'',at:0};
 function fmtMin(m){var h=Math.floor(m/60),mm=m%60;return ((h%12)||12)+':'+p2(mm)+' '+(h>=12?'PM':'AM')}
 function parseMin(t){var m=/^(\d{1,2}):(\d{2}) (AM|PM)$/.exec(String(t||'').trim());if(!m)return NaN;var h=Number(m[1])%12;if(m[3]==='PM')h+=12;return h*60+Number(m[2])}
@@ -712,20 +774,25 @@ function nowMinute(){
 }
 function localBusy(){
   var out=[],today=ymd(new Date());
-  qGet().forEach(function(r){var s0=parseMin(r.time);if(r.date===today&&!isNaN(s0))out.push([s0,s0+(r.durationMins||60)+HRS.buffer])});
+  qGet().forEach(function(r){var s0=parseMin(r.time);if(r.date===today&&!isNaN(s0))out.push([s0,s0+HRS.job+HRS.buffer])});
   return out;
 }
-function isFree(t,d,busy){
-  var end=t+d+HRS.buffer,i;
+function isFree(t,busy){
+  var end=t+HRS.job+HRS.buffer,i;
   for(i=0;i<busy.length;i++){if(t<busy[i][1]&&end>busy[i][0])return false}
   return true;
 }
-/* "Start now" (if the studio is free right now) plus a list of times every 40 minutes from opening (9:00, 9:40, 10:20 ...) */
-function slotPlan(d){
-  var busy=(SB.ready?SB.busy:[]).concat(localBusy()),t0=Math.ceil((nowMinute()+5)/5)*5,grid=[],t;
-  var now=(t0>=HRS.open&&t0+d<=HRS.close&&isFree(t0,d,busy))?t0:null;
-  for(t=HRS.open;t+d<=HRS.close;t+=HRS.step){if(t>=t0&&isFree(t,d,busy))grid.push(t)}
-  return {now:now,grid:grid};
+/* Start now = the earliest free time from right now. The list = a time every 40 minutes from opening (9:00, 9:40, 10:20 ...). */
+function slotPlan(){
+  var busy=(SB.ready?SB.busy:[]).concat(localBusy()),t0=Math.max(HRS.open,Math.ceil((nowMinute()+5)/5)*5),grid=[],t=t0,guard=0,startAt=null,clash,i;
+  while(t+HRS.job<=HRS.close&&guard++<300){
+    clash=null;
+    for(i=0;i<busy.length;i++){if(t<busy[i][1]&&t+HRS.job+HRS.buffer>busy[i][0]){clash=busy[i];break}}
+    if(clash){t=Math.ceil(clash[1]/5)*5;continue}
+    startAt=t;break;
+  }
+  for(t=HRS.open;t+HRS.job<=HRS.close;t+=HRS.step){if(t>=t0&&isFree(t,busy))grid.push(t)}
+  return {now:startAt,t0:t0,grid:grid};
 }
 function slotText(){return (S.startNow?'Start now, ':'')+S.slot}
 function postJson(rec,ms,cb){
@@ -786,7 +853,7 @@ function confirmBooking(){
     vehicleType:S.vt==='car'?'Car':'Bike',vehicleSize:sizeObj().label,vehicleNumber:S.plate,
     serviceName:(pk.length?pk:ad).map(function(x){return x.name}).join(', '),addOns:ad.map(function(x){return x.name}),
     serviceMode:'Walk-in (Kiosk)',address:STUDIO_ADDRESS,landmark:'',couponCode:'',
-    date:(SB.ready&&SB.date)?SB.date:ymd(now),time:S.slot,durationMins:mins(),
+    date:(SB.ready&&SB.date)?SB.date:ymd(now),time:S.slot,
     listPrice:sum(pk),discount:0,addOnTotal:sum(ad),price:total(),
     paymentMethod:{upi:'UPI',card:'Card',counter:'Pay at counter'}[S.method],paymentStatus:S.paid?'Paid':'Pay at counter'
   });
