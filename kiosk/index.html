@@ -567,7 +567,7 @@ function canNext(){
     case 'vehicle':return !!(S.vt&&S.size);
     case 'services':return chosen().length>0;
     case 'slot':return !!S.slot;
-    case 'details':return S.name.trim().length>1&&S.phone.length===10&&S.plate.trim().length>=4&&emailOk();
+    case 'details':return S.name.trim().length>1&&/^[6-9]\d{9}$/.test(S.phone)&&S.plate.trim().length>=4&&emailOk();
     case 'pay':return true;
   }return true;
 }
@@ -612,7 +612,7 @@ function render(){
   else if(S.step==='details'){
     var fld=function(k,l,ph,val,bad,xc){return '<div role="button" tabindex="0" class="field'+(xc?' '+xc:'')+(S.field===k?' act':'')+(bad&&S.tried?' bad':'')+'" data-a="field" data-v="'+k+'"><small>'+l+'</small><span class="'+(val?'':'ph')+'">'+(val?esc(val):ph)+'</span></div>'};
     h='<h2>Who do we call?</h2><p class="sub">We send the token and progress updates on WhatsApp.</p>'+
-      '<div class="fields">'+fld('name','Your name','e.g. Arjun Das',S.name,S.name.trim().length<2)+fld('phone','Mobile number','10 digits',S.phone,S.phone.length!==10)+fld('plate','Vehicle number','WB 02 AB 1234',S.plate,S.plate.trim().length<4)+fld('email','Email for invoice (optional)','name@example.com',S.email,!emailOk(),'full')+'</div>'+(S.tried&&!emailOk()?'<p class="formerr">That email does not look right. Check it, or leave it empty.</p>':'<p class="formnote">Email is optional. Add it if you would like your invoice by email.</p>')+kb();
+      '<div class="fields">'+fld('name','Your name','e.g. Arjun Das',S.name,S.name.trim().length<2)+fld('phone','Mobile number','10 digits',S.phone,!/^[6-9]\d{9}$/.test(S.phone))+fld('plate','Vehicle number','WB 02 AB 1234',S.plate,S.plate.trim().length<4)+fld('email','Email for invoice (optional)','name@example.com',S.email,!emailOk(),'full')+'</div>'+(S.tried&&!emailOk()?'<p class="formerr">That email does not look right. Check it, or leave it empty.</p>':'<p class="formnote">Email is optional. Add it if you would like your invoice by email.</p>')+kb();
   }
   else if(S.step==='pay'){
     var d=total(),adv=Math.round(d*(longJob()?0.3:1));
@@ -668,7 +668,7 @@ function setField(f){
   k=document.querySelector('.kb');if(k)k.outerHTML=kb();
 }
 var PH={name:'e.g. Arjun Das',phone:'10 digits',plate:'WB 02 AB 1234',email:'name@example.com'};
-function fieldBad(f){return f==='name'?S.name.trim().length<2:f==='phone'?S.phone.length!==10:f==='plate'?S.plate.trim().length<4:!emailOk()}
+function fieldBad(f){return f==='name'?S.name.trim().length<2:f==='phone'?!/^[6-9]\d{9}$/.test(S.phone):f==='plate'?S.plate.trim().length<4:!emailOk()}
 function typeKey(k){
   var f=S.field,v=S[f];
   if(k==='DEL')v=v.slice(0,-1);
@@ -812,24 +812,49 @@ function loadBusy(){
     if(S.step==='slot')render();
   });
 }
-function qGet(){try{return JSON.parse(localStorage.getItem(QKEY)||'[]')}catch(e){return []}}
-function qSet(a){try{localStorage.setItem(QKEY,JSON.stringify(a))}catch(e){}}
+var REJKEY='mypod_kiosk_rejected';
+var MEMQ=(function(){try{return JSON.parse(localStorage.getItem(QKEY)||'[]')}catch(e){return []}})();
+var MEMR=(function(){try{return JSON.parse(localStorage.getItem(REJKEY)||'[]')}catch(e){return []}})();
+function qGet(){return MEMQ.slice()}
+function qSet(a){MEMQ=a.slice();try{localStorage.setItem(QKEY,JSON.stringify(a))}catch(e){}}
+function rejGet(){return MEMR.slice()}
+function rejSet(a){MEMR=a.slice();try{localStorage.setItem(REJKEY,JSON.stringify(a))}catch(e){}}
+function badge(){
+  var n=qGet().length,r=rejGet().length,b=document.getElementById('syncbadge');
+  if(!n&&!r){if(b&&b.parentNode)b.parentNode.removeChild(b);return}
+  if(!b){b=document.createElement('div');b.id='syncbadge';b.style.cssText='position:fixed;left:8px;bottom:8px;z-index:99999;background:#b00020;color:#fff;font:12px Arial,sans-serif;padding:6px 10px;border-radius:8px;opacity:.92';document.body.appendChild(b)}
+  b.textContent=(n?n+' booking(s) waiting to sync. ':'')+(r?r+' rejected by server. ':'')+'Tell the manager.';
+}
 function postOne(rec,cb){
   try{
     var x=new XMLHttpRequest();
     x.open('POST',SHEET_URL,true);x.timeout=25000;
-    x.onload=function(){var ok=false;if(x.status>=200&&x.status<300){try{ok=JSON.parse(x.responseText).ok===true}catch(e){ok=false}}cb(ok)};
-    x.onerror=function(){cb(false)};x.ontimeout=function(){cb(false)};
+    x.onload=function(){
+      var d=null;
+      if(x.status>=200&&x.status<300){try{d=JSON.parse(x.responseText)}catch(e){d=null}}
+      if(d&&d.ok===true)cb('ok',d);
+      else if(d&&d.ok===false&&!/lock|timeout|try again|too many times|quota|service invoked/i.test(String(d.message||'')))cb('reject',d); /* the server read it and said no: retrying will never help */
+      else cb('retry',d); /* network trouble, HTML error page, or a temporary server problem */
+    };
+    x.onerror=function(){cb('retry',null)};x.ontimeout=function(){cb('retry',null)};
     x.send(JSON.stringify(rec));
-  }catch(e){cb(false)}
+  }catch(e){cb('retry',null)}
 }
 function syncQueue(){
   if(syncing)return;
-  var q=qGet();if(!q.length)return;
+  var q=qGet();if(!q.length){badge();return}
   syncing=true;
-  postOne(q[0],function(ok){
+  var rec=q[0],id=rec.bookingId;
+  postOne(rec,function(st,d){
     syncing=false;
-    if(ok){var id=q[0].bookingId;qSet(qGet().filter(function(r){return r.bookingId!==id}));syncQueue()}
+    if(st==='ok'){qSet(qGet().filter(function(r){return r.bookingId!==id}));syncQueue()}
+    else if(st==='reject'){
+      rec.error=(d&&d.message)||'rejected';
+      rejSet(rejGet().concat([rec]));
+      qSet(qGet().filter(function(r){return r.bookingId!==id}));   /* a bad booking must never block the ones behind it */
+      syncQueue();
+    }
+    else badge();
   });
 }
 setInterval(syncQueue,30000);
@@ -857,7 +882,7 @@ function confirmBooking(){
     listPrice:sum(pk),discount:0,addOnTotal:sum(ad),price:total(),
     paymentMethod:{upi:'UPI',card:'Card',counter:'Pay at counter'}[S.method],paymentStatus:S.paid?'Paid':'Pay at counter'
   });
-  qSet(q);syncQueue();
+  qSet(q);badge();syncQueue();
   go('done');
 }
 render();
