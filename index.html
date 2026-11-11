@@ -172,15 +172,21 @@ header{position:sticky;top:0;z-index:30;height:68px;display:flex;align-items:cen
 .summary .total{border-top:1px solid #333;margin-top:6px;padding-top:9px;font-weight:800;font-size:16px;color:var(--y)}
 .summary .line span:last-child{font-variant-numeric:tabular-nums;text-align:right}
 .booking .btn[disabled]{opacity:.55;cursor:not-allowed;transform:none}
-.paybox{margin-top:14px;padding:14px;border:1px solid #6b5d10;background:#0e0e0e;border-radius:12px;text-align:center}
-.paybox h4{margin:0 0 4px;font:700 14px var(--disp,inherit);color:var(--y)}
-.paybox .pnote{margin:0 0 10px!important;font-size:12px;color:var(--muted)!important}
-.paybox .payamt{font:700 22px var(--mono,monospace);color:var(--y);margin:2px 0 10px}
-.paybox canvas{display:block;width:176px;height:176px;margin:10px auto 8px;background:#fff;border-radius:10px;padding:0}
-.paybox .upiid{font:600 12px var(--mono,monospace);color:#fff;overflow-wrap:anywhere;margin:0!important}
-.paybox .upinm{font-size:11px;color:var(--muted);margin:2px 0 0!important}
-.paybox .actions-row{justify-content:center}
-.paybox a.paygo{background:var(--y);color:#111;border-color:var(--y)}
+.payp{margin-top:12px;padding:14px;border:1px solid #3d3d3d;background:#101010;border-radius:12px}
+.payp h4{margin:0 0 4px;font-size:14px;color:#fff}
+.payp .pnote{margin:6px 0 0;font-size:12px;color:var(--muted);line-height:1.5}
+.payp .payamt{font:700 22px var(--mono,monospace);color:var(--y);margin:0 0 10px}
+.upiapps{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+.upiapp{display:flex;align-items:center;gap:10px;padding:11px 12px;border:1px solid #444;border-radius:12px;background:#151515;color:#fff;font-size:13px;font-weight:700;text-decoration:none;min-height:48px}
+.upiapp:active{border-color:var(--y);background:#292300}
+.upiapp i{font-style:normal;flex:none;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;color:#fff;font-size:13px;font-weight:800}
+.upiapp.wide{grid-column:1/-1}
+.payp details{margin-top:10px;border-top:1px solid #2c2c2c;padding-top:10px}
+.payp summary{cursor:pointer;font-size:13px;font-weight:700;color:var(--y)}
+.payp canvas{display:block;width:190px;height:190px;margin:12px auto 6px;background:#fff;border-radius:10px}
+.payp .upiid{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;padding:10px 12px;border:1px dashed #555;border-radius:10px;font:600 13px var(--mono,monospace);color:#fff;overflow-wrap:anywhere}
+.payp .upiid button{flex:none;padding:7px 12px;border-radius:8px;border:1px solid #6b5d10;background:#222;color:#fff;font-size:12px;font-weight:700;cursor:pointer}
+.payp .upinm{margin:4px 0 0;font-size:11px;color:var(--muted)}
 .actions-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 .actions-row a,.actions-row button{flex:1 1 130px;text-align:center;padding:11px;border-radius:10px;border:1px solid #6b5d10;background:#222;color:#fff;font-size:12px;font-weight:700;cursor:pointer}
 .manage{display:grid;grid-template-columns:1fr 1fr;gap:30px;align-items:start;border:1px solid #292929;border-radius:18px;padding:28px;background:linear-gradient(145deg,#151515,#080808)}
@@ -235,7 +241,7 @@ header{position:sticky;top:0;z-index:30;height:68px;display:flex;align-items:cen
 /* booking wizard */
 #booking{scroll-margin-top:90px}
 .bhead{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:14px}.bhead h2{margin:0}.bhead span{font-size:11px;color:#aaa}
-.prog{list-style:none;display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:0 0 16px;padding:0}
+.prog{list-style:none;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:0 0 16px;padding:0}
 .prog li{display:flex;align-items:center;gap:7px;font-size:11px;color:#888;padding-top:9px;border-top:3px solid #2c2c2c}
 .prog li i{font-style:normal;display:grid;place-items:center;width:20px;height:20px;border-radius:50%;background:#222;font-size:11px;font-weight:800}
 .prog li.on{color:#fff;border-color:var(--y)}.prog li.on i,.prog li.done i{background:var(--y);color:#111}.prog li.done{color:#ddd;border-color:#7a6a14}
@@ -587,7 +593,7 @@ body{touch-action:pan-y pinch-zoom}
 <div class="bhead"><h2>Book MyPod Car &amp; Bike Care</h2><span>Takes under a minute</span></div>
 <div class="banner" id="demoBanner" hidden>Preview only: the booking service is not connected yet, so bookings are saved in this browser only.</div>
 <input class="hp" type="text" name="website" id="website" tabindex="-1" autocomplete="off" aria-hidden="true">
-<ol class="prog" id="prog"><li data-s="1" class="on"><i>1</i>Service</li><li data-s="2"><i>2</i>Place &amp; time</li><li data-s="3"><i>3</i>Confirm</li></ol>
+<ol class="prog" id="prog"><li data-s="1" class="on"><i>1</i>Service</li><li data-s="2"><i>2</i>Place &amp; time</li><li data-s="3"><i>3</i>Details</li><li data-s="4"><i>4</i>Pay</li></ol>
 
 <section class="pane" data-pane="1">
 <div class="opts" role="radiogroup" aria-label="Service type">
@@ -636,8 +642,21 @@ body{touch-action:pan-y pinch-zoom}
 <div class="couponrow"><input class="field" id="couponCode" autocomplete="off" placeholder="Promo / flyer code (optional)" maxlength="40" aria-required="false" aria-describedby="couponHint" autocapitalize="characters" spellcheck="false"><button class="secondary-btn" type="button" id="applyCoupon">Apply</button></div>
 <div class="small-note" id="couponHint">Have a MyPod flyer code? Enter it here to apply the existing offer. You can also book normally without a code.</div>
 <div class="small-note" id="couponMsg"></div>
-<div class="summary" id="summary" aria-live="polite"></div>
-<div class="nav2"><button class="btn ghost" type="button" data-back>← Back</button><button class="btn" type="submit" id="bookBtn">Confirm booking →</button></div>
+<div class="msg" id="msg3" role="status" aria-live="polite"></div>
+<div class="nav2"><button class="btn ghost" type="button" data-back>← Back</button><button class="btn" type="button" data-next id="toPay">Continue to payment →</button></div>
+</section>
+
+<section class="pane" data-pane="4" hidden>
+<div class="lbl" style="margin-top:0">Your booking</div>
+<div class="summary" id="summary" aria-live="polite" style="margin-top:6px"></div>
+<div class="lbl">How would you like to pay?</div>
+<div class="opts" role="radiogroup" aria-label="Payment method">
+<label class="opt" id="payOptUpi"><input type="radio" name="payMethod" value="upi" checked><span><b>Pay with UPI</b><small>Choose your UPI app or scan the QR</small></span></label>
+<label class="opt"><input type="radio" name="payMethod" value="cash"><span><b>Pay cash after service</b><small>No online payment. Pay us when the job is done</small></span></label>
+</div>
+<div class="payp" id="upiPanel"></div>
+<div class="payp" id="cashPanel" hidden><h4>Pay cash after the service</h4><p class="pnote">Nothing to pay online. Pay in cash once your service is completed. Your slot is held as soon as you confirm.</p></div>
+<div class="nav2"><button class="btn ghost" type="button" data-back>← Back</button><button class="btn" type="submit" id="bookBtn">I have paid, confirm booking →</button></div>
 <div class="msg" id="msg" role="status" aria-live="polite"></div>
 <div class="fine">A promo / flyer code is optional. Existing flyer offers remain valid and each code can be used according to its offer rules. Your slot is confirmed only after the booking is saved. Your details and doorstep address are remembered on this device for your next booking.</div>
 <div class="booking-result" id="bookingResult" role="status" aria-live="polite" tabindex="-1"></div>
@@ -963,7 +982,7 @@ const priceOf = (it, sz) => { sz = sz === undefined ? vsize() : sz; return sz &&
 const fromPrice = it => Math.min(...Object.values(it.prices));
 const addOnsFor = () => ADD_ON_CATALOG[vehicle()] || [];
 const NEWTOWN = /(newtown|new town|rajarhat|action area|700156|700157|700135)/i;
-const state = { openSvc:"", slot:"", coupon:null, busy:false, seq:0, step:1, loc:null, asked:false };
+const state = { openSvc:"", slot:"", coupon:null, busy:false, seq:0, step:1, loc:null, asked:false, pay:"upi" };
 
 const inr = n => "₹" + Number(n).toLocaleString("en-IN");
 const mode = () => document.querySelector('input[name="serviceMode"]:checked').value;
@@ -1261,6 +1280,8 @@ function go(n,quiet){
   document.querySelectorAll('.pane').forEach(p=>p.hidden=+p.dataset.pane!==n);
   document.querySelectorAll('#prog li').forEach(li=>{ const s=+li.dataset.s; li.classList.toggle('on',s===n); li.classList.toggle('done',s<n); });
   renderSummary();
+  if(n===4) renderPay();
+  $('bookBtn').textContent = bookLabel();
   if(n===2){ loadSlots(); askLoc(); }
   if(!quiet) $('booking').scrollIntoView({behavior:"smooth",block:"start"});
 }
@@ -1275,7 +1296,23 @@ function check2(){
   if(!state.slot) return ["Pick a time slot.",document.querySelector('#slots input:not(:disabled)')];
   return null;
 }
-function nextStep(){
+async function nextStep(){
+  if(state.step===3){
+    if(state.busy) return;
+    const fail3 = (m, el) => { haptic("error"); setMsg($('msg3'), m, "bad"); if(el) el.focus(); };
+    if ($('customerName').value.trim().length < 2) return fail3("Enter your full name.", $('customerName'));
+    if (!validPhone($('customerPhone').value)) return fail3("Enter a valid 10-digit mobile number.", $('customerPhone'));
+    if (!validEmail($('customerEmail').value)) return fail3("Enter a valid email address. We send your confirmation there.", $('customerEmail'));
+    const code = formatCouponInput();
+    if (code) {
+      if (!state.coupon || state.coupon.code.toUpperCase() !== code) {
+        state.busy = true; $('toPay').disabled = true; $('toPay').textContent = "Checking coupon…";
+        try { await applyCoupon(true); } finally { state.busy = false; $('toPay').disabled = false; $('toPay').textContent = "Continue to payment →"; }
+        if (!state.coupon) return fail3("That promo / flyer code cannot be used for this booking. " + ($('couponMsg').textContent || "Check the code and try again."), $('couponCode'));
+      }
+    } else { state.coupon = null; setMsg($('couponMsg'), "", ""); }
+    setMsg($('msg3'), "", "");
+  }
   if(state.step===1){
     if(!vsize()){ haptic("error"); setMsg($('msg1'),"Choose your vehicle size so we can show the right price.","bad"); const f=document.querySelector('#sizeOpts input'); if(f) f.focus(); return; }
     setMsg($('msg1'),"","");
@@ -1315,6 +1352,7 @@ function renderSvc(){
 function initWizard(){
   document.querySelectorAll('[data-next]').forEach(b=>b.addEventListener('click',nextStep));
   document.querySelectorAll('[data-back]').forEach(b=>b.addEventListener('click',()=>{ haptic("select"); go(state.step-1); }));
+  document.querySelectorAll('input[name="payMethod"]').forEach(r=>r.addEventListener('change',()=>{ state.pay=r.value; haptic("select"); renderPay(); }));
   $('locOpen').addEventListener('click',openLoc);
   $('locEnable').addEventListener('click',useGPS); $('locUseTyped').addEventListener('click',useTyped); $('locClose').addEventListener('click',closeLoc);
   $('locModal').addEventListener('click',e=>{ if(e.target===$('locModal')) closeLoc(); });
@@ -1417,6 +1455,71 @@ function renderSummary(){
 }
 
 /* ---------- Booking ---------- */
+/* ---------- Payment step ---------- */
+const UPI_ID = "9886950617m@pnb", UPI_NAME = "MPOD DETAILING STUDIO LLP";
+const UPI_APPS = [
+  {name:"Google Pay", mark:"G",  color:"#4285f4", pkg:"com.google.android.apps.nbu.paisa.user", ios:"gpay://upi/pay"},
+  {name:"PhonePe",    mark:"Pe", color:"#5f259f", pkg:"com.phonepe.app",                        ios:"phonepe://pay"},
+  {name:"Paytm",      mark:"P",  color:"#00a6e0", pkg:"net.one97.paytm",                        ios:"paytmmp://pay"},
+  {name:"BHIM",       mark:"B",  color:"#e8741a", pkg:"in.org.npci.upiapp",                     ios:"upi://pay"},
+  {name:"Other UPI app", mark:"₹", color:"#555",  pkg:"",                                       ios:"upi://pay", wide:true}
+];
+const isMobileDevice = () => /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && /Macintosh/.test(navigator.userAgent));
+function payTotal(){
+  const p = priceOf(service()); if (p == null) return null;
+  return Math.max(0, p - (state.coupon ? state.coupon.discount : 0)) + selectedAddOns().reduce((a, x) => a + x.price, 0);
+}
+function payMethodName(){ const t = payTotal(); return (state.pay === "upi" && t > 0) ? "UPI" : "Cash after service"; }
+function bookLabel(){ return (state.step === 4 && payMethodName() === "UPI") ? "I have paid, confirm booking →" : "Confirm booking →"; }
+function upiQuery(amt){ return "pa=" + UPI_ID + "&pn=" + encodeURIComponent(UPI_NAME) + "&am=" + Number(amt).toFixed(2) + "&cu=INR&tn=" + encodeURIComponent("MyPod booking"); }
+function upiAppLink(a, q){
+  if (/Android/i.test(navigator.userAgent)) return a.pkg ? "intent://pay?" + q + "#Intent;scheme=upi;package=" + a.pkg + ";end" : "upi://pay?" + q;
+  return a.ios + "?" + q;
+}
+function drawUpiQr(c, text){
+  try {
+    const q = qrcode(0, 'M'); q.addData(text); q.make();
+    const n = q.getModuleCount(), cs = Math.floor(400 / (n + 8)), off = Math.floor((400 - cs * n) / 2), x = c.getContext('2d');
+    x.fillStyle = "#fff"; x.fillRect(0, 0, 400, 400); x.fillStyle = "#000";
+    for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) if (q.isDark(i, j)) x.fillRect(off + j * cs, off + i * cs, cs, cs);
+  } catch (e) {}
+}
+function renderPay(){
+  const amt = payTotal(), noUpi = !(amt > 0);
+  $('payOptUpi').hidden = noUpi;
+  if (noUpi) { state.pay = "cash"; document.querySelector('input[name="payMethod"][value="cash"]').checked = true; }
+  else document.querySelector('input[name="payMethod"][value="' + state.pay + '"]').checked = true;
+  const useUpi = state.pay === "upi" && !noUpi;
+  $('upiPanel').hidden = !useUpi; $('cashPanel').hidden = useUpi;
+  $('bookBtn').textContent = bookLabel();
+  if (!useUpi) return;
+  const q = upiQuery(amt), mobile = isMobileDevice(), box = $('upiPanel'); box.innerHTML = "";
+  const h = document.createElement('h4'); h.textContent = "Pay with UPI";
+  const a = document.createElement('div'); a.className = "payamt"; a.textContent = inr(amt);
+  box.append(h, a);
+  if (mobile) {
+    const lab = document.createElement('div'); lab.className = "small-note"; lab.textContent = "Choose your UPI app. It opens with the amount filled in.";
+    const grid = document.createElement('div'); grid.className = "upiapps";
+    UPI_APPS.forEach(app => {
+      const l = document.createElement('a'); l.className = "upiapp" + (app.wide ? " wide" : ""); l.href = upiAppLink(app, q);
+      const m = document.createElement('i'); m.textContent = app.mark; m.style.background = app.color;
+      l.append(m, document.createTextNode(app.name)); l.addEventListener('click', () => haptic("tick")); grid.appendChild(l);
+    });
+    box.append(lab, grid);
+  }
+  const det = document.createElement('details'); if (!mobile) det.open = true;
+  const sm = document.createElement('summary'); sm.textContent = mobile ? "Show QR code instead" : "Scan this QR with any UPI app on your phone";
+  const c = document.createElement('canvas'); c.width = c.height = 400; c.setAttribute('aria-label', 'UPI payment QR code'); drawUpiQr(c, "upi://pay?" + q);
+  det.append(sm, c); box.appendChild(det);
+  const id = document.createElement('div'); id.className = "upiid";
+  const t = document.createElement('span'); t.textContent = "UPI ID: " + UPI_ID;
+  const cp = document.createElement('button'); cp.type = "button"; cp.textContent = "Copy";
+  cp.addEventListener('click', async () => { try { await navigator.clipboard.writeText(UPI_ID); toast("UPI ID copied"); } catch (e) { toast("UPI ID: " + UPI_ID); } });
+  id.append(t, cp);
+  const nm = document.createElement('p'); nm.className = "upinm"; nm.textContent = UPI_NAME;
+  const note = document.createElement('p'); note.className = "pnote"; note.textContent = "After you pay, come back to this page and tap \u201cI have paid, confirm booking\u201d. We check the payment on our side.";
+  box.append(id, nm, note);
+}
 function rememberCustomer(){
   store.set('mypod_customer', JSON.stringify({
     name:$('customerName').value.trim(), phone:$('customerPhone').value.trim(), email:$('customerEmail').value.trim(),
@@ -1440,7 +1543,7 @@ function fail(msg, focusEl){ haptic("error"); setMsg($('msg'), msg, "bad"); if(f
 async function submitBooking(ev){
   ev.preventDefault();
   if (state.busy) return;
-  if (state.step < 3) return nextStep();
+  if (state.step < 4) return nextStep();
   $('bookingResult').classList.remove('show');
   if (!vsize()) { haptic("error"); go(1,true); setMsg($('msg1'), "Choose your vehicle size so we can show the right price.", "bad"); return; }
   const e = check2(); if (e) { haptic("error"); go(2,true); setMsg($('msg2'), e[0], "bad"); return; }
@@ -1452,7 +1555,7 @@ async function submitBooking(ev){
   if (couponCode) {
     if (!state.coupon || state.coupon.code.toUpperCase() !== couponCode) {
       state.busy = true; $('bookBtn').disabled = true; $('bookBtn').textContent = "Checking coupon…";
-      try { await applyCoupon(true); } finally { state.busy = false; $('bookBtn').disabled = false; $('bookBtn').textContent = "Confirm booking →"; }
+      try { await applyCoupon(true); } finally { state.busy = false; $('bookBtn').disabled = false; $('bookBtn').textContent = bookLabel(); }
       if (!state.coupon) { return fail("That promo / flyer code cannot be used for this booking. " + ($('couponMsg').textContent || "Check the code and try again."), $('couponCode')); }
     }
   } else {
@@ -1464,17 +1567,18 @@ async function submitBooking(ev){
     addOns:selectedAddOns().map(item => item.name),
     address: door ? [$('address').value.trim(), $('addrArea').value.trim()].filter(Boolean).join(", ") : STUDIO_ADDRESS, landmark: door ? $('landmark').value.trim() : "",
     lat: door && L && L.lat!=null ? L.lat : null, lng: door && L && L.lng!=null ? L.lng : null,
-    date:$('date').value, time:state.slot, customerName:$('customerName').value.trim(), customerPhone:cleanPhone($('customerPhone').value), customerEmail:$('customerEmail').value.trim()};
+    date:$('date').value, time:state.slot, customerName:$('customerName').value.trim(), customerPhone:cleanPhone($('customerPhone').value), customerEmail:$('customerEmail').value.trim(), paymentMethod:payMethodName()};
   unlockAudio(); haptic("medium");
   state.busy = true; $('bookBtn').disabled = true; $('bookBtn').textContent = "Saving your booking…"; setMsg($('msg'), "", "");
   try {
     const r = await api('createBooking', payload);
+    r.booking.paymentMethod = r.booking.paymentMethod || payload.paymentMethod;
     rememberCustomer(); showConfirmation(r.booking, $('customerEmail').value.trim());
     setMsg($('msg'), "Booking confirmed. " + (LIVE ? "A confirmation email is on its way to " + $('customerEmail').value.trim() + "." : "Save your booking ID."), "ok");
     toast("Booking confirmed: " + r.booking.bookingId);
     loadSlots();
   } catch(err){ haptic("error"); setMsg($('msg'), err.message, "bad"); loadSlots(); }
-  finally { state.busy=false; $('bookBtn').disabled=false; $('bookBtn').textContent="Confirm booking →"; }
+  finally { state.busy=false; $('bookBtn').disabled=false; $('bookBtn').textContent=bookLabel(); }
 }
 
 function detailRows(b){
@@ -1483,6 +1587,7 @@ function detailRows(b){
   const extras = Array.isArray(b.addOns) ? b.addOns : (b.addOns ? String(b.addOns).split(",").map(x=>x.trim()).filter(Boolean) : []);
   if (extras.length) rows.push(["Add-ons",extras.map(x=>typeof x==="string"?x:x.name).join(", ")]);
   if (Number(b.addOnTotal||0)>0) rows.push(["Add-on total",inr(b.addOnTotal)]);
+  if (b.paymentMethod) rows.push(["Payment", b.paymentMethod === "UPI" ? "UPI" : b.paymentMethod === "Cash after service" ? "Pay cash after the service is completed" : b.paymentMethod]);
   rows.push(["Amount",b.price==null?"Final quote by MyPod":inr(b.price)]);
   return rows;
 }
@@ -1497,37 +1602,6 @@ function icsFor(b){
     "DTSTART;TZID=Asia/Kolkata:"+start,"DTEND;TZID=Asia/Kolkata:"+end,"SUMMARY:MyPod "+b.serviceName,"LOCATION:"+String(b.address).replace(/[,;]/g," "),
     "DESCRIPTION:Booking "+b.bookingId,"END:VEVENT","END:VCALENDAR"].join("\r\n");
 }
-const UPI_ID = "9886950617m@pnb", UPI_NAME = "MPOD DETAILING STUDIO LLP";
-function upiUrl(amount, note){
-  return "upi://pay?pa=" + UPI_ID + "&pn=" + encodeURIComponent(UPI_NAME) + (amount > 0 ? "&am=" + Number(amount).toFixed(2) : "") + "&cu=INR&tn=" + encodeURIComponent(note || "MyPod booking");
-}
-function payBlock(b){
-  const amt = Number(b && b.price);
-  if (!b || !(amt > 0) || String(b.status||"") === "Cancelled") return null;
-  const url = upiUrl(amt, "MyPod " + b.bookingId);
-  const box = document.createElement('div'); box.className = "paybox";
-  const h = document.createElement('h4'); h.textContent = "Pay now with UPI (optional)";
-  const note = document.createElement('p'); note.className = "pnote"; note.textContent = "Scan with any UPI app, or tap the button on your phone. The amount is filled in for you.";
-  const a = document.createElement('div'); a.className = "payamt"; a.textContent = inr(amt);
-  box.append(h, note, a);
-  try {
-    const q = qrcode(0, 'M'); q.addData(url); q.make();
-    const c = document.createElement('canvas'); c.width = c.height = 400; c.setAttribute('aria-label', 'UPI payment QR code');
-    const n = q.getModuleCount(), cs = Math.floor(400 / (n + 8)), off = Math.floor((400 - cs * n) / 2), x = c.getContext('2d');
-    x.fillStyle = "#fff"; x.fillRect(0, 0, 400, 400); x.fillStyle = "#000";
-    for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) if (q.isDark(i, j)) x.fillRect(off + j * cs, off + i * cs, cs, cs);
-    box.appendChild(c);
-  } catch (e) {}
-  const id = document.createElement('p'); id.className = "upiid"; id.textContent = "UPI ID: " + UPI_ID;
-  const nm = document.createElement('p'); nm.className = "upinm"; nm.textContent = UPI_NAME;
-  box.append(id, nm);
-  const row = document.createElement('div'); row.className = "actions-row";
-  const go = document.createElement('a'); go.className = "paygo"; go.href = url; go.textContent = "Pay with UPI app";
-  const cp = document.createElement('button'); cp.type = "button"; cp.textContent = "Copy UPI ID";
-  cp.addEventListener('click', async () => { try { await navigator.clipboard.writeText(UPI_ID); toast("UPI ID copied"); } catch (e) { toast("UPI ID: " + UPI_ID); } });
-  row.append(go, cp); box.appendChild(row);
-  return box;
-}
 function fillConfirmation(box, b){
   paint(box, "Booking confirmed", b);
   const row = document.createElement('div'); row.className="actions-row";
@@ -1541,7 +1615,6 @@ function fillConfirmation(box, b){
   const cp = document.createElement('button'); cp.type="button"; cp.textContent="Copy booking ID";
   cp.addEventListener('click', async () => { try{ await navigator.clipboard.writeText(b.bookingId); toast("Booking ID copied"); }catch(e){ toast("Booking ID: "+b.bookingId); } });
   row.append(cal, cp); box.appendChild(row);
-  const pay = payBlock(b); if (pay) box.appendChild(pay);
 }
 function revealBookingWhatsApp(b){
   const wa = $('fabWa');
