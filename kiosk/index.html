@@ -795,15 +795,6 @@ function slotPlan(){
   return {now:startAt,t0:t0,grid:grid};
 }
 function slotText(){return (S.startNow?'Start now, ':'')+S.slot}
-function postJson(rec,ms,cb){
-  var x,fin=false,done=function(ok,d){if(!fin){fin=true;cb(ok,d)}};
-  try{
-    x=new XMLHttpRequest();x.open('POST',SHEET_URL,true);x.timeout=ms;
-    x.onload=function(){var d=null;if(x.status>=200&&x.status<300){try{d=JSON.parse(x.responseText)}catch(e){d=null}}done(!!(d&&d.ok),d)};
-    x.onerror=function(){done(false,null)};x.ontimeout=function(){done(false,null)};
-    x.send(JSON.stringify(rec));
-  }catch(e){done(false,null)}
-}
 function loadBusy(){
   SB.loading=true;
   postJson({action:'getKioskSlots',website:''},8000,function(ok,d){
@@ -812,35 +803,63 @@ function loadBusy(){
     if(S.step==='slot')render();
   });
 }
-var REJKEY='mypod_kiosk_rejected',LASTERR='';
+var REJKEY='mypod_kiosk_rejected';
 var MEMQ=(function(){try{return JSON.parse(localStorage.getItem(QKEY)||'[]')}catch(e){return []}})();
 var MEMR=(function(){try{return JSON.parse(localStorage.getItem(REJKEY)||'[]')}catch(e){return []}})();
 function qGet(){return MEMQ.slice()}
 function qSet(a){MEMQ=a.slice();try{localStorage.setItem(QKEY,JSON.stringify(a))}catch(e){}}
 function rejGet(){return MEMR.slice()}
 function rejSet(a){MEMR=a.slice();try{localStorage.setItem(REJKEY,JSON.stringify(a))}catch(e){}}
-function badge(){
-  var n=qGet().length,r=rejGet().length,b=document.getElementById('syncbadge');
-  if(!n&&!r){if(b&&b.parentNode)b.parentNode.removeChild(b);return}
-  if(!b){b=document.createElement('div');b.id='syncbadge';b.style.cssText='position:fixed;left:8px;bottom:8px;z-index:99999;background:#b00020;color:#fff;font:12px Arial,sans-serif;padding:6px 10px;border-radius:8px;opacity:.92';document.body.appendChild(b)}
-  b.textContent=(n?n+' booking(s) waiting to sync. ':'')+(r?r+' rejected by server. ':'')+'Tell the manager.'+(LASTERR?' ['+LASTERR+']':'');
+function badge(){}
+var TRANSIENT=/lock|timeout|try again|too many times|quota|service invoked/i;
+function classify(d){
+  if(d&&d.ok===true)return 'ok';
+  if(d&&d.ok===false&&!TRANSIENT.test(String(d.message||'')))return 'reject'; /* the server read it and said no: retrying will never help */
+  return 'retry'; /* no reply, an HTML error page, or a temporary server problem */
 }
-function postOne(rec,cb){
+/* Way 1: normal POST. */
+function xhrPost(rec,ms,cb){
+  var done=false,fin=function(st,d){if(!done){done=true;cb(st,d)}};
   try{
     var x=new XMLHttpRequest();
-    x.open('POST',SHEET_URL,true);x.timeout=25000;
-    x.onload=function(){
-      var d=null;
-      if(x.status>=200&&x.status<300){try{d=JSON.parse(x.responseText)}catch(e){d=null}}
-      LASTERR=d?'':('HTTP '+x.status+', not JSON: '+String(x.responseText||'').replace(/<[^>]*>|\s+/g,' ').trim().slice(0,70));
-      if(d&&d.ok===true)cb('ok',d);
-      else if(d&&d.ok===false&&!/lock|timeout|try again|too many times|quota|service invoked/i.test(String(d.message||'')))cb('reject',d); /* the server read it and said no: retrying will never help */
-      else cb('retry',d); /* network trouble, HTML error page, or a temporary server problem */
-    };
-    x.onerror=function(){LASTERR='no reply (blocked or offline)';cb('retry',null)};x.ontimeout=function(){LASTERR='timed out';cb('retry',null)};
+    x.open('POST',SHEET_URL,true);x.timeout=ms;
+    x.onload=function(){var d=null;if(x.status>=200&&x.status<300){try{d=JSON.parse(x.responseText)}catch(e){d=null}}fin(classify(d),d)};
+    x.onerror=function(){fin('retry',null)};x.ontimeout=function(){fin('retry',null)};
     x.send(JSON.stringify(rec));
-  }catch(e){LASTERR='send failed: '+e.message;cb('retry',null)}
+  }catch(e){fin('retry',null)}
 }
+/* Way 2 (old iPads): the request travels as a script tag, so old Safari's cross-site rules do not get in the way. */
+var JP=0;
+function jsonp(rec,ms,cb){
+  var name='mpcb'+(++JP)+'_'+new Date().getTime(),s=document.createElement('script'),done=false,t=null;
+  function fin(st,d){
+    if(done)return;done=true;clearTimeout(t);
+    window[name]=function(){};
+    if(s.parentNode)s.parentNode.removeChild(s);
+    cb(st,d);
+  }
+  window[name]=function(d){fin(classify(d),d)};
+  s.onerror=function(){fin('retry',null)};
+  t=setTimeout(function(){fin('retry',null)},ms);
+  try{
+    s.src=SHEET_URL+'?callback='+name+'&payload='+encodeURIComponent(JSON.stringify(rec));
+    document.getElementsByTagName('head')[0].appendChild(s);
+  }catch(e){fin('retry',null)}
+}
+/* Try the usual way first. If it gets no reply, use the other way, and remember which one works on this iPad. */
+var MODE='xhr';
+function send(rec,ms,cb){
+  var first=MODE==='jsonp'?jsonp:xhrPost,second=MODE==='jsonp'?xhrPost:jsonp;
+  first(rec,ms,function(st,d){
+    if(st!=='retry'){cb(st,d);return}
+    second(rec,ms,function(st2,d2){
+      if(st2!=='retry')MODE=(second===jsonp)?'jsonp':'xhr';
+      cb(st2,d2);
+    });
+  });
+}
+function postJson(rec,ms,cb){send(rec,ms,function(st,d){cb(st==='ok',d)})}
+function postOne(rec,cb){send(rec,25000,cb)}
 function syncQueue(){
   if(syncing)return;
   var q=qGet();if(!q.length){badge();return}
