@@ -857,6 +857,7 @@ function jsonp(rec,ms,cb){
 /* Try the usual way first. If it gets no reply, use the other way, and remember which one works on this iPad. */
 var MODE='xhr';
 function send(rec,ms,cb){
+  if(rec&&rec.action==='attendancePhoto'){xhrPost(rec,ms,cb);return} /* a photo is too big for the script-tag way */
   var first=MODE==='jsonp'?jsonp:xhrPost,second=MODE==='jsonp'?xhrPost:jsonp;
   first(rec,ms,function(st,d){
     if(st!=='retry'){cb(st,d);return}
@@ -994,6 +995,33 @@ function pack(r,type){
     sentAt:new Date(ts).toISOString()};
 }
 function enqueue(type,r){var q=ld(QK,[]);q.push(pack(r,type));wr(QK,q);sync()}
+/* ---- selfies are sent to the Google Drive via a second queue, so a slow photo never holds back an IN / OUT ---- */
+var PQ='mypod_att_pq_v1',psending=false;
+function enqueuePhoto(type,r,photo){
+  var st=sb(r.staffId)||{name:r.name||'Unknown'},q=ld(PQ,[]);
+  q.push({action:'attendancePhoto',kioskKey:window.MPKEY,website:'',source:'Kiosk',
+    photoId:'PH-'+r.id+'-'+type,eventId:'ATT-'+r.id+'-'+type,shiftId:r.id,type:type,
+    staffId:r.staffId,staffName:st.name,date:ymdl(r.inTs),
+    ts:new Date(type==='IN'?r.inTs:r.outTs).toISOString(),photo:photo});
+  while(q.length>12)q.shift();
+  if(!wr(PQ,q)){q=q.slice(-2);wr(PQ,q)}
+  psync();
+}
+function psync(){
+  if(psending||!window.MPSEND)return;
+  var q=ld(PQ,[]);if(!q.length)return;
+  psending=true;var rec=q[0];
+  window.MPSEND(rec,40000,function(st){
+    psending=false;
+    if(st==='ok'||st==='reject'){
+      wr(PQ,ld(PQ,[]).filter(function(r){return r.photoId!==rec.photoId}));
+      psync();
+    }
+  });
+}
+setInterval(psync,45000);
+if(window.addEventListener)window.addEventListener('online',psync);
+setTimeout(psync,3000);
 function sync(){
   if(sending||!window.MPSEND)return
   var q=ld(QK,[]);if(!q.length)return
@@ -1087,7 +1115,7 @@ function confirmMark(){
   var photo=$('aCv').toDataURL('image/jpeg',.6);
   var rec=op;
   if(op){op.outTs=now;op.outPhoto=photo}else{rec={id:'h'+now,staffId:s.id,name:s.name,role:s.role,inTs:now,outTs:null,inPhoto:photo};shifts.push(rec)}
-  persist();enqueue(type,rec);
+  persist();enqueue(type,rec);enqueuePhoto(type,rec,photo);
   flash={t:s.name+(op?' checked out':' checked in'),s:(op?'Exit':'Entry')+' recorded at '+tms(now)+(op?' · '+hrs(now-op.inTs)+' on shift':''),img:photo};
   closeCam();renderAll();
   clearTimeout(ft);ft=setTimeout(function(){flash=null;renderAct()},7000);
