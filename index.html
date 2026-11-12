@@ -598,6 +598,9 @@ body{touch-action:pan-y pinch-zoom}
 .lp-act button.danger{border-color:#a03a3a;background:#7a1f1f;color:#fff}
 .lp-act button:disabled{opacity:.6;cursor:wait}
 .lp-cancel .lp-cerr{margin:8px 0 0;color:#ff9a9a;min-height:0}
+.sizes .opt b{overflow-wrap:normal;word-break:normal;hyphens:none;font-size:clamp(12.5px,3.6vw,15px)}
+.sizes .opt small{overflow-wrap:break-word}
+.sizes .opt>span{padding-left:10px;padding-right:10px}
 </style></head><body>
 <!-- Google Tag Manager (noscript) -->
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-M59C9SG3" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
@@ -621,29 +624,39 @@ body{touch-action:pan-y pinch-zoom}
 <div class="bhead"><h2>Book MyPod Car &amp; Bike Care</h2><span>Takes under a minute</span></div>
 <div class="banner" id="demoBanner" hidden>Preview only: the booking service is not connected yet, so bookings are saved in this browser only.</div>
 <input class="hp" type="text" name="website" id="website" tabindex="-1" autocomplete="off" aria-hidden="true">
-<ol class="prog" id="prog"><li data-s="1" class="on"><i>1</i>Service</li><li data-s="2"><i>2</i>Add-ons</li><li data-s="3"><i>3</i>Time</li><li data-s="4"><i>4</i>Details</li><li data-s="5"><i>5</i>Pay</li></ol>
+<ol class="prog" id="prog"><li data-s="1" class="on"><i>1</i>Type</li><li data-s="2"><i>2</i>Vehicle</li><li data-s="3"><i>3</i>Service</li><li data-s="4"><i>4</i>Add-ons</li><li data-s="5"><i>5</i>Time</li><li data-s="6"><i>6</i>Details</li><li data-s="7"><i>7</i>Pay</li></ol>
 
 <section class="pane" data-pane="1">
+<div class="lbl" style="margin-top:0">How would you like to be served?</div>
 <div class="opts" role="radiogroup" aria-label="Service type">
 <label class="opt"><input type="radio" name="serviceMode" value="Doorstep" checked><span><img class="oimg" src="images/doorstep.svg" width="320" height="160" alt="" loading="lazy"><b>Doorstep</b><small>We come to you in Newtown</small></span></label>
 <label class="opt"><input type="radio" name="serviceMode" value="Drive-through"><span><img class="oimg" src="images/drivethrough.svg" width="320" height="160" alt="" loading="lazy"><b>Drive-through</b><small>MyPod Detailing Studio</small></span></label>
 </div>
-<div class="lbl">Your vehicle</div>
+<div class="nav2 one"><button class="btn" type="button" data-next>Continue →</button></div>
+</section>
+
+<section class="pane" data-pane="2" hidden>
+<div class="lbl" style="margin-top:0">Your vehicle</div>
 <div class="opts" role="radiogroup" aria-label="Vehicle">
 <label class="opt"><input type="radio" name="vehicle" value="Car" checked><span><b>Car</b></span></label>
 <label class="opt"><input type="radio" name="vehicle" value="Bike"><span><b>Bike</b></span></label>
 </div>
 <div class="lbl" id="sizeLbl">Vehicle size</div>
 <div class="opts sizes" id="sizeOpts" role="radiogroup" aria-label="Vehicle size"></div>
-<div class="lbl">Choose a service</div>
+<div class="msg" id="msg1" role="status" aria-live="polite"></div>
+<div class="nav2"><button class="btn ghost" type="button" data-back>← Back</button><button class="btn" type="button" data-next>Continue →</button></div>
+</section>
+
+<section class="pane" data-pane="3" hidden>
+<div class="lbl" style="margin-top:0">Choose a service</div>
 <div class="svclist" id="svcList" role="radiogroup" aria-label="Service"></div>
 <select id="service" hidden aria-hidden="true"></select><div id="serviceHint" hidden></div>
 
-<div class="msg" id="msg1" role="status" aria-live="polite"></div>
-<div class="nav2 one"><button class="btn" type="button" data-next>Continue →</button></div>
+<div class="msg" id="msgS" role="status" aria-live="polite"></div>
+<div class="nav2"><button class="btn ghost" type="button" data-back>← Back</button><button class="btn" type="button" data-next>Continue →</button></div>
 </section>
 
-<section class="pane" data-pane="2" hidden>
+<section class="pane" data-pane="4" hidden>
 <div class="addon-wrap" style="margin-top:0;padding-top:0;border-top:0">
   <div class="lbl" style="margin-top:0">Add extras to your wash</div>
   <p class="small-note">Totally optional. Tap any extras you would like, or just continue.</p>
@@ -653,7 +666,7 @@ body{touch-action:pan-y pinch-zoom}
 <div class="nav2"><button class="btn ghost" type="button" data-back>← Back</button><button class="btn" type="button" data-next>Continue →</button></div>
 </section>
 
-<section class="pane" data-pane="3" hidden>
+<section class="pane" data-pane="5" hidden>
 <div id="doorstepFields" class="loccard">
 <div class="locres"><span class="locpin"><svg class="pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21Z"/><circle cx="12" cy="9.5" r="2.5"/></svg></span><div class="t"><b id="locHead">Where should we come?</b><small id="locSub">Share your location and we fill in the address for you.</small></div><button class="lbtn" type="button" id="locOpen">Use current location</button></div>
 <input class="field" id="addrArea" placeholder="Area / street (auto-filled)" autocomplete="off">
@@ -669,7 +682,7 @@ body{touch-action:pan-y pinch-zoom}
 <div class="nav2"><button class="btn ghost" type="button" data-back>← Back</button><button class="btn" type="button" data-next>Continue →</button></div>
 </section>
 
-<section class="pane" data-pane="4" hidden>
+<section class="pane" data-pane="6" hidden>
 <input class="field" id="customerName" autocomplete="name" placeholder="Full name" style="margin-bottom:8px">
 <input class="field" id="customerPhone" type="tel" autocomplete="tel" inputmode="tel" placeholder="Mobile number (10 digits)" style="margin-bottom:8px">
 <input class="field" id="customerEmail" type="email" autocomplete="email" inputmode="email" placeholder="Email address (we send your confirmation here)" required>
@@ -680,7 +693,7 @@ body{touch-action:pan-y pinch-zoom}
 <div class="nav2"><button class="btn ghost" type="button" data-back>← Back</button><button class="btn" type="button" data-next id="toPay">Continue to payment →</button></div>
 </section>
 
-<section class="pane" data-pane="5" hidden>
+<section class="pane" data-pane="7" hidden>
 <div class="lbl" style="margin-top:0">Your booking</div>
 <div class="summary" id="summary" aria-live="polite" style="margin-top:6px"></div>
 <div class="lbl">How would you like to pay?</div>
@@ -1314,9 +1327,9 @@ function go(n,quiet){
   document.querySelectorAll('.pane').forEach(p=>p.hidden=+p.dataset.pane!==n);
   document.querySelectorAll('#prog li').forEach(li=>{ const s=+li.dataset.s; li.classList.toggle('on',s===n); li.classList.toggle('done',s<n); });
   renderSummary();
-  if(n===5) renderPay();
+  if(n===7) renderPay();
   $('bookBtn').textContent = bookLabel();
-  if(n===3){ loadSlots(); askLoc(); }
+  if(n===5){ loadSlots(); askLoc(); }
   if(!quiet) $('booking').scrollIntoView({behavior:"smooth",block:"start"});
 }
 function check2(){
@@ -1331,7 +1344,7 @@ function check2(){
   return null;
 }
 async function nextStep(){
-  if(state.step===4){
+  if(state.step===6){
     if(state.busy) return;
     const fail3 = (m, el) => { haptic("error"); setMsg($('msg3'), m, "bad"); if(el) el.focus(); };
     if ($('customerName').value.trim().length < 2) return fail3("Enter your full name.", $('customerName'));
@@ -1347,11 +1360,15 @@ async function nextStep(){
     } else { state.coupon = null; setMsg($('couponMsg'), "", ""); }
     setMsg($('msg3'), "", "");
   }
-  if(state.step===1){
+  if(state.step===3){
+    if(!service()){ haptic("error"); setMsg($('msgS'),"Choose a service to continue.","bad"); return; }
+    setMsg($('msgS'),"","");
+  }
+  if(state.step===2){
     if(!vsize()){ haptic("error"); setMsg($('msg1'),"Choose your vehicle size so we can show the right price.","bad"); const f=document.querySelector('#sizeOpts input'); if(f) f.focus(); return; }
     setMsg($('msg1'),"","");
   }
-  if(state.step===3){ const e=check2(); if(e){ haptic("error"); setMsg($('msg2'),e[0],"bad"); if(e[1]&&e[1].focus) e[1].focus(); return; } setMsg($('msg2'),"",""); }
+  if(state.step===5){ const e=check2(); if(e){ haptic("error"); setMsg($('msg2'),e[0],"bad"); if(e[1]&&e[1].focus) e[1].focus(); return; } setMsg($('msg2'),"",""); }
   haptic("tick");
   go(state.step+1);
 }
@@ -1506,7 +1523,7 @@ function payTotal(){
   return Math.max(0, p - (state.coupon ? state.coupon.discount : 0)) + selectedAddOns().reduce((a, x) => a + x.price, 0);
 }
 function payMethodName(){ const t = payTotal(); return (state.pay === "upi" && t > 0) ? "UPI" : "Cash after service"; }
-function bookLabel(){ return (state.step === 5 && payMethodName() === "UPI") ? "I have paid, confirm booking →" : "Confirm booking →"; }
+function bookLabel(){ return (state.step === 7 && payMethodName() === "UPI") ? "I have paid, confirm booking →" : "Confirm booking →"; }
 function upiQuery(amt){ return "pa=" + UPI_ID + "&pn=" + encodeURIComponent(UPI_NAME) + "&am=" + Number(amt).toFixed(2) + "&cu=INR&tn=" + encodeURIComponent("MyPod booking"); }
 function upiAppLink(a, q){
   if (/Android/i.test(navigator.userAgent)) return a.pkg ? "intent://pay?" + q + "#Intent;scheme=upi;package=" + a.pkg + ";end" : "upi://pay?" + q;
@@ -1579,10 +1596,10 @@ function fail(msg, focusEl){ haptic("error"); setMsg($('msg'), msg, "bad"); if(f
 async function submitBooking(ev){
   ev.preventDefault();
   if (state.busy) return;
-  if (state.step < 5) return nextStep();
+  if (state.step < 7) return nextStep();
   $('bookingResult').classList.remove('show');
-  if (!vsize()) { haptic("error"); go(1,true); setMsg($('msg1'), "Choose your vehicle size so we can show the right price.", "bad"); return; }
-  const e = check2(); if (e) { haptic("error"); go(3,true); setMsg($('msg2'), e[0], "bad"); return; }
+  if (!vsize()) { haptic("error"); go(2,true); setMsg($('msg1'), "Choose your vehicle size so we can show the right price.", "bad"); return; }
+  const e = check2(); if (e) { haptic("error"); go(5,true); setMsg($('msg2'), e[0], "bad"); return; }
   if ($('customerName').value.trim().length < 2) return fail("Enter your full name.", $('customerName'));
   if (!validPhone($('customerPhone').value)) return fail("Enter a valid 10-digit mobile number.", $('customerPhone'));
   if (!validEmail($('customerEmail').value)) return fail("Enter a valid email address. We send your confirmation there.", $('customerEmail'));
