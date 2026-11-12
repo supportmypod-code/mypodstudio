@@ -207,6 +207,12 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;paddin
 .caprow .btn{min-height:52px;padding:18px 20px 16px;font-size:18px;margin:0 10px 10px 0}
 .btn.dis{opacity:.35;cursor:not-allowed;pointer-events:none}
 label.btn{cursor:pointer}
+.cb{position:fixed;top:0;left:0;right:0;bottom:0;z-index:60;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;padding:20px;overflow:auto}
+.cbi{width:100%;max-width:520px;background:#0e1013;border:1px solid #2a2d31;border-radius:18px;padding:22px}
+.cbi h3{margin:0 0 6px;font:700 26px/1.2 'Sora','Inter',-apple-system,'Helvetica Neue',Helvetica,Arial,sans-serif;color:#ffd51b}
+.cbw{margin:0 0 14px;color:#f4f5f6;font-size:16px}
+.cbi .cap{max-width:none;margin:0 0 12px}
+.cbi .warnnote,.cbi .note{margin:0 0 10px}
 .vh{position:absolute;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none}
 .actinfo b{display:block;font:700 26px/1.1 'Sora','Inter',-apple-system,'Helvetica Neue',Helvetica,Arial,sans-serif;text-transform:uppercase}
 .actinfo span{display:block;color:#9aa1a9}
@@ -427,7 +433,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
 </head><body>
 <div class="wrap">
   <div class="bench">
-    <h1>MyPod Detailing Studio<small>Self-service kiosk prototype. Everything here is clickable. Slots are sample data.</small></h1>
+    <h1>MyPod Detailing Studio LLP</h1>
     <div class="tabs" role="tablist">
       <button role="tab" id="tab-k" aria-selected="true" data-tab="k">Customer kiosk</button>
       <button role="tab" id="tab-t" aria-selected="false" data-tab="t">Waiting-room TV</button>
@@ -451,7 +457,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
 
   <section id="att" class="att" hidden aria-label="Staff attendance">
     <div class="atth">
-      <div><h2>Staff attendance</h2><p class="sub">Pick your name, take a selfie, then mark in or out. Your photo is stamped with the date and time.</p></div>
+      <div><h2>Staff attendance</h2><p class="sub">Tap your name and take a selfie. Your IN or OUT is marked automatically and the photo is stamped with the date and time.</p></div>
       <div class="attclock"><b id="aClock">--:--:--</b><small id="aDate"></small></div>
     </div>
     <div class="attgrid">
@@ -463,21 +469,26 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
           <input id="aRole" placeholder="Role (optional)" autocomplete="off" aria-label="New staff role" maxlength="20">
           <button class="btn" type="submit">Add</button>
         </form>
+        <p class="note" id="aAddMsg" role="status" aria-live="polite"></p>
       </div>
       <div class="group">
-        <h4>2 · Selfie</h4>
-        <div class="cap">
-          <video id="aVid" playsinline muted autoplay hidden></video>
-          <canvas id="aCv" width="400" height="300" hidden></canvas>
-          <div class="capph" id="aPh"></div>
-        </div>
+        <h4>2 · Status</h4>
+        <div id="aAct"></div>
+      </div>
+    </div>
+    <div id="aCb" class="cb" hidden role="dialog" aria-modal="true" aria-labelledby="aCbT">
+      <div class="cbi">
+        <h3 id="aCbT">Capture the photo</h3>
+        <p class="cbw" id="aCbWho"></p>
+        <div class="cap"><video id="aVid" playsinline muted autoplay></video><canvas id="aCv" width="400" height="300" hidden></canvas></div>
+        <p class="warnnote" id="aCbNote"></p>
+        <p class="note" id="aCbMsg" role="status" aria-live="polite"></p>
         <div class="caprow">
-          <button class="btn" type="button" id="aCam">Open camera</button>
+          <button class="btn pri" type="button" id="aSnap">Capture</button>
           <input class="vh" type="file" id="aFile" accept="image/*" capture="user">
-          <label class="btn" id="aFileL" for="aFile">Take photo</label>
+          <label class="btn pri" id="aFileL" for="aFile" hidden>Take photo</label>
+          <button class="btn" type="button" id="aCbX">Cancel</button>
         </div>
-        <p class="note" id="aMsg" role="status" aria-live="polite"></p>
-        <div id="aAct" class="group"></div>
       </div>
     </div>
 </section>
@@ -568,7 +579,7 @@ function render(){
   var sc=$('screen');
   if(S.step==='welcome'){
     h='<div class="hero"><span class="kicker">Booking open · Newtown, Kolkata</span><div class="big">Clean cars.<br>Zero <em>hassle.</em></div><p>Pick a service, choose a slot and get your token in under a minute. No queue at the counter.</p></div>'+
-      '<div class="offer"><span><b>Today</b> 20% off Interior Gold after 6 PM</span><span>'+(dayFull()?'Fully booked for today':'Walk-in bay open now')+'</span></div>'+
+      '<div class="offer"><span><b>Experience our doorstep service with exciting offers:</b> 20% off Ceramic and 10% off PPF. T&amp;C apply.</span>'+(dayFull()?'<span>Fully booked for today</span>':'')+'</div>'+
       (dayFull()?fullHtml():'<button class="btn pri start" data-a="start">Touch to start</button>'+qrCard('small'));
     f='<div class="cart"><small>Open daily</small><em>'+fmtMin(HRS.open)+' to '+fmtMin(HRS.close)+'</em></div>';
   }
@@ -918,6 +929,7 @@ function ld(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d}catc
 function wr(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return false}}
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function at(h,m,d){var x=new Date();x.setDate(x.getDate()+(d||0));x.setHours(h,m,0,0);return x.getTime()}
+var PK='mypod_staff_pending_v1',MK='mypod_staff_migrated_v1';
 var DEMO={s1:'Rahul Sen',s2:'Suman Das',s3:'Imran Ali',s4:'Priya Roy'};
 var staff=ld(SKEY,null)||[];
 var shifts=ld(KEY,null)||[];
@@ -926,9 +938,15 @@ var shifts=ld(KEY,null)||[];
   var ns=staff.filter(function(s){return !(DEMO[s.id]&&DEMO[s.id]===s.name)});
   var nh=shifts.filter(function(r){return !r.sample&&!DEMO[r.staffId]});
   if(ns.length!==staff.length||nh.length!==shifts.length){staff=ns;shifts=nh}
+  /* profiles added on this device before staff moved to the Google Sheet are sent up once */
+  if(!ld(MK,0)){
+    var old=staff.filter(function(s){return /^t\d+$/.test(s.id)});
+    if(old.length)wr(PK,ld(PK,[]).concat(old));
+    wr(MK,1);
+  }
   wr(SKEY,staff);wr(KEY,shifts);
 })();
-var sel=null,mode='idle',stream=null,msg='',flash=null,ft=null;
+var sel=null,stream=null,flash=null,ft=null,busy=false;
 var ICON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>';
 
 function tm(t){return MP.time(t)}
@@ -952,40 +970,21 @@ function persist(){
 }
 
 function renderStaff(){
-  if(!staff.length){$('aStaff').innerHTML='<p class="note">No staff added yet. Add a name below.</p>';return}
+  if(!staff.length){$('aStaff').innerHTML='<p class="note">No staff yet. Add a name below, or add a row in the Staff tab of the Google Sheet.</p>';return}
   $('aStaff').innerHTML=staff.map(function(s){var st=status(s.id);
     return '<div role="button" tabindex="0" class="stf" data-id="'+s.id+'" aria-pressed="'+(sel===s.id)+'"><span class="av">'+esc(ini(s.name))+'</span><span class="who"><b>'+esc(s.name)+'</b><small>'+esc(s.role)+'</small></span><span class="chip '+(st.k==='in'?'in':'')+'">'+esc(st.t)+'</span></div>'}).join('');
-}
-function renderCap(){
-  var v=$('aVid'),c=$('aCv'),ph=$('aPh'),cam=$('aCam');
-  v.hidden=mode!=='live';c.hidden=mode!=='photo';ph.hidden=mode!=='idle';
-  ph.innerHTML=ICON+'<span>'+(sel?'Your selfie appears here':'Select your name first')+'</span>';
-  var live=!!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia);
-  cam.hidden=!live;
-  $('aFileL').textContent=live?'Take photo':(mode==='photo'?'Retake selfie':'Take selfie');
-  cam.textContent=mode==='live'?'Capture':mode==='photo'?'Retake':'Open camera';
-  cam.className='btn'+(mode==='live'?' pri':'');
-  cam.disabled=!sel;$('aFile').disabled=!sel;$('aFileL').classList.toggle('dis',!sel);
-  $('aMsg').textContent=msg;
 }
 function renderAct(){
   var h='';
   if(flash){h='<div class="flash">'+(flash.img?'<img alt="" src="'+flash.img+'">':'')+'<div><b>'+esc(flash.t)+'</b><small>'+esc(flash.s)+'</small></div></div>'}
-  else if(!sel){h='<p class="note">Select your name to continue.</p>'}
-  else{
-    var s=sb(sel),op=openShift(sel),stale=op&&!same(op.inTs,Date.now());
-    h='<div class="actinfo"><b>'+esc(s.name)+'</b><span>'+(op?'Checked in '+(stale?dt(op.inTs)+' ':'')+tm(op.inTs)+' · '+hrs(Date.now()-op.inTs)+' so far':'Not checked in yet')+'</span></div>'+
-      (stale?'<p class="warnnote">No exit was recorded for '+dt(op.inTs)+'. Marking OUT closes that shift.</p>':'')+
-      '<button type="button" class="btn pri bigbtn" id="aGo"'+(mode==='photo'?'':' disabled')+'>'+(op?'Mark OUT (exit)':'Mark IN')+'</button>'+
-      (mode==='photo'?'':'<p class="note">Take your selfie first.</p>');
-  }
+  else h='<p class="note">Tap your name. The camera opens, take your selfie and your IN or OUT is marked automatically.</p>';
   $('aAct').innerHTML=h;
 }
 /* ---- send every IN / OUT to the Attendances tab of the Google Sheet (queued, retried) ---- */
 var QK='mypod_att_q_v1',RK='mypod_att_rej_v1',sending=false;
 function ymdl(t){var d=new Date(t);return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
 function pack(r,type){
-  var st=sb(r.staffId)||{name:'Unknown',role:''},ts=type==='IN'?r.inTs:r.outTs;
+  var st=sb(r.staffId)||{name:r.name||'Unknown',role:r.role||''},ts=type==='IN'?r.inTs:r.outTs;
   return {action:'attendance',kioskKey:window.MPKEY,website:'',source:'Kiosk',
     eventId:'ATT-'+r.id+'-'+type,shiftId:r.id,type:type,
     staffId:r.staffId,staffName:st.name,role:st.role,
@@ -1012,19 +1011,66 @@ setInterval(sync,30000);
 if(window.addEventListener)window.addEventListener('online',sync);
 setTimeout(sync,2000);
 
-function renderAll(){renderStaff();renderCap();renderAct()}
+function renderAll(){renderStaff();renderAct()}
 
-/* camera */
-function startCam(){
-  msg='';
-  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){msg='This browser cannot open the camera here. Use "Take photo" instead.';renderCap();return}
-  navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:960},height:{ideal:720}},audio:false}).then(function(st){
-    stream=st;var v=$('aVid');v.srcObject=st;if(v.play)v.play().catch(function(){});mode='live';renderCap();renderAct();
-  }).catch(function(){msg='The camera is blocked here. Use "Take photo" to open your phone camera or pick a picture.';mode='idle';renderCap()});
+/* ---- staff profiles live in the Staff tab of the Google Sheet and stay on screen until the row is deleted there ---- */
+var flushing=false,loadingStaff=false;
+function pend(){return ld(PK,[])}
+function mergeStaff(list){var p=pend().filter(function(x){return !list.some(function(y){return y.id===x.id})});staff=list.concat(p)}
+function loadStaff(){
+  if(!window.MPSEND||loadingStaff)return;loadingStaff=true;
+  window.MPSEND({action:'getStaff',kioskKey:window.MPKEY,website:''},20000,function(st,d){
+    loadingStaff=false;
+    if(st==='ok'&&d&&Object.prototype.toString.call(d.staff)==='[object Array]'){
+      mergeStaff(d.staff.map(function(x){return {id:String(x.id),name:String(x.name),role:String(x.role||'Staff')}}));
+      wr(SKEY,staff);
+      if(sel&&!sb(sel))closeCam();
+      renderStaff();
+    }
+  });
 }
+function flushPending(){
+  if(flushing||!window.MPSEND)return;var p=pend();if(!p.length)return;
+  flushing=true;var x=p[0],m=$('aAddMsg');
+  window.MPSEND({action:'addStaff',kioskKey:window.MPKEY,website:'',staffId:x.id,name:x.name,role:x.role},25000,function(st){
+    flushing=false;
+    if(st==='ok'||st==='reject'){
+      wr(PK,pend().filter(function(y){return y.id!==x.id}));
+      if(m)m.textContent=st==='ok'?'Saved to the Google Sheet.':'The Google Sheet did not accept that name.';
+      flushPending();
+      if(!pend().length)loadStaff();
+    }else if(m)m.textContent='Could not reach the Google Sheet yet. It will keep trying.';
+  });
+}
+setInterval(flushPending,30000);setInterval(loadStaff,60000);
+if(window.addEventListener)window.addEventListener('online',function(){flushPending();loadStaff()});
+setTimeout(function(){flushPending();loadStaff()},1500);
+
+/* ---- tap a name: the camera opens in a pop-up, the capture marks IN or OUT automatically ---- */
+function camOK(){return !!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia)}
+function cbMsg(t){$('aCbMsg').textContent=t||''}
 function stopCam(){if(stream){stream.getTracks().forEach(function(t){t.stop()});stream=null}$('aVid').srcObject=null}
+function useFallback(t){$('aVid').hidden=true;$('aSnap').hidden=true;$('aFileL').hidden=false;cbMsg(t)}
+function startCam(){
+  $('aVid').hidden=false;$('aSnap').hidden=false;$('aFileL').hidden=true;cbMsg('');
+  if(!camOK()){useFallback('Tap "Take photo" to open the camera.');return}
+  navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:960},height:{ideal:720}},audio:false}).then(function(st){
+    if($('aCb').hidden){st.getTracks().forEach(function(t){t.stop()});return}
+    stream=st;var v=$('aVid');v.srcObject=st;if(v.play)v.play().catch(function(){});
+  }).catch(function(){useFallback('The camera is blocked here. Tap "Take photo" to open the camera.')});
+}
+function openCam(id){
+  var s=sb(id);if(!s||busy)return;
+  sel=id;flash=null;clearTimeout(ft);renderAct();
+  var op=openShift(id),stale=op&&!same(op.inTs,Date.now());
+  $('aCbWho').textContent=s.name+' · '+(op?'Mark OUT (exit)':'Mark IN');
+  $('aCbNote').textContent=stale?'No exit was recorded for '+dt(op.inTs)+'. Marking OUT closes that shift.':'';
+  $('aCb').hidden=false;
+  startCam();
+}
+function closeCam(){stopCam();$('aCb').hidden=true;sel=null;busy=false}
 function draw(src,sw,sh){var c=$('aCv');c.width=400;c.height=300;var x=c.getContext('2d'),k=Math.max(400/sw,300/sh),dw=sw*k,dh=sh*k;x.drawImage(src,(400-dw)/2,(300-dh)/2,dw,dh)}
-function snap(){var v=$('aVid');if(!v.videoWidth)return;draw(v,v.videoWidth,v.videoHeight);stopCam();mode='photo';renderCap();renderAct()}
+function snap(){var v=$('aVid');if(!v.videoWidth){cbMsg('The camera is still starting. Try again in a moment.');return}draw(v,v.videoWidth,v.videoHeight);stopCam();confirmMark()}
 function stamp(name,type,ts){
   var c=$('aCv'),x=c.getContext('2d'),w=c.width,h=c.height;
   x.fillStyle='rgba(0,0,0,.7)';x.fillRect(0,h-40,w,40);
@@ -1034,38 +1080,42 @@ function stamp(name,type,ts){
   x.fillStyle='#e6e9ec';x.font='500 13px "JetBrains Mono",monospace';x.fillText(dt(ts)+'  '+tms(ts),16,h-11);
 }
 function confirmMark(){
-  var s=sb(sel),op=openShift(sel),now=Date.now(),type=op?'OUT':'IN';
+  var s=sb(sel);if(!s||busy){closeCam();return}
+  busy=true;
+  var op=openShift(sel),now=Date.now(),type=op?'OUT':'IN';
   stamp(s.name,type,now);
   var photo=$('aCv').toDataURL('image/jpeg',.6);
   var rec=op;
-  if(op){op.outTs=now;op.outPhoto=photo}else{rec={id:'h'+now,staffId:s.id,inTs:now,outTs:null,inPhoto:photo};shifts.push(rec)}
+  if(op){op.outTs=now;op.outPhoto=photo}else{rec={id:'h'+now,staffId:s.id,name:s.name,role:s.role,inTs:now,outTs:null,inPhoto:photo};shifts.push(rec)}
   persist();enqueue(type,rec);
   flash={t:s.name+(op?' checked out':' checked in'),s:(op?'Exit':'Entry')+' recorded at '+tms(now)+(op?' · '+hrs(now-op.inTs)+' on shift':''),img:photo};
-  sel=null;mode='idle';msg='';renderAll();
+  closeCam();renderAll();
   clearTimeout(ft);ft=setTimeout(function(){flash=null;renderAct()},7000);
 }
 $('att').addEventListener('click',function(e){
-  var t=e.target;
-  var b=t.closest('.stf');
-  if(b){stopCam();sel=b.dataset.id;mode='idle';msg='';flash=null;renderAll();return}
-  if(t.closest('#aCam')){if(mode==='live')snap();else if(mode==='photo'){mode='idle';renderCap();renderAct()}else startCam();return}
-  if(t.closest('#aGo')){if(mode==='photo'&&sel)confirmMark();return}
+  var t=e.target,b=t.closest('.stf');
+  if(b){openCam(b.dataset.id);return}
+  if(t.closest('#aSnap')){snap();return}
+  if(t.closest('#aCbX')){closeCam();return}
 });
 $('aFile').addEventListener('change',function(e){
   var f=e.target.files&&e.target.files[0];if(!f)return;
   var url=URL.createObjectURL(f),im=new Image();
-  im.onload=function(){draw(im,im.naturalWidth,im.naturalHeight);URL.revokeObjectURL(url);stopCam();mode='photo';msg='';renderCap();renderAct()};
-  im.onerror=function(){URL.revokeObjectURL(url);msg='That file could not be read as a photo.';renderCap()};
+  im.onload=function(){draw(im,im.naturalWidth,im.naturalHeight);URL.revokeObjectURL(url);confirmMark()};
+  im.onerror=function(){URL.revokeObjectURL(url);cbMsg('That file could not be read as a photo. Try again.')};
   im.src=url;e.target.value='';
 });
 $('aAdd').addEventListener('submit',function(e){
   e.preventDefault();var n=$('aName').value.trim().replace(/\s+/g,' '),r=$('aRole').value.trim()||'Staff';
   if(n.length<2){$('aName').focus();return}
-  staff.push({id:'t'+Date.now(),name:n,role:r});persist();$('aName').value='';$('aRole').value='';renderStaff();
+  var x={id:'t'+Date.now(),name:n,role:r};
+  wr(PK,pend().concat([x]));staff.push(x);persist();
+  $('aName').value='';$('aRole').value='';renderStaff();
+  $('aAddMsg').textContent='Saving to the Google Sheet...';flushPending();
 });
 window.mpTab=function(w){
-  if(w==='a'){renderAll();tick()}
-  else if(mode==='live'){stopCam();mode='idle';renderCap();renderAct()}
+  if(w==='a'){renderAll();tick();loadStaff()}
+  else if(!$('aCb').hidden)closeCam();
 };
 function tick(){var n=Date.now();$('aClock').textContent=tms(n);$('aDate').textContent=MP.long(n)}
 var cnt=0;
