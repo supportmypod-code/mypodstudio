@@ -333,6 +333,12 @@ body{background:#07080a;background-image:radial-gradient(900px 500px at 85% -5%,
 .kb .row.sym button{font-size:16px}
 .kb .row.sym button.txt{flex:2 1 0;font-size:14px}
 .summary .em{word-wrap:break-word;word-break:break-all;text-align:right;margin-left:12px}
+.dscbox{margin-bottom:12px}
+.dscbox .ln{font-size:16px}
+.dscbtns{display:flex;margin-top:8px}
+.dscbtns .btn{min-width:0;padding:10px 18px;margin-right:10px}
+.dscpad{margin-top:10px}
+.dscln span:last-child{color:#7ee787}
 .kb .wide{font-family:'Inter',-apple-system,'Helvetica Neue',Helvetica,Arial,sans-serif!important;font-size:15px!important;font-weight:700}
 .methods button{border:1px solid rgba(255,255,255,.18);border-radius:10px;background:#13161a;font-weight:600}
 .methods button[aria-pressed=true]{border-color:#ffd51b;background:#292300;color:#ffd51b}
@@ -536,7 +542,7 @@ function upiUrl(amt){return 'upi://pay?pa='+encodeURIComponent(UPI_ID).replace(/
 var STEPS=['welcome','vehicle','services','slot','details','pay','done'];
 var RAIL=[['vehicle','Vehicle'],['services','Services'],['slot','Slot'],['details','Details'],['pay','Pay']];
 var S;
-function fresh(){return{step:'welcome',vt:null,size:null,sel:{},slot:null,startNow:false,name:'',phone:'',plate:'',email:'',field:'name',method:'upi',token:null,paid:false,tried:false};}
+function fresh(){return{step:'welcome',vt:null,size:null,sel:{},slot:null,startNow:false,name:'',phone:'',plate:'',email:'',field:'name',method:'upi',disc:'',discOpen:false,token:null,paid:false,tried:false};}
 S=fresh();
 var tokenSeq=47;
 var jobs=[
@@ -552,6 +558,9 @@ function sizeObj(){return SIZES[S.vt].filter(function(x){return x.id===S.size})[
 function price(sv){return sv.prices?sv.prices[S.size]:sv.price}
 function chosen(){if(!S.vt||!S.size)return [];return SERVICES[S.vt].filter(function(sv){return S.sel[sv.id]})}
 function total(){return chosen().reduce(function(a,sv){return a+price(sv)},0)}
+/* counter discount: a flat rupee amount off the bill, never more than the bill. The UPI QR is built from the amount after discount. */
+function disc(){var n=parseInt(S.disc,10)||0;return Math.max(0,Math.min(n,total()))}
+function net(){return total()-disc()}
 function mins(){return chosen().reduce(function(a,sv){return a+sv.mins},0)}
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 
@@ -616,12 +625,12 @@ function render(){
       '<div class="fields">'+fld('name','Your name','e.g. Arjun Das',S.name,S.name.trim().length<2)+fld('phone','Mobile number','10 digits',S.phone,!/^[6-9]\d{9}$/.test(S.phone))+fld('plate','Vehicle number','WB 02 AB 1234',S.plate,S.plate.trim().length<4)+fld('email','Email for invoice (optional)','name@example.com',S.email,!emailOk(),'full')+'</div>'+(S.tried&&!emailOk()?'<p class="formerr">That email does not look right. Check it, or leave it empty.</p>':'<p class="formnote">Email is optional. Add it if you would like your invoice by email.</p>')+kb();
   }
   else if(S.step==='pay'){
-    var d=total(),adv=Math.round(d*(longJob()?0.3:1));
+    var t0=total(),dc=disc(),d=t0-dc,adv=Math.round(d*(longJob()?0.3:1));
     h='<h2>Review and pay</h2><p class="sub">'+(longJob()?'A 30% advance holds your slot. Pay the balance on delivery.':'Pay now by UPI or at the counter when you collect.')+'</p>'+
-      '<div class="pay"><div class="summary">'+chosen().map(function(sv){return '<div class="ln"><span>'+sv.name+(sv.pet?' <span class="ast">*</span>':'')+'</span><span>'+inr(price(sv))+'</span></div>'}).join('')+(chosen().some(function(x){return x.pet})?'<div class="dur"><span class="ast">*</span> Extra charges may apply for pet hair removal.</div>':'')+'<hr><div class="ln"><span>GST included (18%)</span><span>'+inr(Math.round(d-d/1.18))+'</span></div><div class="ln tot"><span>Total</span><span>'+inr(d)+'</span></div>'+(longJob()?'<div class="ln"><span>Advance due now</span><span>'+inr(adv)+'</span></div>':'')+
+      '<div class="pay"><div class="summary">'+chosen().map(function(sv){return '<div class="ln"><span>'+sv.name+(sv.pet?' <span class="ast">*</span>':'')+'</span><span>'+inr(price(sv))+'</span></div>'}).join('')+(chosen().some(function(x){return x.pet})?'<div class="dur"><span class="ast">*</span> Extra charges may apply for pet hair removal.</div>':'')+(dc>0?'<hr><div class="ln"><span>Subtotal</span><span>'+inr(t0)+'</span></div><div class="ln dscln"><span>Discount</span><span>&minus;'+inr(dc)+'</span></div>':'')+'<hr><div class="ln"><span>GST included (18%)</span><span>'+inr(Math.round(d-d/1.18))+'</span></div><div class="ln tot"><span>Total</span><span>'+inr(d)+'</span></div>'+(longJob()?'<div class="ln"><span>Advance due now</span><span>'+inr(adv)+'</span></div>':'')+
       '<hr><div class="ln"><span>'+S.vt+' · '+sizeObj().label+'</span><span>'+esc(S.plate)+'</span></div>'+(S.email?'<div class="ln"><span>Invoice to</span><span class="em">'+esc(S.email)+'</span></div>':'')+'<div class="ln"><span>Slot</span><span>'+slotText()+'</span></div></div>'+
-      '<div class="group"><div class="methods">'+[['upi','UPI QR'],['card','Card'],['counter','Pay at counter']].map(function(m){return '<button data-a="method" data-v="'+m[0]+'" aria-pressed="'+(S.method===m[0])+'">'+m[1]+'</button>'}).join('')+'</div>'+
-      (S.method==='upi'?'<div class="qrbox"><canvas id="qr" width="400" height="400"></canvas><small>Scan with any UPI app<br>Amount '+inr(adv)+' is filled in for you</small><small style="margin-top:6px;font-weight:600;color:#111">UPI ID: '+UPI_ID+'</small><small>'+UPI_NAME+'</small></div>':'')+
+      '<div class="group">'+discBox()+'<div class="methods">'+[['upi','UPI QR'],['card','Card'],['counter','Pay at counter']].map(function(m){return '<button data-a="method" data-v="'+m[0]+'" aria-pressed="'+(S.method===m[0])+'">'+m[1]+'</button>'}).join('')+'</div>'+
+      (S.method==='upi'&&adv<=0?'<div class="summary"><div class="ln"><span>Nothing to pay after the discount. Tap Confirm booking.</span></div></div>':'')+(S.method==='upi'&&adv>0?'<div class="qrbox"><canvas id="qr" width="400" height="400"></canvas><small>Scan with any UPI app<br>Amount '+inr(adv)+' is filled in for you</small><small style="margin-top:6px;font-weight:600;color:#111">UPI ID: '+UPI_ID+'</small><small>'+UPI_NAME+'</small></div>':'')+
       (S.method==='card'?'<div class="summary"><div class="ln"><span>Tap, insert or swipe your card on the terminal below the screen.</span></div><div class="dur">Prototype: press the button to simulate.</div></div>':'')+
       (S.method==='counter'?'<div class="summary"><div class="ln"><span>Show your token at the counter. Payment is taken before the work starts.</span></div></div>':'')+'</div></div>';
   }
@@ -634,11 +643,19 @@ function render(){
   if(!f){
     var showCart=S.step!=='welcome';
     f=(showCart?'<div class="cart"><small>'+(chosen().length?chosen().length+' service'+(chosen().length>1?'s':''):'Your total')+'</small><strong>'+inr(total())+'</strong><em>'+(chosen().length?dur(mins())+' of work':'Nothing selected yet')+'</em></div>':'')+
-      '<div class="btns"><button class="btn" data-a="back">Back</button><button class="btn pri" data-a="next"'+((S.step!=='details'&&!canNext())?' disabled':'')+'>'+(S.step==='pay'?(S.method==='counter'?'Confirm booking':S.method==='upi'?'I have paid':'Simulate payment'):'Continue')+'</button></div>';
+      '<div class="btns"><button class="btn" data-a="back">Back</button><button class="btn pri" data-a="next"'+((S.step!=='details'&&!canNext())?' disabled':'')+'>'+(S.step==='pay'?((S.method==='counter'||adv<=0)?'Confirm booking':S.method==='upi'?'I have paid':'Simulate payment'):'Continue')+'</button></div>';
   }
   sc.innerHTML=h;$('foot').innerHTML=f;
   if(S.step==='pay'&&S.method==='upi')drawQR();
   if(S.step==='done')startCountdown();else stopCountdown();
+}
+function discBox(){
+  var dc=disc();
+  var b=function(c,l,cls){return '<button'+(cls?' class="'+cls+'"':'')+' data-a="dkey" data-v="'+c+'">'+l+'</button>'};
+  var R=function(i){return '<div class="row">'+i+'</div>'};
+  var pad=S.discOpen?'<div class="kb pad dscpad">'+R(b('1','1')+b('2','2')+b('3','3'))+R(b('4','4')+b('5','5')+b('6','6'))+R(b('7','7')+b('8','8')+b('9','9'))+R(b('DEL','Del','fn')+b('0','0')+b('CLR','Clear','fn'))+'</div>':'';
+  return '<div class="summary dscbox"><div class="ln"><span>Discount</span><span>'+(dc>0?'&minus;'+inr(dc):'None')+'</span></div>'+
+    '<div class="dscbtns"><button class="btn" data-a="dtoggle">'+(S.discOpen?'Done':(dc>0?'Change discount':'Add discount'))+'</button>'+(dc>0&&!S.discOpen?'<button class="btn" data-a="dkey" data-v="CLR">Remove</button>':'')+'</div>'+pad+'</div>';
 }
 function kb(){
   var f=S.field,lower=(f==='email');
@@ -687,7 +704,7 @@ function typeKey(k){
 /* real UPI QR: amount is filled in, so the customer only has to confirm in their UPI app */
 function drawQR(){
   var c=$('qr');if(!c)return;
-  var d=total(),amt=Math.round(d*(longJob()?0.3:1)),x=c.getContext('2d'),W=c.width;
+  var d=net(),amt=Math.round(d*(longJob()?0.3:1)),x=c.getContext('2d'),W=c.width;
   var q=qrcode(0,'M');q.addData(upiUrl(amt));q.make();
   var n=q.getModuleCount(),cs=Math.floor(W/(n+8)),off=Math.floor((W-cs*n)/2),i,j;
   x.fillStyle='#fff';x.fillRect(0,0,W,W);x.fillStyle='#000';
@@ -730,6 +747,11 @@ function onTap(e){
   else if(a==='key')typeKey(v);
   else if(a==='nextfield'){setField(NEXTF[S.field])}
   else if(a==='method'){S.method=v;render()}
+  else if(a==='dtoggle'){S.discOpen=!S.discOpen;render()}
+  else if(a==='dkey'){
+    var ds=String(S.disc||'');
+    if(v==='DEL')ds=ds.slice(0,-1);else if(v==='CLR')ds='';else if(/^\d$/.test(v)&&ds.length<6)ds=(ds+v).replace(/^0+(?=\d)/,'');
+    S.disc=ds;S.disc=disc()>0?String(disc()):'';render()}
   else if(a==='restart'){S=fresh();render()}
   else if(a==='back'){var order=['welcome','vehicle','services','slot','details','pay'];var i=order.indexOf(S.step);go(order[Math.max(0,i-1)])}
   else if(a==='next'){
@@ -912,7 +934,7 @@ function confirmBooking(){
     serviceName:(pk.length?pk:ad).map(function(x){return x.name}).join(', '),addOns:ad.map(function(x){return x.name}),
     serviceMode:'Walk-in (Kiosk)',address:STUDIO_ADDRESS,landmark:'',couponCode:'',
     date:(SB.ready&&SB.date)?SB.date:ymd(now),time:S.slot,
-    listPrice:sum(pk),discount:0,addOnTotal:sum(ad),price:total(),
+    listPrice:sum(pk),discount:disc(),addOnTotal:sum(ad),price:total(),
     paymentMethod:{upi:'UPI',card:'Card',counter:'Pay at counter'}[S.method],paymentStatus:S.paid?(S.method==='upi'?'Paid (UPI), verify in PNB app':'Paid'):'Pay at counter'
   });
   qSet(q);badge();syncQueue();
