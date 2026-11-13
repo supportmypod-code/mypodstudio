@@ -171,6 +171,7 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;paddin
 .job.ready .st{color:#2ecc59}
 .job.new{border-color:#ffd51b}
 .note{color:#9aa1a9;font-size:14px;max-width:80ch}
+.note.bad{color:#ff6b6b;font-weight:600}
 
 /* Staff attendance */
 .att{background:#0e1013;border:1px solid #2a2d31;border-radius:18px;padding:26px;min-height:620px;box-shadow:0 0 0 8px #000000,0 0 0 9px #2a2d31;min-width:0}
@@ -972,7 +973,7 @@ function persist(){
 
 function renderStaff(){
   if(!staff.length){$('aStaff').innerHTML='<p class="note">No staff yet. Add a name below, or add a row in the Staff tab of the Google Sheet.</p>';return}
-  $('aStaff').innerHTML=staff.map(function(s){var st=status(s.id);
+  $('aStaff').innerHTML=uniqByName(staff).map(function(s){var st=status(s.id);
     return '<div role="button" tabindex="0" class="stf" data-id="'+s.id+'" aria-pressed="'+(sel===s.id)+'"><span class="av">'+esc(ini(s.name))+'</span><span class="who"><b>'+esc(s.name)+'</b><small>'+esc(s.role)+'</small></span><span class="chip '+(st.k==='in'?'in':'')+'">'+esc(st.t)+'</span></div>'}).join('');
 }
 function renderAct(){
@@ -1001,7 +1002,7 @@ function enqueuePhoto(type,r,photo){
   var st=sb(r.staffId)||{name:r.name||'Unknown'},q=ld(PQ,[]);
   q.push({action:'attendancePhoto',kioskKey:window.MPKEY,website:'',source:'Kiosk',
     photoId:'PH-'+r.id+'-'+type,eventId:'ATT-'+r.id+'-'+type,shiftId:r.id,type:type,
-    staffId:r.staffId,staffName:st.name,date:ymdl(r.inTs),
+    staffId:r.staffId,staffName:st.name,date:ymdl(r.inTs),inIso:new Date(r.inTs).toISOString(),
     ts:new Date(type==='IN'?r.inTs:r.outTs).toISOString(),photo:photo});
   while(q.length>12)q.shift();
   if(!wr(PQ,q)){q=q.slice(-2);wr(PQ,q)}
@@ -1044,7 +1045,17 @@ function renderAll(){renderStaff();renderAct()}
 /* ---- staff profiles live in the Staff tab of the Google Sheet and stay on screen until the row is deleted there ---- */
 var flushing=false,loadingStaff=false;
 function pend(){return ld(PK,[])}
-function mergeStaff(list){var p=pend().filter(function(x){return !list.some(function(y){return y.id===x.id})});staff=list.concat(p)}
+function nk(n){return String(n||'').toLowerCase().replace(/\s+/g,' ').trim()}
+function uniqByName(arr){var seen={};return arr.filter(function(x){var k=nk(x.name);if(!k||seen[k])return false;seen[k]=1;return true})}
+function mergeStaff(list){
+  list=uniqByName(list);                                   /* the Google Sheet is the master: one row per name */
+  var p=pend().filter(function(x){return !list.some(function(y){return y.id===x.id||nk(y.name)===nk(x.name)})});
+  p=uniqByName(p);staff=list.concat(p);
+  wr(PK,p);                                                /* a waiting name that already exists in the sheet is dropped, never sent again */
+  var changed=false;                                       /* IN / OUT records that belong to a removed duplicate move to the one real person */
+  shifts.forEach(function(r){if(!sb(r.staffId)){var m=staff.filter(function(y){return nk(y.name)===nk(r.name)})[0];if(m){r.staffId=m.id;changed=true}}});
+  if(changed)persist();
+}
 function loadStaff(){
   if(!window.MPSEND||loadingStaff)return;loadingStaff=true;
   window.MPSEND({action:'getStaff',kioskKey:window.MPKEY,website:''},20000,function(st,d){
@@ -1060,11 +1071,15 @@ function loadStaff(){
 function flushPending(){
   if(flushing||!window.MPSEND)return;var p=pend();if(!p.length)return;
   flushing=true;var x=p[0],m=$('aAddMsg');
-  window.MPSEND({action:'addStaff',kioskKey:window.MPKEY,website:'',staffId:x.id,name:x.name,role:x.role},25000,function(st){
+  window.MPSEND({action:'addStaff',kioskKey:window.MPKEY,website:'',staffId:x.id,name:x.name,role:x.role},25000,function(st,d){
     flushing=false;
     if(st==='ok'||st==='reject'){
       wr(PK,pend().filter(function(y){return y.id!==x.id}));
-      if(m)m.textContent=st==='ok'?'Saved to the Google Sheet.':'The Google Sheet did not accept that name.';
+      if(st==='ok'&&d&&d.staffId){var tmp=x.id,real=String(d.staffId);        /* the sheet hands out the short number (1, 2, 3 ...) */
+        staff.forEach(function(y){if(y.id===tmp)y.id=real});
+        shifts.forEach(function(r){if(r.staffId===tmp)r.staffId=real});
+        persist();renderStaff()}
+      if(m){m.className='note'+(st==='ok'?'':' bad');m.textContent=st==='ok'?'Saved to the Google Sheet.':((d&&d.message)||'The Google Sheet did not accept that name.')}
       flushPending();
       if(!pend().length)loadStaff();
     }else if(m)m.textContent='Could not reach the Google Sheet yet. It will keep trying.';
@@ -1135,7 +1150,13 @@ $('aFile').addEventListener('change',function(e){
 });
 $('aAdd').addEventListener('submit',function(e){
   e.preventDefault();var n=$('aName').value.trim().replace(/\s+/g,' '),r=$('aRole').value.trim()||'Staff';
+  var msg=$('aAddMsg');
   if(n.length<2){$('aName').focus();return}
+  if(staff.concat(pend()).some(function(y){return nk(y.name)===nk(n)})){
+    msg.className='note bad';msg.textContent='"'+n+'" already exists. The same name cannot be added twice.';
+    $('aName').focus();$('aName').select&&$('aName').select();return;
+  }
+  msg.className='note';
   var x={id:'t'+Date.now(),name:n,role:r};
   wr(PK,pend().concat([x]));staff.push(x);persist();
   $('aName').value='';$('aRole').value='';renderStaff();
