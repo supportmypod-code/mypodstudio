@@ -471,6 +471,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
       <div class="group">
         <h4>1 · Who are you?</h4>
         <div class="staffgrid" id="aStaff"></div>
+        <p class="note" id="aSyncMsg" role="status" aria-live="polite"></p>
         <form class="addrow" id="aAdd" novalidate>
           <input id="aName" placeholder="Add staff name" autocomplete="off" aria-label="New staff name" maxlength="28">
           <input id="aRole" placeholder="Role (optional)" autocomplete="off" aria-label="New staff role" maxlength="20">
@@ -945,7 +946,7 @@ render();
 </script>
 
 <script>
-/* Staff attendance: pick name, selfie (live camera or phone camera), stamped photo, IN / OUT. Saved in this browser and sent to the Attendances tab of the Google Sheet. */
+/* Staff attendance: pick name, selfie (live camera or phone camera), stamped photo, IN / OUT. Saved locally and synced with the Attendances tab of the Google Sheet. */
 (function(){
 var $=function(i){return document.getElementById(i)};
 var KEY='mypod_att_v1',SKEY='mypod_staff_v1';
@@ -980,7 +981,11 @@ function same(a,b){return new Date(a).toDateString()===new Date(b).toDateString(
 function hrs(ms){var m=Math.max(0,Math.round(ms/60000));return Math.floor(m/60)+'h '+('0'+(m%60)).slice(-2)+'m'}
 function ini(n){return String(n).split(/\s+/).map(function(w){return w.charAt(0)}).slice(0,2).join('').toUpperCase()}
 function sb(id){return staff.filter(function(s){return s.id===id})[0]}
-function openShift(id){return shifts.filter(function(s){return s.staffId===id&&!s.outTs})[0]}
+function openShift(id){
+  var open=null;
+  shifts.forEach(function(s){if(s.staffId===id&&!s.outTs&&(!open||s.inTs>open.inTs))open=s});
+  return open;
+}
 function status(id){
   var o=openShift(id);if(o)return{k:'in',t:(same(o.inTs,Date.now())?'In · ':'In since '+dt(o.inTs)+' · ')+tm(o.inTs)};
   var c=shifts.filter(function(s){return s.staffId===id&&s.outTs&&same(s.outTs,Date.now())}).sort(function(a,b){return b.outTs-a.outTs})[0];
@@ -1078,6 +1083,44 @@ function mergeStaff(list){
   shifts.forEach(function(r){if(!sb(r.staffId)){var m=staff.filter(function(y){return nk(y.name)===nk(r.name)})[0];if(m){r.staffId=m.id;changed=true}}});
   if(changed)persist();
 }
+function mergeOpenShifts(list){
+  var changed=false;
+  list.forEach(function(x){
+    if(!x||!x.inIso)return;
+    var inTs=Date.parse(x.inIso);
+    if(!isFinite(inTs))return;
+    var name=String(x.staffName||'').trim(),sid=String(x.staffId||'').trim(),person=sid?sb(sid):null;
+    if(!person&&name)person=staff.filter(function(y){return nk(y.name)===nk(name)})[0];
+    if(!person)return;
+    sid=person.id;
+    var found=shifts.some(function(r){
+      return String(r.staffId)===String(sid)&&Math.floor(Number(r.inTs)/1000)===Math.floor(inTs/1000);
+    });
+    if(!found){
+      var id=String(x.id||'').replace(/[^A-Za-z0-9_-]/g,'');
+      if(!id)id='srv'+String(sid).replace(/[^A-Za-z0-9_-]/g,'')+Math.floor(inTs/1000);
+      shifts.push({id:id,staffId:sid,name:person.name,role:person.role||'Staff',inTs:inTs,outTs:null});
+      changed=true;
+    }
+  });
+  if(changed)persist();
+  return changed;
+}
+var loadingOpenAttendance=false;
+function loadOpenAttendance(){
+  if(loadingOpenAttendance||!window.MPSEND)return;
+  loadingOpenAttendance=true;
+  window.MPSEND({action:'getOpenAttendance',kioskKey:window.MPKEY,website:''},20000,function(st,d){
+    loadingOpenAttendance=false;
+    if(st==='ok'&&d&&Object.prototype.toString.call(d.shifts)==='[object Array]'){
+      $('aSyncMsg').textContent='';
+      if(mergeOpenShifts(d.shifts))renderStaff();
+    }else{
+      $('aSyncMsg').textContent='Attendance sync unavailable. Showing saved kiosk records.'+
+        (d&&d.message?' '+d.message:'');
+    }
+  });
+}
 function loadStaff(){
   if(!window.MPSEND||loadingStaff)return;loadingStaff=true;
   window.MPSEND({action:'getStaff',kioskKey:window.MPKEY,website:''},20000,function(st,d){
@@ -1088,6 +1131,7 @@ function loadStaff(){
       if(sel&&!sb(sel))closeCam();
       renderStaff();
     }
+    loadOpenAttendance();
   });
 }
 function flushPending(){
