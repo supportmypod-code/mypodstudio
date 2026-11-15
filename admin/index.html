@@ -180,6 +180,22 @@ th{color:var(--muted);font-weight:600;background:var(--panel2)}tr:last-child td{
 .lbx{display:grid;grid-template-columns:1fr 1fr;gap:10px}.lbx figure{margin:0}.lbx img{width:100%;border-radius:12px;display:block;background:var(--panel2);aspect-ratio:4/3;object-fit:cover}.lbx figcaption{font-size:12px;color:var(--muted);margin-top:4px}
 @media(max-width:480px){.lbx{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ---- mobile fixes: no sideways scroll, no double-tap zoom, no focus zoom ---- */
+html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+*,*:before,*:after{touch-action:manipulation}
+input,select,textarea,.field{font-size:16px}
+.field{min-width:0;max-width:100%}
+.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(min-width:600px){.kpis{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.grid2{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.mx{grid-template-columns:repeat(4,minmax(0,1fr))}.mx b{font-size:14px;overflow-wrap:anywhere}
+.lbx{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+@media(max-width:480px){.lbx{grid-template-columns:minmax(0,1fr)}}
+.stat{min-width:0;overflow-wrap:anywhere}.card,.sc,.tk{min-width:0;max-width:100%}
+.daynav h2{min-width:0}.kv dd,.dl{overflow-wrap:anywhere}
+.cg{grid-template-columns:repeat(auto-fit,minmax(96px,1fr))}.cg b{overflow-wrap:anywhere}
+img,svg{max-width:100%}
 </style>
 </head>
 <body>
@@ -247,7 +263,7 @@ function toast(msg, bad){ const t=$("#toast"); t.textContent=msg; t.className="s
 /* ============ data model ============ */
 const A = { id:["bookingid","id"], name:["customername","name","customer"], phone:["customerphone","phone","mobile"], email:["customeremail","email"], mode:["servicemode","mode"],
   address:["address"], landmark:["landmark"], map:["maplink"], veh:["vehicletype"], size:["vehiclesize"], plate:["vehiclenumber","plate"], svc:["servicename","service"], addons:["addons"],
-  coupon:["couponcode","coupon"], disc:["discount"], price:["price","total","totalprice","amount"], date:["date","bookingdate"], time:["time","slot","timeslot"], dur:["durationmins"],
+  coupon:["couponcode","coupon"], disc:["discount","discountinr"], price:["price","total","totalprice","amount","totalinr","finalprice","totalamount","grandtotal","netprice","bookingamount","payable"], date:["date","bookingdate"], time:["time","slot","timeslot"], dur:["durationmins","durationmin"],
   src:["source"], pm:["paymentmethod"], ps:["paymentstatus"], status:["status"], note:["adminnote","notes","note"] };
 function normB(r){
   const o = { _row:r._row };
@@ -259,7 +275,8 @@ function normB(r){
   return o;
 }
 const live = b => b.status!=="Cancelled" && b.status!=="No-show";
-const isPaid = b => /^paid/i.test(b.ps);
+const needsVerify = b => !isPaid(b) && /says paid|verify/i.test(String(b.ps||""));
+const isPaid = b => /^(paid|success|captured|received|done|completed)/i.test(String(b.ps||"").trim());
 const srcOf = b => b.src || (/^MPK/.test(b.id)?"Kiosk":/^MPA/.test(b.id)?"Admin":"Website");
 const modeOf = b => b.mode || "Not set";
 const STCLS = { "Confirmed":"s-info","Pending":"s-info","In Progress":"s-warn","Completed":"s-ok","Cancelled":"s-bad","No-show":"s-bad" };
@@ -389,14 +406,14 @@ function ticket(b, showDate){
     '<button class="tk-main" data-act="toggle" data-id="'+esc(b.id)+'" aria-expanded="'+open+'">'+
       '<div class="tk-time'+(showDate?" d":"")+'"><b>'+(showDate?esc(dLabel(b.date)):esc(tl[0]))+'</b><span>'+(showDate?esc(tl.join(" ")):esc(tl[1]))+'</span>'+(b.dur&&!showDate?'<span>'+fmtDur(b.dur)+'</span>':'')+'</div>'+
       '<div class="tk-body"><strong>'+esc(b.name)+'</strong><span>'+esc(b.svc)+(b.plate?" · "+esc(b.plate):"")+'</span><span>'+esc(modeOf(b))+" · "+esc(srcOf(b))+'</span></div>'+
-      '<div class="tk-side"><span class="chip '+sc+'">'+esc(b.status)+'</span><b>'+(b.price?inr(b.price):"Quote")+'</b>'+(live(b)?'<em class="'+(isPaid(b)?"paid":"due")+'">'+(isPaid(b)?"Paid":"Due")+'</em>':"")+'</div>'+
+      '<div class="tk-side"><span class="chip '+sc+'">'+esc(b.status)+'</span><b>'+(b.price?inr(b.price):"Quote")+'</b>'+(live(b)?'<em class="'+(isPaid(b)?"paid":"due")+'">'+(isPaid(b)?"Paid":needsVerify(b)?"Verify UPI":"Due")+'</em>':"")+'</div>'+
     '</button>';
   if(open){
     const ns = nextStep(b), rows = [];
     const kv = (k,v,m) => { if(v) rows.push('<dt>'+k+'</dt><dd'+(m?' class="mono"':"")+'>'+v+'</dd>'); };
     kv("Phone", ph ? '<a href="tel:+91'+ph+'" style="color:inherit">'+esc(ph)+'</a>' : "");
     kv("Email", esc(b.email));
-    kv("Where", esc([b.address,b.landmark].filter(Boolean).join(" · ")) + (b.map ? ' · <a href="'+esc(b.map)+'" target="_blank" rel="noopener" style="color:var(--atext)">Map</a>' : ""));
+    kv("Where", esc([b.address,b.landmark].filter(Boolean).join(" · ")) + (/^https?:\/\//i.test(String(b.map||"").trim()) ? ' · <a href="'+esc(String(b.map).trim())+'" target="_blank" rel="noopener noreferrer" style="color:var(--atext)">Map</a>' : ""));
     kv("Vehicle", esc([b.veh,b.size,b.plate].filter(Boolean).join(" · ")));
     kv("Add-ons", esc(b.addons)); kv("Coupon", esc(b.coupon), true);
     kv("Discount", num(b.disc) ? inr(b.disc) : "");
@@ -417,7 +434,15 @@ function ticket(b, showDate){
 }
 
 /* ---- board ---- */
-const methodOf = b => { const m = (b.pm||"").toLowerCase(); return /upi/.test(m)?"UPI":/card/.test(m)?"Card":/cash|counter/.test(m)?"Cash":"Other"; };
+const methodOf = b => { const m = String(b.pm||"").toLowerCase().trim(); if(!m) return "Unset"; if(/cash|counter|studio|venue|delivery|cod|offline|hand/.test(m)) return "Cash"; if(/upi|gpay|google ?pay|phonepe|paytm|bhim/.test(m)) return "UPI"; if(/card|credit|debit|visa|master|rupay/.test(m)) return "Card"; return "Online"; };
+function paySplit(list){
+  const z = () => ({a:0,n:0}), r = { cash:z(), upi:z(), card:z(), oth:z(), unset:z(), due:z(), ver:z() };
+  list.forEach(b => { if(!live(b)) return; if(!isPaid(b)){ const t = needsVerify(b) ? r.ver : r.due; t.a += b.price; t.n++; return; }
+    const k = { Cash:"cash", UPI:"upi", Card:"card", Online:"oth", Unset:"unset" }[methodOf(b)]; r[k].a += b.price; r[k].n++; });
+  r.online = { a:r.upi.a+r.card.a+r.oth.a, n:r.upi.n+r.card.n+r.oth.n };
+  r.got = r.cash.a + r.online.a + r.unset.a; r.gotN = r.cash.n + r.online.n + r.unset.n;
+  return r;
+}
 const chanOf = b => { const x = srcOf(b); return x==="Website" ? "Online" : x; };
 const sumP = l => l.reduce((t,b) => t+b.price, 0);
 const plural = (n,w) => n+" "+w+(n===1?"":"s");
@@ -429,10 +454,11 @@ function summary(list){
 }
 const tile = (big,label,sub,cls) => '<div class="stat'+(cls?" "+cls:"")+'"><b>'+big+'</b><span>'+label+'</span>'+(sub?'<em class="sub">'+sub+'</em>':"")+'</div>';
 function collHtml(list,title){
-  const paid = list.filter(isPaid), col = { Cash:0, UPI:0, Card:0, Other:0 }; paid.forEach(b => { col[methodOf(b)] += b.price; });
-  const due = sumP(list)-sumP(paid), cells = ["Cash","UPI","Card"].concat(col.Other?["Other"]:[]);
-  return '<div class="card coll">'+(title?'<div class="ct">'+title+'</div>':"")+'<div class="cg">'+cells.map(k => '<div><span>'+k+'</span><b>'+inr(col[k])+'</b></div>').join("")+
-    '<div><span>Not yet paid</span><b class="'+(due>0?"hot":"")+'">'+inr(due)+'</b></div></div></div>';
+  const r = paySplit(list), cell = (k,x,hot) => '<div><span>'+k+' · '+x.n+'</span><b class="'+(hot?"hot":"")+'">'+inr(x.a)+'</b></div>';
+  const parts = [["UPI",r.upi],["Card",r.card],["Other online",r.oth]].filter(p => p[1].n).map(p => p[0]+" "+inr(p[1].a)+" ("+p[1].n+")");
+  return '<div class="card coll">'+(title?'<div class="ct">'+title+'</div>':"")+'<div class="cg">'+cell("Cash",r.cash)+cell("Online",r.online)+
+    (r.unset.n?cell("Method not set",r.unset):"")+(r.ver.n?cell("UPI to verify",r.ver,true):"")+cell("Not yet paid",r.due,r.due.a>0)+'</div>'+
+    '<div class="muted" style="font-size:12px;margin-top:10px">Collected '+inr(r.got)+' from '+plural(r.gotN,"booking")+(parts.length?' · Online = '+parts.join(" · "):"")+'</div></div>';
 }
 function dutyHtml(){
   if(S.day!==today() || !S.att.loaded || S.att.month!==today().slice(0,7)) return "";
@@ -441,7 +467,7 @@ function dutyHtml(){
 }
 function vBoard(){
   if(!S.loaded) return '<div class="empty">Loading bookings…</div>';
-  const list = S.bookings.filter(b => b.date===S.day).sort((a,b) => toMin(a.time)-toMin(b.time)), m = summary(list);
+  const list = S.bookings.filter(b => b.date===S.day).sort((a,b) => toMin(a.time)-toMin(b.time)), m = summary(list), ps = paySplit(list), nop = list.filter(b => live(b) && !b.price).length;
   const isToday = S.day===today(), rel = isToday?"Today":S.day===addDays(today(),1)?"Tomorrow":S.day===addDays(today(),-1)?"Yesterday":"";
   const chs = Object.keys(m.ch).sort().map(k => k+" "+m.ch[k]).join(" · ");
   let h = '<div class="daynav"><button class="ibtn" data-act="day" data-n="-1" aria-label="Previous day">'+svg('<path d="M15 6l-6 6 6 6"/>')+'</button>'+
@@ -450,8 +476,8 @@ function vBoard(){
     '<button class="ibtn" data-act="day" data-n="1" aria-label="Next day">'+svg('<path d="M9 6l6 6-6 6"/>')+'</button></div>'+
     '<div class="kpis">'+tile(m.act,"Bookings",(chs||"None yet")+(m.canc?" · "+m.canc+" cancelled":""))+
       tile(m.done+"/"+m.act,"Vehicles done",plural(m.cars,"car")+" · "+plural(m.bikes,"bike"))+
-      tile(inr(m.sales),"Total sales","Collected "+inr(m.got))+
-      tile(inr(m.due),"To collect","",m.due>0?"hot":"")+'</div>'+
+      tile(inr(m.sales),"Total sales","Cash "+inr(ps.cash.a)+" · Online "+inr(ps.online.a)+(nop?" · "+nop+" with no price":""))+
+      tile(inr(m.due),"To collect",plural(ps.due.n+ps.ver.n,"unpaid booking"),m.due>0?"hot":"")+'</div>'+
     collHtml(list.filter(live), isToday?"Collected today":"Collected")+dutyHtml();
   if(!list.length) return h + '<div class="empty">No bookings for this day.<br><button class="btn pri" style="margin-top:14px" data-act="add">Add a booking</button></div>';
   const nowM = new Date().getHours()*60 + new Date().getMinutes(); let marked = !isToday;
@@ -674,7 +700,8 @@ function openFix(sid){
 }
 async function submitFix(e){
   e.preventDefault(); const sid = e.target.dataset.id, x = S.att.shifts.find(v => v.id===sid), t = $("#f_t").value;
-  const out = new Date(x.date+"T"+t+":00"), diff = (out - Date.parse(x.inIso))/36e5;
+  let out = new Date(x.date+"T"+t+":00"); if(out <= Date.parse(x.inIso)) out = new Date(out.getTime()+864e5);
+  const diff = (out - Date.parse(x.inIso))/36e5;
   if(!(diff>0 && diff<=20)){ toast("Exit must be after entry, within 20 hours.", true); return; }
   try{ await api("adminAttFix", { shiftId:sid, outIso:out.toISOString() }); x.outIso = out.toISOString(); x.fixed = true; $("#modal").innerHTML = ""; render(); toast("Saved"); }
   catch(err){ toast(err.message, true); }
