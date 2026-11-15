@@ -126,9 +126,9 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;paddin
 
 /* Returning customer */
 .screen>.ret{margin-left:14px;padding:22px 30px;font-size:22px;border-radius:16px;vertical-align:top}
-.chips{display:flex;flex-wrap:wrap;margin-top:10px}
-.chip{padding:12px 18px;border-radius:10px;background:#13161a;border:2px solid #2a2d31;font:600 18px 'JetBrains Mono',Menlo,Courier,monospace;margin:0 10px 8px 0}
-.chip.on{border-color:#ffd51b;background:#292300}
+.vchips{display:flex;flex-wrap:wrap;margin-top:10px}
+.vchip{padding:12px 18px;border-radius:10px;background:#13161a;border:2px solid #2a2d31;font:600 18px 'JetBrains Mono',Menlo,Courier,monospace;margin:0 10px 8px 0}
+.vchip.on{border-color:#ffd51b;background:#292300}
 .welcome{border-color:#2ecc59}
 /* Pay */
 .pay{display:flex;flex-wrap:wrap;margin:0 -7px}
@@ -198,6 +198,7 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;paddin
 .stf .who b{display:block;font:700 20px/1.1 'Sora','Inter',-apple-system,'Helvetica Neue',Helvetica,Arial,sans-serif;text-transform:uppercase;letter-spacing:.02em;word-wrap:break-word}
 .stf .who small,.who2 small{display:block;color:#9aa1a9;font-size:13px}
 .chip{display:inline-block;font:600 12px 'Inter',-apple-system,'Helvetica Neue',Helvetica,Arial,sans-serif;letter-spacing:.04em;padding:3px 9px;border-radius:999px;border:1px solid #2a2d31;color:#9aa1a9;white-space:nowrap}
+.stf .chip{white-space:normal;max-width:100%}
 .chip.in{color:#2ecc59;border-color:rgba(46,204,89,.45);background:rgba(46,204,89,.08)}
 .chip.warn{color:#f5c542;border-color:rgba(245,197,66,.45);background:rgba(245,197,66,.08)}
 .addrow{display:flex;flex-wrap:wrap}
@@ -597,7 +598,7 @@ function render(){
   if(S.step==='welcome'){
     h='<div class="hero"><span class="kicker">Booking open · Newtown, Kolkata</span><div class="big">Clean cars.<br>Zero <em>hassle.</em></div><p>Pick a service, choose a slot and get your token in under a minute. No queue at the counter.</p></div>'+
       '<div class="offer"><span><b>Experience our doorstep service with exciting offers:</b> 20% off Ceramic and 10% off PPF. T&amp;C apply.</span>'+(dayFull()?'<span>Fully booked for today</span>':'')+'</div>'+
-      (dayFull()?fullHtml():'<button class="btn pri start" data-a="start">Touch to start</button><button class="btn ret" data-a="ret">Returning customer?</button>'+qrCard('small'));
+      (dayFull()?fullHtml():'<button class="btn pri start" data-a="start">Touch to start</button><button class="btn ret" data-a="ret">Existing customer</button>'+qrCard('small'));
     f='<div class="cart"><small>Open daily</small><em>'+fmtMin(HRS.open)+' to '+fmtMin(HRS.close)+'</em></div>';
   }
   else if(S.step==='find'){
@@ -606,7 +607,7 @@ function render(){
     var ms=S.q.length>=4?cbFind(S.q):[];S.matches=ms;
     var FB=function(c,l,cls){return '<button'+(cls?' class="'+cls+'"':'')+' data-a="fkey" data-v="'+c+'">'+l+'</button>'};
     var FR=function(i){return '<div class="row">'+i+'</div>'};
-    h='<h2>Welcome back</h2><p class="sub">Type your mobile number, or just the last 4 digits of your vehicle number.</p>'+
+    h='<h2>Existing customer</h2><p class="sub">Type your mobile number, or just the last 4 digits of your vehicle number.</p>'+
       '<div class="fields"><div class="field act full"><small>Mobile number or last 4 of vehicle no.</small><span class="'+(S.q?'':'ph')+'">'+(S.q||'e.g. 1234')+'</span></div></div>';
     if(ms.length){
       h+='<div class="grid">'+ms.map(function(m,i){
@@ -647,7 +648,7 @@ function render(){
   else if(S.step==='details'){
     var fld=function(k,l,ph,val,bad,xc){return '<div role="button" tabindex="0" class="field'+(xc?' '+xc:'')+(S.field===k?' act':'')+(bad&&S.tried?' bad':'')+'" data-a="field" data-v="'+k+'"><small>'+l+'</small><span class="'+(val?'':'ph')+'">'+(val?esc(val):ph)+'</span></div>'};
     var cu=S.phone.length===10?cbGet(S.phone):null,cvs=cu?cu.vehicles.filter(function(v){return v.vt===S.vt&&v.plate}):[];
-    var banner=cu?'<div class="summary welcome"><b>Welcome back, '+esc(cu.name.split(' ')[0])+'.</b> We filled in your details.'+(cvs.length>1?' Tap your vehicle:<div class="chips">'+cvs.map(function(v){return '<button class="chip'+(plk(v.plate)===plk(S.plate)?' on':'')+'" data-a="veh" data-v="'+esc(v.plate)+'">'+esc(v.plate)+'</button>'}).join('')+'</div>':'')+'</div>':'';
+    var banner=cu?'<div class="summary welcome"><b>Welcome back, '+esc(cu.name.split(' ')[0])+'.</b> We filled in your details.'+(cvs.length>1?' Tap your vehicle:<div class="vchips">'+cvs.map(function(v){return '<button class="vchip'+(plk(v.plate)===plk(S.plate)?' on':'')+'" data-a="veh" data-v="'+esc(v.plate)+'">'+esc(v.plate)+'</button>'}).join('')+'</div>':'')+'</div>':'';
     h='<h2>Who do we call?</h2><p class="sub">We send the token and progress updates on WhatsApp.</p>'+banner+
       '<div class="fields">'+fld('phone','Mobile number','10 digits',S.phone,!/^[6-9]\d{9}$/.test(S.phone))+fld('name','Your name','e.g. Arjun Das',S.name,S.name.trim().length<2)+fld('plate','Vehicle number','WB 02 AB 1234',S.plate,S.plate.trim().length<4)+fld('email','Email for invoice (optional)','name@example.com',S.email,!emailOk(),'full')+'</div>'+(S.tried&&!emailOk()?'<p class="formerr">That email does not look right. Check it, or leave it empty.</p>':'<p class="formnote">Email is optional. Add it if you would like your invoice by email.</p>')+kb();
   }
@@ -1208,6 +1209,21 @@ function mergeOpenShifts(list){
       shifts.push({id:id,staffId:sid,name:person.name,role:person.role||'Staff',inTs:inTs,outTs:null});
       changed=true;
     }
+  });
+  /* The Sheet is the truth. An earlier-day shift that this iPad still shows as open, but the Sheet no longer lists as open
+     (closed in the Sheet, or never saved there), is closed here too. Shifts still waiting in the send queue are never touched. */
+  var keys={};
+  list.forEach(function(x){if(!x||!x.inIso)return;var t=Date.parse(x.inIso);if(!isFinite(t))return;
+    var nm=String(x.staffName||'').trim(),sd=String(x.staffId||'').trim(),pp=sd?sb(sd):null;
+    if(!pp&&nm)pp=staff.filter(function(y){return nk(y.name)===nk(nm)})[0];
+    if(pp)keys[String(pp.id)+'|'+Math.floor(t/1000)]=1});
+  var q=ld(QK,[]),t0=new Date();t0.setHours(0,0,0,0);
+  shifts.forEach(function(r){
+    if(r.outTs||Number(r.inTs)>=t0.getTime())return;
+    if(keys[String(r.staffId)+'|'+Math.floor(Number(r.inTs)/1000)])return;
+    if(q.some(function(e){return e.shiftId===r.id}))return;
+    var d=new Date(r.inTs);d.setHours(21,0,0,0);
+    r.outTs=Math.max(Number(r.inTs),d.getTime());r.autoClosed=true;changed=true;
   });
   if(changed)persist();
   return changed;
