@@ -7,7 +7,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 })(window,document,'script','dataLayer','GTM-M59C9SG3');</script>
 <!-- End Google Tag Manager -->
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#07080a">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#000000"><meta name="color-scheme" content="dark">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -17,7 +17,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <meta property="og:image" content="https://supportmypod-code.github.io/mypodstudio/og-image.png"><meta name="twitter:card" content="summary_large_image">
 <meta name="description" content="Book MyPod doorstep or drive-through car care in Newtown, Kolkata. Choose a service, add-ons and an optional flyer code, then get a booking ID instantly.">
 <title>MyPod Detailing Studio — Doorstep Car Wash in Newtown, Kolkata</title><script type="application/ld+json">{"@context":"https://schema.org","@type":"AutoWash","name":"MyPod Detailing Studio","telephone":"+919886950617","description":"Doorstep and drive-through car care in Newtown, Kolkata","areaServed":"Newtown, Kolkata","address":{"@type":"PostalAddress","addressLocality":"Newtown","addressRegion":"West Bengal","addressCountry":"IN"}}</script>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&family=Sora:wght@600;700;800&display=swap">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
 <style>
 /* ===== MyPod base: dark, grid-lit, tech look ===== */
 :root{--y:#ffd51b;--bg:#07080a;--panel:#0e1013;--panel2:#13161a;--line:rgba(255,255,255,.09);--line2:rgba(255,255,255,.16);--text:#f4f5f6;--muted:#9aa1a9;
@@ -601,6 +601,264 @@ body{touch-action:pan-y pinch-zoom}
 .sizes .opt b{overflow-wrap:normal;word-break:normal;hyphens:none;font-size:clamp(12.5px,3.6vw,15px)}
 .sizes .opt small{overflow-wrap:break-word}
 .sizes .opt>span{padding-left:10px;padding-right:10px}
+
+/* =====================================================================
+   Apple design language layer (Liquid Glass, iOS 26 / macOS 26 era)
+   Tokens: system grays, SF type stack, concentric radii, glass materials,
+   spring easing. Motion archetype: Premium (350-600ms, no overshoot).
+   Booking logic and all JS hooks are untouched; this layer only restyles.
+   ===================================================================== */
+:root{
+  color-scheme:dark;
+  --y:#ffd60a; --y2:#ff9f0a; --bg:#000; --panel:#1c1c1e; --panel2:#2c2c2e;
+  --fill:rgba(120,120,128,.24); --fill2:rgba(120,120,128,.16);
+  --line:rgba(255,255,255,.09); --line2:rgba(255,255,255,.16);
+  --text:#f5f5f7; --muted:#a1a1a6; --green:#30d158; --red:#ff453a;
+  --disp:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text",Inter,system-ui,"Segoe UI",Roboto,Arial,sans-serif;
+  --body:var(--disp); --mono:var(--disp);
+  --ease:cubic-bezier(.32,.72,0,1); --ease-out:cubic-bezier(.22,1,.36,1);
+  --r-xl:32px; --r-lg:24px; --r-md:18px; --r-sm:14px;
+  --glass:rgba(40,40,44,.55); --glass-line:rgba(255,255,255,.14);
+  --hi:inset 0 1px 0 rgba(255,255,255,.22),inset 0 -1px 0 rgba(255,255,255,.04);
+  --shadow:0 12px 40px rgba(0,0,0,.45);
+}
+html{-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
+body{background:#000;font-size:17px;line-height:1.47;letter-spacing:-.022em;text-rendering:optimizeLegibility;font-family:var(--body)}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:radial-gradient(60% 50% at 88% -8%,rgba(255,214,10,.16),transparent 70%),
+             radial-gradient(50% 45% at 4% 18%,rgba(94,92,230,.20),transparent 70%),
+             radial-gradient(55% 40% at 70% 108%,rgba(10,132,255,.14),transparent 70%)}
+h1,h2,h3{font-family:var(--disp);letter-spacing:-.03em;font-weight:700}
+:focus-visible{outline:3px solid rgba(255,214,10,.65);outline-offset:3px}
+
+/* ---------- Header: floating glass capsule ---------- */
+header{top:10px;margin:10px auto 0;width:min(1240px,calc(100% - 20px));height:60px;padding:0 10px 0 18px;border-radius:30px;
+  background:var(--glass);-webkit-backdrop-filter:saturate(180%) blur(30px);backdrop-filter:saturate(180%) blur(30px);
+  border:1px solid var(--glass-line);box-shadow:var(--hi),var(--shadow)}
+.brand img{height:34px;border-radius:8px}
+.nav{font-size:15px;gap:4px}
+.nav a{padding:8px 14px;border:0;border-radius:999px;color:#e5e5ea;transition:background .3s var(--ease),color .3s}
+.nav a:hover{color:#fff;background:rgba(255,255,255,.1);border:0}
+.actions .btn{min-height:40px;padding:0 18px;font-size:15px}
+.acctbtn,.loc{min-height:40px;padding:0 14px;border:0;border-radius:999px;background:rgba(255,255,255,.1);color:var(--text);font-size:15px;font-weight:500;box-shadow:none}
+.acctbtn:hover,.loc:hover{background:rgba(255,255,255,.16);color:var(--text);border:0}
+.hamb{width:40px;height:40px;border:0;border-radius:50%;background:rgba(255,255,255,.1)}
+.dot{background:var(--red)}
+
+/* ---------- Buttons: capsules with spring press ---------- */
+.btn{min-height:50px;padding:0 26px;border:0;border-radius:999px;background:var(--y);color:#000;font-size:17px;font-weight:600;letter-spacing:-.022em;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.45),0 1px 2px rgba(0,0,0,.3);transition:transform .35s var(--ease),filter .2s,background .25s}
+.btn:hover{transform:none;filter:brightness(1.06);box-shadow:inset 0 1px 0 rgba(255,255,255,.45),0 1px 2px rgba(0,0,0,.3)}
+.btn:active{transform:scale(.96);filter:brightness(.96)}
+.btn.alt{background:rgba(255,255,255,.12);color:var(--text);box-shadow:var(--hi);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px)}
+.btn.alt:hover{background:rgba(255,255,255,.18);color:var(--text);border:0}
+.booking .btn.ghost{background:rgba(255,255,255,.12);color:var(--text);border:0;box-shadow:none}
+
+/* ---------- Hero ---------- */
+.hero{padding:72px 0 88px}
+.hero:before{display:none}
+.status{font:500 14px/1.2 var(--body);padding:8px 14px 8px 12px;color:#e5e5ea;background:var(--glass);border:1px solid var(--glass-line);
+  box-shadow:var(--hi);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px)}
+.status i{background:var(--green)}
+.hero h1{font-size:clamp(44px,7.4vw,92px);line-height:1.03;letter-spacing:-.045em;font-weight:700;margin:24px 0 20px;
+  background:linear-gradient(180deg,#fff 35%,#a1a1a6 135%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}
+.hero h1 .y{display:inline-block;background:linear-gradient(100deg,#ffe066 0%,#ffd60a 35%,#ff9f0a 75%,#ffd60a 100%);background-size:220% 100%;
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;animation:apSheen 2.4s var(--ease) .5s 1 both}
+@keyframes apSheen{from{background-position:100% 0}to{background-position:0 0}}
+.hero .copy{font-size:21px;line-height:1.38;color:var(--muted);letter-spacing:-.012em;max-width:520px}
+.cta-row{gap:12px}
+.specs{border:0;background:none;gap:10px;max-width:600px;margin-top:44px;overflow:visible}
+.specs div{background:var(--glass);border:1px solid var(--glass-line);border-radius:var(--r-lg);padding:16px;box-shadow:var(--hi);
+  -webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px)}
+.specs small{font:600 13px/1.2 var(--body);text-transform:none;letter-spacing:0;color:var(--y);margin-bottom:6px}
+.specs b{font-weight:500;font-size:14px;color:#e5e5ea;line-height:1.35}
+/* One orchestrated entrance, under 500ms of total stagger */
+@keyframes apRise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+.hero-copy>*{animation:apRise .8s var(--ease-out) both}
+.hero-copy>:nth-child(2){animation-delay:.07s}.hero-copy>:nth-child(3){animation-delay:.14s}
+.hero-copy>:nth-child(4){animation-delay:.21s}.hero-copy>:nth-child(5){animation-delay:.28s}
+.hero .booking{animation:apRise .9s var(--ease-out) .12s both}
+
+/* ---------- Booking sheet ---------- */
+.booking{background:rgba(28,28,30,.66);-webkit-backdrop-filter:saturate(180%) blur(40px);backdrop-filter:saturate(180%) blur(40px);
+  border:1px solid var(--glass-line);border-radius:var(--r-xl);padding:26px;box-shadow:var(--hi),0 30px 80px rgba(0,0,0,.55)}
+.booking h2{font-size:24px;letter-spacing:-.03em}
+.bhead span{font-size:13px;color:var(--muted)}
+.prog li{border-top:0;position:relative;padding-top:12px;color:#8e8e93;font-size:12px}
+.prog li::before{content:"";position:absolute;top:0;left:0;right:0;height:4px;border-radius:2px;background:rgba(255,255,255,.14)}
+.prog li.on::before{background:var(--y)}.prog li.done::before{background:var(--y);opacity:.5}
+.prog li i{background:var(--fill)}
+.lbl{font-size:17px;font-weight:600;color:var(--text);letter-spacing:-.022em;margin:20px 0 10px}
+.opt>span,.sizes .opt>span{border:1.5px solid transparent;border-radius:var(--r-md);background:var(--fill2);
+  transition:background .25s var(--ease),border-color .25s var(--ease),transform .35s var(--ease)}
+.opt b{font-size:16px;font-weight:600;letter-spacing:-.02em}
+.opt small{font-size:13px;color:var(--muted);line-height:1.35}
+.opt input:checked+span{border-color:var(--y);background:rgba(255,214,10,.12)}
+.opt:active>span{transform:scale(.97)}
+.opt .oimg{border-radius:12px;border:0}
+.svcrow,.addon-option,.seg label,.booking .mode-option{border:1.5px solid transparent;border-radius:var(--r-md);background:var(--fill2);
+  transition:background .25s var(--ease),border-color .25s var(--ease)}
+.svcrow:has(input:checked),.addon-option:has(input:checked),.seg label:has(input:checked),.booking .mode-option:has(input:checked){border-color:var(--y);background:rgba(255,214,10,.12)}
+.svc b{font-size:16px;font-weight:600}.svc small{font-size:13px;color:var(--muted)}
+.svc .p{font:600 17px var(--body);color:var(--text);font-variant-numeric:tabular-nums}
+.addon-option .addon-name{font-size:14px}.addon-option .addon-price{font-size:14px;color:var(--text)}
+.addon-option .addon-name small{font-size:12px}
+.inc-toggle{font:500 13px/1.2 var(--body);text-transform:none;letter-spacing:0;color:var(--muted);min-height:36px}
+.inc-toggle:hover{color:var(--y)}
+.inc li{font-size:13px;color:#d1d1d6}.inc .inc-note{font-size:12px}
+.chip span{padding:13px 2px;border:0;border-radius:14px;background:var(--fill2);font-size:14px;font-weight:500}
+.chip input:checked+span{background:var(--y);color:#000;font-weight:600;border:0}
+.slots{gap:8px}
+.quick button{min-height:44px;border:0;border-radius:999px;background:var(--fill2);color:var(--text);font-size:14px;font-weight:500}
+.quick button[aria-pressed="true"]{background:rgba(255,214,10,.18);color:var(--y);border:0}
+.field{min-height:50px;padding:14px 16px;border:1.5px solid transparent;border-radius:var(--r-sm);background:var(--fill);color:var(--text);
+  font-size:17px;letter-spacing:-.022em;transition:box-shadow .25s var(--ease),border-color .25s}
+.field::placeholder{color:#8e8e93}
+.field:focus{border-color:var(--y);box-shadow:0 0 0 4px rgba(255,214,10,.22);outline:none}
+.booking .secondary-btn,.manage .secondary-btn,.lsec{min-height:46px;border:0;border-radius:999px;background:rgba(255,255,255,.12);color:var(--text);font:600 15px var(--body)}
+.locopt .btn,.lbtn{border-radius:999px}
+.lbtn{min-height:40px;padding:0 16px;border:0;background:var(--y);color:#000;font-weight:600;font-size:14px}
+.locopt,.locres,.studio{border-radius:var(--r-md)}
+.locopt{background:var(--fill2);border:0}
+.banner,.locres,.studio,.booking .booking-result,.manage .booking-result,.modal .booking-result{background:rgba(255,214,10,.08);border:1px solid rgba(255,214,10,.22);border-radius:var(--r-md)}
+.banner{color:#f5e7a1;font-size:13px}
+.small-note,.booking .small-note{font-size:13px;color:var(--muted)}
+.fine{font-size:12px}
+.msg{font-size:14px}
+.ok{color:var(--green)}.bad{color:var(--red)}
+.summary,.addonsum,.payp{background:var(--fill2);border:0;border-radius:var(--r-md)}
+.summary{padding:14px 16px;font-size:15px}.summary .line{padding:5px 0;color:#d1d1d6}
+.summary .total{border-top:1px solid var(--line2);font-size:19px;color:var(--text);padding-top:12px;margin-top:8px}
+.addonsum{color:var(--muted);font:500 14px var(--body);padding:12px}
+.payp{padding:16px}
+.payp .payamt{font:700 30px var(--body);letter-spacing:-.03em;color:var(--text)}
+.upiapp{min-height:52px;border:0;background:var(--fill2);border-radius:16px}
+.payp .upiid{border:0;background:var(--fill2);border-radius:var(--r-sm);font:500 14px var(--body)}
+.payp .upiid button{min-height:36px;border:0;background:rgba(255,255,255,.14);border-radius:999px;padding:0 14px}
+.payp canvas{border-radius:16px}
+.actions-row a,.actions-row button{display:flex;align-items:center;justify-content:center;border:0;background:rgba(255,255,255,.12);border-radius:999px;min-height:44px;font-size:14px}
+.nav2{gap:10px}
+
+/* ---------- Sections and type ---------- */
+.sec{padding:96px 0}
+.sec+.sec{border-top:0}
+.kicker{font:600 17px/1.2 var(--body);text-transform:none;letter-spacing:-.022em;color:var(--y)}
+.kicker:before{display:none}
+.sec-head h2{font-size:clamp(34px,5.2vw,60px);letter-spacing:-.04em;line-height:1.05}
+.sec-head h2 .y,.manage h2 .y{color:#86868b}
+#wsH .y{background:linear-gradient(100deg,#ffe066,#ffd60a 40%,#ff9f0a);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+.lead{font-size:19px;line-height:1.5;color:var(--muted);max-width:640px}
+.ws-stage{border:1px solid var(--line);border-radius:40px}
+.ws-steps span{font:600 13px var(--body);letter-spacing:0}
+
+/* ---------- Service cards ---------- */
+.cards{gap:14px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.scard{background:var(--panel);border:0;border-radius:var(--r-xl);padding:28px;box-shadow:inset 0 1px 0 rgba(255,255,255,.08);
+  transition:transform .5s var(--ease),background .3s}
+.scard:hover{transform:scale(1.015);background:#242426;border:0;box-shadow:inset 0 1px 0 rgba(255,255,255,.1)}
+.scard h3{font-size:24px;letter-spacing:-.03em}
+.scard .vt{font:500 13px var(--body);text-transform:none;letter-spacing:0;color:var(--muted)}
+.scard p{font-size:15px}
+.scard .price{font:700 34px/1 var(--body);letter-spacing:-.04em;color:var(--text)}
+.scard .price small{font-size:15px;font-weight:500;color:var(--muted)}
+.sico{width:48px;height:48px;border:0;border-radius:14px;background:rgba(255,214,10,.14)}
+.badge{font:600 12px/1 var(--body);text-transform:none;letter-spacing:0;padding:7px 11px;background:var(--y);color:#000}
+.scard .szhelp{font:500 13px var(--body);text-transform:none;letter-spacing:0;color:var(--muted)}
+.szbtn{min-height:50px;border:0;border-radius:16px;background:var(--fill2);font-size:16px;transition:background .25s var(--ease),transform .35s var(--ease)}
+.szbtn b{font:600 16px var(--body);color:var(--text)}
+.szbtn:hover,.szbtn:focus-visible{background:rgba(255,214,10,.14);border:0}
+.szbtn:active{transform:scale(.97)}
+.szbtn i{color:var(--y);font-size:13px}
+
+/* ---------- Steps, contact, manage ---------- */
+.steps{gap:14px}
+.steps li{background:var(--panel);border:0;border-radius:var(--r-xl);padding:26px}
+.steps li:before{display:none}
+.steps .n{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:rgba(255,214,10,.14);color:var(--y);font:700 16px var(--body);letter-spacing:0}
+.steps h3{font-size:20px;margin:16px 0 8px}.steps p{font-size:15px}
+.note{border:0;background:var(--panel);border-radius:var(--r-lg);padding:18px 22px;font-size:15px}
+.wcard{background:var(--panel);border:0;border-radius:var(--r-xl);padding:32px}
+.wcard h3{font-size:28px;letter-spacing:-.03em}
+.wcard .meta{font:600 14px var(--body);color:var(--y);text-transform:none;letter-spacing:0}
+.wcard p{font-size:16px}
+.chipl{min-height:44px;padding:0 18px;border:0;border-radius:999px;background:var(--panel);font-size:15px}
+.chipl:hover{background:var(--panel2);color:var(--text)}
+.manage{background:var(--panel);border:0;border-radius:36px;padding:40px}
+.manage h2{font-size:clamp(30px,4vw,44px)}
+footer{border-top:1px solid var(--line)}
+.fwrap nav{font-size:14px}
+
+/* ---------- Glass overlays ---------- */
+.imodal,.modal{background:rgba(0,0,0,.45);-webkit-backdrop-filter:blur(24px) saturate(160%);backdrop-filter:blur(24px) saturate(160%)}
+.isheet,.modal-card{background:rgba(28,28,30,.82);-webkit-backdrop-filter:saturate(180%) blur(40px);backdrop-filter:saturate(180%) blur(40px);
+  border:1px solid var(--glass-line);border-radius:var(--r-xl);box-shadow:var(--hi),0 40px 100px rgba(0,0,0,.6)}
+.isheet h2,.modal-card h2{font-size:28px;letter-spacing:-.03em}
+.modal-card h2{color:var(--text)}
+.tick circle,.tick path{stroke:var(--green)}
+.iclose{width:44px;height:44px;border:0;border-radius:50%;background:rgba(255,255,255,.14)}
+.itabs,.actabs{background:var(--fill2);border:0;border-radius:999px;padding:3px;gap:2px}
+.itab,.actabs button{min-height:40px;border:0;border-radius:999px;background:none;color:var(--muted)}
+.itab[aria-selected="true"],.actabs button.on{background:rgba(255,255,255,.2);color:var(--text);border:0}
+.istep .n{border-color:var(--line2);color:var(--text)}
+.bk,.al{background:var(--fill2);border:0;border-radius:var(--r-md)}
+.al.new{box-shadow:inset 0 0 0 1.5px var(--y)}
+.bk .chip{background:rgba(48,209,88,.16);color:var(--green)}
+.bk .chip.off{background:var(--fill);color:#aaa}
+.bk .row button,.bk .row a{display:inline-flex;align-items:center;min-height:40px;border:0;background:rgba(255,255,255,.12);border-radius:999px}
+.bk .row .danger{color:var(--red);background:rgba(255,69,58,.14)}
+.lpill{border:1px solid rgba(255,255,255,.12);box-shadow:0 20px 60px rgba(0,0,0,.7)}
+.lp-mgr .btns a,.lp-act button{min-height:44px;display:flex;align-items:center;justify-content:center;border:0;background:rgba(255,255,255,.14);border-radius:999px}
+.lp-chip{background:rgba(48,209,88,.16);color:var(--green)}
+.lp-dng{border:0;border-radius:999px;background:rgba(255,69,58,.14);color:var(--red);min-height:44px}
+.lp-cancel{border:0;background:rgba(255,69,58,.08);border-radius:var(--r-md)}
+.lp-act button.danger{background:var(--red);color:#fff}
+.toast{background:var(--glass);-webkit-backdrop-filter:saturate(180%) blur(30px);backdrop-filter:saturate(180%) blur(30px);
+  border:1px solid var(--glass-line);border-radius:999px;padding:14px 22px;font-size:15px;box-shadow:var(--hi),var(--shadow)}
+.cele-banner{border-radius:28px;background:rgba(28,28,30,.8);-webkit-backdrop-filter:blur(30px);backdrop-filter:blur(30px);border:1px solid var(--glass-line)}
+
+/* ---------- Near-you pill and panel ---------- */
+.nb-bar{height:44px;border:1px solid var(--glass-line);background:var(--glass);box-shadow:var(--hi);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px)}
+.nb-bar:hover,.nearby.open .nb-bar{border-color:var(--glass-line);background:rgba(255,255,255,.14)}
+.nb-txt b{font:600 14px/1.2 var(--body)}.nb-ico{color:var(--y)}
+.nb-panel{background:rgba(28,28,30,.85);-webkit-backdrop-filter:saturate(180%) blur(40px);backdrop-filter:saturate(180%) blur(40px);
+  border:1px solid var(--glass-line);border-radius:28px;box-shadow:var(--hi),0 30px 80px rgba(0,0,0,.6)}
+.nb-list .nm small{font:500 12px var(--body);text-transform:none;letter-spacing:0}
+.nb-list .pr{font:600 14px var(--body);color:var(--text)}
+.nb-book{min-height:40px;padding:0 16px;border:0;background:var(--y);color:#000;border-radius:999px}
+.nb-book:hover{background:var(--y);color:#000;filter:brightness(1.08)}
+.nb-foot button,.nb-foot a{display:inline-flex;align-items:center;min-height:40px;border:0;background:rgba(255,255,255,.12);border-radius:999px}
+.nb-foot .main{background:var(--y);color:#000}
+.locsug{background:var(--fill2);border:0;border-radius:16px}
+.locsug button{font-size:15px;min-height:44px}
+.install-label{background:var(--glass);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border:1px solid var(--glass-line);font-size:15px}
+
+/* ---------- Safe areas and small screens (restates media rules this layer overrides) ---------- */
+.fabs{bottom:calc(18px + env(safe-area-inset-bottom,0px))}
+@media(max-width:860px){
+  .nav{top:calc(100% + 8px);padding:8px;gap:0;border-radius:28px;background:rgba(28,28,30,.88);-webkit-backdrop-filter:saturate(180%) blur(40px);backdrop-filter:saturate(180%) blur(40px);border:1px solid var(--glass-line)}
+  .nav a{padding:14px 16px;border-radius:16px;border-bottom:0}
+}
+@media(max-width:760px){
+  .fabs{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+  .stickybook{bottom:calc(12px + env(safe-area-inset-bottom,0px));min-height:54px}
+}
+@media(max-width:560px){
+  .hero{padding:36px 0 56px}.sec{padding:64px 0}.manage{padding:24px}.booking{padding:20px}.steps li{padding:22px}.wcard{padding:26px}
+  .hero .copy{font-size:19px}
+}
+@media(max-width:480px){.actions .btn{padding:0 14px;font-size:14px}header{padding:0 8px 0 14px}}
+
+/* ---------- Accessibility: Apple's Reduce Transparency and Increase Contrast ---------- */
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  header,.booking,.isheet,.modal-card,.nb-panel,.toast,.status,.install-label,.specs div,.nb-bar,.nav{background:#1c1c1e}
+}
+@media(prefers-reduced-transparency:reduce){
+  header,.booking,.isheet,.modal-card,.nb-panel,.toast,.status,.install-label,.specs div,.nb-bar,.nav,.cele-banner{background:#1c1c1e;-webkit-backdrop-filter:none;backdrop-filter:none}
+}
+@media(prefers-contrast:more){
+  :root{--glass-line:rgba(255,255,255,.4);--muted:#c7c7cc}
+  .opt>span,.svcrow,.addon-option,.chip span{border-color:rgba(255,255,255,.35)}
+}
 </style></head><body>
 <!-- Google Tag Manager (noscript) -->
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-M59C9SG3" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
