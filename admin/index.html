@@ -264,16 +264,17 @@ function toast(msg, bad){ const t=$("#toast"); t.textContent=msg; t.className="s
 const A = { id:["bookingid","id"], name:["customername","name","customer"], phone:["customerphone","phone","mobile"], email:["customeremail","email"], mode:["servicemode","mode"],
   address:["address"], landmark:["landmark"], map:["maplink"], veh:["vehicletype"], size:["vehiclesize"], plate:["vehiclenumber","plate"], svc:["servicename","service"], addons:["addons"],
   coupon:["couponcode","coupon"], disc:["discount","discountinr"], price:["price","total","totalprice","amount","totalinr","finalprice","totalamount","grandtotal","netprice","bookingamount","payable"], date:["date","bookingdate"], time:["time","slot","timeslot"], dur:["durationmins","durationmin"],
-  src:["source"], pm:["paymentmethod"], ps:["paymentstatus"], status:["status"], note:["adminnote","notes","note"] };
+  src:["source"], pm:["paymentmethod"], ps:["paymentstatus"], status:["status"], note:["adminnote","notes","note"], ref:["paymentref","utr"] };
 function normB(r){
   const o = { _row:r._row };
   for(const k in A){ for(const a of A[k]){ if(r[a]!==undefined && r[a]!==null && r[a]!==""){ o[k]=r[a]; break; } } }
   o.id = String(o.id||""); o.status = String(o.status||"Confirmed"); o.price = num(o.price); o.dur = num(o.dur);
   o.date = String(o.date||"").slice(0,10); o.time = String(o.time||"").replace(/^Start now,\s*/i,""); o.phone = String(o.phone||"");
-  o.name = String(o.name||"Customer"); o.svc = String(o.svc||"Service"); o.ps = String(o.ps||""); o.pm = String(o.pm||""); o.note = String(o.note||"");
+  o.name = String(o.name||"Customer"); o.svc = String(o.svc||"Service"); o.ps = String(o.ps||""); o.pm = String(o.pm||""); o.note = String(o.note||""); o.ref = String(o.ref||"");
   o.addons = Array.isArray(o.addons) ? o.addons.join(", ") : String(o.addons||"");
   return o;
 }
+const isMgr = () => !!(S.sess && S.sess.role==="manager");
 const live = b => b.status!=="Cancelled" && b.status!=="No-show";
 const needsVerify = b => !isPaid(b) && /says paid|verify/i.test(String(b.ps||""));
 const isPaid = b => /^(paid|success|captured|received|done|completed)/i.test(String(b.ps||"").trim());
@@ -315,7 +316,7 @@ async function submitLogin(e){
   btn.disabled = true; btn.textContent = "Signing in…"; setLoginMsg("");
   try{
     const d = await api("adminLogin", { email, password });
-    S.sess = { token:d.token, email:d.email, name:d.name, exp:d.exp };
+    S.sess = { token:d.token, email:d.email, name:d.name, exp:d.exp, role:d.role||"owner" };
     store.set(SK, JSON.stringify(S.sess)); store.set("mp_admin_email", d.email); $("#l_pass").value = ""; enter();
   }catch(err){ setLoginMsg(err.message, true); $("#l_pass").value = ""; $("#l_pass").focus(); }
   finally{ btn.disabled = false; btn.textContent = "Sign in"; }
@@ -349,7 +350,7 @@ async function loadData(){
   try{
     const t = today();
     const d = await api("adminBookings", S.all ? {} : { from:addDays(t,-CFG.HISTORY_DAYS), to:addDays(t,CFG.FUTURE_DAYS) });
-    S.bookings = d.bookings.map(normB); S.fetchedAt = Date.now(); S.offline = false; S.loaded = true;
+    S.bookings = d.bookings.map(normB); if(d.role && S.sess && S.sess.role!==d.role){ S.sess.role = d.role; if(!DEMO) store.set(SK, JSON.stringify(S.sess)); } S.fetchedAt = Date.now(); S.offline = false; S.loaded = true;
     if(!DEMO) store.set(CK, JSON.stringify({ at:S.fetchedAt, rows:d.bookings }));
     loadAtt();
   }catch(e){
@@ -357,13 +358,13 @@ async function loadData(){
   }finally{ S.loading = false; render(); }
 }
 
-async function patch(id, fields){
+async function patch(id, fields, extra){
   const b = S.bookings.find(x => x.id===id); if(!b) return;
-  const MAP = { status:"status", ps:"paymentstatus", pm:"paymentmethod", note:"adminnote" };
+  const MAP = { status:"status", ps:"paymentstatus", pm:"paymentmethod", note:"adminnote", ref:"paymentref" };
   const old = {}, wire = {};
   for(const k in fields){ old[k] = b[k]; b[k] = fields[k]; wire[MAP[k]] = fields[k]; }
   render();
-  try{ await api("adminUpdate", { bookingId:id, fields:wire }); toast("Saved"); }
+  try{ await api("adminUpdate", Object.assign({ bookingId:id, fields:wire }, extra||{})); toast("Saved"); }
   catch(e){ for(const k in old) b[k] = old[k]; render(); toast(e.message, true); }
 }
 
@@ -418,7 +419,7 @@ function ticket(b, showDate){
     kv("Add-ons", esc(b.addons)); kv("Coupon", esc(b.coupon), true);
     kv("Discount", num(b.disc) ? inr(b.disc) : "");
     kv("Payment", esc([b.ps||"Unpaid", b.pm].filter(Boolean).join(" · ")));
-    kv("Booking ID", esc(b.id), true);
+    kv("Pay ref", esc(b.ref), true); kv("Booking ID", esc(b.id), true);
     h += '<div class="tk-more"><dl class="kv">'+rows.join("")+'</dl>'+
       '<label class="lb" for="n-'+esc(b.id)+'">Staff note</label><textarea class="field" id="n-'+esc(b.id)+'" data-act="note" data-id="'+esc(b.id)+'" placeholder="Visible to admins only">'+esc(b.note)+'</textarea>'+
       '<div class="acts" style="margin-top:12px">'+
@@ -460,6 +461,10 @@ function collHtml(list,title){
     (r.unset.n?cell("Method not set",r.unset):"")+(r.ver.n?cell("UPI to verify",r.ver,true):"")+cell("Not yet paid",r.due,r.due.a>0)+'</div>'+
     '<div class="muted" style="font-size:12px;margin-top:10px">Collected '+inr(r.got)+' from '+plural(r.gotN,"booking")+(parts.length?' · Online = '+parts.join(" · "):"")+'</div></div>';
 }
+function unpaidHtml(){
+  const u = S.bookings.filter(b => b.status==="Completed" && !isPaid(b)); if(!u.length) return "";
+  return '<button class="card duty" data-act="unpaid"><b class="flag">Unpaid completed jobs</b><span class="chip s-warn">'+u.length+' · '+inr(sumP(u))+'</span><span class="muted">Tap to review</span></button>';
+}
 function dutyHtml(){
   if(S.day!==today() || !S.att.loaded || S.att.month!==today().slice(0,7)) return "";
   const ins = S.att.shifts.filter(x => x.date===today() && !x.outIso);
@@ -478,7 +483,7 @@ function vBoard(){
       tile(m.done+"/"+m.act,"Vehicles done",plural(m.cars,"car")+" · "+plural(m.bikes,"bike"))+
       tile(inr(m.sales),"Total sales","Cash "+inr(ps.cash.a)+" · Online "+inr(ps.online.a)+(nop?" · "+nop+" with no price":""))+
       tile(inr(m.due),"To collect",plural(ps.due.n+ps.ver.n,"unpaid booking"),m.due>0?"hot":"")+'</div>'+
-    collHtml(list.filter(live), isToday?"Collected today":"Collected")+dutyHtml();
+    unpaidHtml()+collHtml(list.filter(live), isToday?"Collected today":"Collected")+dutyHtml();
   if(!list.length) return h + '<div class="empty">No bookings for this day.<br><button class="btn pri" style="margin-top:14px" data-act="add">Add a booking</button></div>';
   const nowM = new Date().getHours()*60 + new Date().getMinutes(); let marked = !isToday;
   list.forEach(b => { if(!marked && toMin(b.time) >= nowM){ h += '<div class="now">NOW '+fmtMin(nowM)+'</div>'; marked = true; } h += ticket(b); });
@@ -489,7 +494,7 @@ function vBoard(){
 /* ---- bookings ---- */
 function filtered(){
   const q = S.q.trim().toLowerCase();
-  return S.bookings.filter(b => (S.fStatus==="all" || b.status===S.fStatus) && (S.fMode==="all" || modeOf(b)===S.fMode) &&
+  return S.bookings.filter(b => (S.fStatus==="all" || (S.fStatus==="Unpaid" ? (b.status==="Completed" && !isPaid(b)) : b.status===S.fStatus)) && (S.fMode==="all" || modeOf(b)===S.fMode) &&
     (!q || (b.name+" "+b.phone+" "+b.id+" "+b.plate+" "+b.svc+" "+b.coupon).toLowerCase().includes(q)))
     .sort((a,b) => a.date===b.date ? toMin(b.time)-toMin(a.time) : (a.date<b.date?1:-1));
 }
@@ -503,9 +508,9 @@ function listHtml(){
 function vBookings(){
   if(!S.loaded) return '<div class="empty">Loading bookings…</div>';
   const modes = [...new Set(S.bookings.map(modeOf))].sort();
-  const st = ["all","Confirmed","In Progress","Completed","Cancelled","No-show"];
+  const st = ["all","Confirmed","In Progress","Completed","Unpaid","Cancelled","No-show"];
   return '<div class="gap"><input class="field" id="q" type="search" placeholder="Search name, phone, plate, booking ID" value="'+esc(S.q)+'" autocomplete="off">'+
-    '<div class="chips">'+st.map(s => '<button class="fchip" data-act="fstatus" data-v="'+s+'" aria-pressed="'+(S.fStatus===s)+'">'+(s==="all"?"All":s)+'</button>').join("")+'</div>'+
+    '<div class="chips">'+st.map(s => '<button class="fchip" data-act="fstatus" data-v="'+s+'" aria-pressed="'+(S.fStatus===s)+'">'+(s==="all"?"All":s==="Unpaid"?"Unpaid (done)":s)+'</button>').join("")+'</div>'+
     '<select class="field" id="fmode"><option value="all">All booking types</option>'+modes.map(m => '<option'+(S.fMode===m?" selected":"")+'>'+esc(m)+'</option>').join("")+'</select></div>'+
     '<div id="list" style="margin-top:6px">'+listHtml()+'</div>'+
     (S.all ? "" : '<button class="btn" style="width:100%;margin-top:12px" data-act="all">Load full history</button>');
@@ -621,9 +626,9 @@ function thumb(x,t){
   return '<button class="th'+(S.ph[id]?"":" empty")+'" data-act="photo" data-sid="'+esc(x.id)+'" aria-label="'+t+' photo">'+(S.ph[id]?'<img alt="" src="'+S.ph[id]+'">':"…")+'<i>'+t+'</i></button>';
 }
 function vStaff(){
-  const seg = '<div class="seg">'+[["today","Today"],["report","Report"],["pay","Pay setup"]].map(a => '<button class="fchip" data-act="seg" data-v="'+a[0]+'" aria-pressed="'+(S.seg===a[0])+'">'+a[1]+'</button>').join("")+'</div>';
+  const seg = '<div class="seg">'+[["today","Today"],["report","Report"],["pay","Pay setup"]].filter(a => !(isMgr() && a[0]==="pay")).map(a => '<button class="fchip" data-act="seg" data-v="'+a[0]+'" aria-pressed="'+(S.seg===a[0])+'">'+a[1]+'</button>').join("")+'</div>';
   if(!S.att.loaded) return seg+'<div class="empty">'+(S.att.loading?"Loading attendance…":"No attendance data yet.")+'</div>';
-  return seg + (S.seg==="today" ? vStaffToday() : S.seg==="report" ? vStaffReport() : vStaffPay());
+  return seg + (S.seg==="today" ? vStaffToday() : (S.seg==="report" || isMgr()) ? vStaffReport() : vStaffPay());
 }
 function vStaffToday(){
   const t = today(), ps = people();
@@ -645,14 +650,14 @@ function monthNav(){
 }
 function vStaffReport(){
   const rows = calcMonth(), tot = rows.reduce((a,r) => ({ h:a.h+r.total, ot:a.ot+r.ot, pay:a.pay+r.pay }), { h:0, ot:0, pay:0 });
-  let h = monthNav()+'<div class="kpis" style="margin-bottom:12px">'+tile(Math.round(tot.h*10)/10+" h","Hours worked")+tile(Math.round(tot.ot*10)/10+" h","Overtime")+tile(inr(tot.pay),"Estimated payroll","Based on Pay setup")+
+  let h = monthNav()+'<div class="kpis" style="margin-bottom:12px">'+tile(Math.round(tot.h*10)/10+" h","Hours worked")+tile(Math.round(tot.ot*10)/10+" h","Overtime")+(isMgr() ? tile(rows.reduce((a,r) => a+r.days,0),"Days present","All staff") : tile(inr(tot.pay),"Estimated payroll","Based on Pay setup"))+
     tile(rows.reduce((a,r) => a+r.flags.length,0),"Shifts to check","Missing exit time")+'</div>'+
-    '<div class="row" style="margin-bottom:14px"><button class="btn sm sp" data-act="csv" data-v="pay">Export payroll CSV</button><button class="btn sm sp" data-act="csv" data-v="log">Export daily log CSV</button></div>';
+    '<div class="row" style="margin-bottom:14px">'+(isMgr()?"":'<button class="btn sm sp" data-act="csv" data-v="pay">Export payroll CSV</button>')+'<button class="btn sm sp" data-act="csv" data-v="log">Export daily log CSV</button></div>';
   if(!rows.length) return h+'<div class="empty">No staff found.</div>';
   rows.forEach(r => {
     const open = S.openStaff===r.p.id, noPay = !r.cfg.monthlySalary;
     h += '<div class="sc"><button class="sc-h" data-act="openstaff" data-id="'+esc(r.p.id)+'" aria-expanded="'+open+'"><span class="av2">'+esc(initials(r.p.name))+'</span><span class="who"><b>'+esc(r.p.name)+'</b><small>'+esc(r.p.role||"Staff")+'</small></span>'+
-      '<span style="text-align:right"><b class="mono">'+(noPay?"Set salary":inr(r.pay))+'</b><small class="muted" style="display:block;font-size:12px">'+(noPay?"in Pay setup":"estimated")+'</small></span></button>'+
+      '<span style="text-align:right"><b class="mono">'+(isMgr()?fmtH(r.total):noPay?"Set salary":inr(r.pay))+'</b><small class="muted" style="display:block;font-size:12px">'+(isMgr()?"hours":noPay?"in Pay setup":"estimated")+'</small></span></button>'+
       '<div class="mx"><div><b>'+r.days+'</b><span>Days</span></div><div><b>'+fmtH(r.total)+'</b><span>Hours</span></div><div><b>'+fmtH(r.ot)+'</b><span>Overtime</span></div><div><b class="'+(r.flags.length?"flag":"")+'">'+r.flags.length+'</b><span>To check</span></div></div>';
     if(open){
       h += '<div style="margin-top:12px">'+(r.sh.length ? r.sh.map(x => {
@@ -664,7 +669,7 @@ function vStaffReport(){
     }
     h += '</div>';
   });
-  return h+'<p class="muted" style="font-size:12px">Pay = monthly salary × days present ÷ working days (capped at a full month), plus overtime hours × hourly rate × overtime multiplier. Overtime is time beyond the normal shift on each shift.</p>';
+  return h+(isMgr()?"":'<p class="muted" style="font-size:12px">Pay = monthly salary × days present ÷ working days (capped at a full month), plus overtime hours × hourly rate × overtime multiplier. Overtime is time beyond the normal shift on each shift.</p>');
 }
 function vStaffPay(){
   const ps = people(); if(!ps.length) return '<div class="empty">No staff yet.</div>';
@@ -721,6 +726,7 @@ function downloadCsv(name, rows){
 }
 function exportCsv(kind){
   const rows = calcMonth(), m = S.attMonth;
+  if(kind==="pay" && isMgr()) return;
   if(kind==="pay"){
     downloadCsv("mypod-payroll-"+m+".csv", [["Staff","Role","Month","Days present","Hours worked","Overtime hours","Monthly salary","Base pay","Overtime pay","Estimated total","Shifts to check"]].concat(
       rows.map(r => [r.p.name, r.p.role, m, r.days, r.total.toFixed(2), r.ot.toFixed(2), r.cfg.monthlySalary, Math.round(r.base), Math.round(r.otPay), Math.round(r.pay), r.flags.length])));
@@ -737,9 +743,9 @@ function vMore(){
   const u = S.sess || { name:"Demo", email:"demo@example.com" };
   const th = { auto:"Match device", light:"Light", dark:"Dark" }[S.theme];
   return '<div class="gap"><div class="card row">'+(u.picture?'<img class="avatar" src="'+esc(u.picture)+'" alt="" referrerpolicy="no-referrer">':'<div class="avatar"></div>')+
-    '<div><b>'+esc(u.name||"Admin")+'</b><div class="muted" style="font-size:13px">'+esc(u.email)+'</div></div></div>'+
+    '<div><b>'+esc(u.name||"Admin")+'</b><div class="muted" style="font-size:13px">'+esc(u.email)+' · '+(isMgr()?"Manager":"Owner")+'</div></div></div>'+
     '<div class="card gap"><button class="btn pri" style="width:100%" data-act="add">Add a booking</button>'+
-    '<button class="btn" style="width:100%" data-act="tab" data-t="coupons">Coupons</button>'+
+    '<button class="btn" style="width:100%" data-act="tab" data-t="coupons">Coupons</button>'+'<button class="btn" style="width:100%" data-act="closeday">Close day (count cash)</button>'+
     '<button class="btn" style="width:100%" data-act="refresh">Refresh data</button>'+
     '<button class="btn" style="width:100%" data-act="theme">Theme: '+th+'</button>'+
     '<button class="btn" style="width:100%" id="inst" data-act="install" hidden>Install app</button>'+
@@ -747,6 +753,38 @@ function vMore(){
     '<button class="btn" style="width:100%" data-act="changepw"'+(DEMO?" disabled":"")+'>Change password</button>'+
     '<button class="btn bad" style="width:100%" data-act="signout">Sign out</button>'+
     '<p class="muted" style="font-size:12px;text-align:center">'+(DEMO?"Demo mode: sample data, nothing is saved.":"Bookings load from your Google Sheet. Admin changes are logged in the AdminLog tab.")+'</p></div>';
+}
+
+/* ---- UPI reference + close day ---- */
+function openRef(id, m){
+  $("#modal").innerHTML = '<div class="scrim" data-act="closeScrim"><form class="sheet" id="reff" data-id="'+esc(id)+'" data-m="'+esc(m)+'" autocomplete="off"><h2>Paid by '+esc(m)+'</h2>'+
+    '<p class="muted" style="margin-top:-6px">Check the credit in the bank app, then note the transaction reference so it can be matched later.</p>'+
+    '<label class="lb" for="r_u">Reference (last 6 or more digits of the UTR)</label><input class="field" id="r_u" autocapitalize="characters" maxlength="30">'+
+    '<div class="row" style="margin-top:16px"><button type="button" class="btn sp" data-act="close">Cancel</button><button class="btn pri sp" type="submit">Mark paid</button></div></form></div>';
+  $("#r_u").focus();
+}
+function submitRef(e){
+  e.preventDefault(); const id = e.target.dataset.id, m = e.target.dataset.m, ref = $("#r_u").value.trim().toUpperCase();
+  $("#modal").innerHTML = ""; patch(id, ref ? { ps:"Paid", pm:m, ref:ref } : { ps:"Paid", pm:m });
+}
+function openClose(){
+  const day = S.day, list = S.bookings.filter(b => b.date===day && live(b)), r = paySplit(list);
+  const noref = list.filter(b => isPaid(b) && methodOf(b)==="UPI" && !b.ref).length, unpaid = list.filter(b => !isPaid(b)).length;
+  S.closeData = { day:day, expected:r.cash.a, upi:r.upi.a, online:r.card.a+r.oth.a, unpaid:unpaid, unpaidAmt:r.due.a+r.ver.a, noref:noref };
+  $("#modal").innerHTML = '<div class="scrim" data-act="closeScrim"><form class="sheet" id="closef"><h2>Close day · '+dLabel(day)+'</h2>'+
+    '<div class="kpis" style="margin-bottom:12px">'+tile(inr(r.cash.a),"Expected cash",plural(r.cash.n,"booking"))+tile(inr(r.upi.a),"UPI collected",plural(r.upi.n,"booking")+(noref?" · "+noref+" with no reference":""))+
+    tile(inr(r.card.a+r.oth.a),"Card / other online")+tile(unpaid,"Unpaid bookings",inr(r.due.a+r.ver.a),unpaid?"hot":"")+'</div>'+
+    '<label class="lb" for="c_c">Cash counted in drawer (₹)</label><input class="field" id="c_c" inputmode="numeric" required>'+
+    '<p id="c_d" class="muted" style="margin:8px 0 0"></p>'+
+    '<label class="lb" for="c_n" style="margin-top:12px">Note</label><textarea class="field" id="c_n" placeholder="Reason, if the cash does not match"></textarea>'+
+    '<div class="row" style="margin-top:16px"><button type="button" class="btn sp" data-act="close">Cancel</button><button class="btn pri sp" type="submit">Save day close</button></div></form></div>';
+  $("#c_c").focus();
+}
+async function submitClose(e){
+  e.preventDefault(); const c = S.closeData, counted = num($("#c_c").value), diff = counted - c.expected, note = $("#c_n").value.trim();
+  if(diff!==0 && !note){ toast("Add a note explaining the difference.", true); return; }
+  try{ await api("adminCloseDay", { date:c.day, expectedCash:c.expected, countedCash:counted, upi:c.upi, online:c.online, unpaid:c.unpaid, unpaidAmount:c.unpaidAmt, upiNoRef:c.noref, note:note }); $("#modal").innerHTML = ""; toast("Day closed"); }
+  catch(err){ toast(err.message, true); }
 }
 
 /* ---- add booking sheet ---- */
@@ -792,8 +830,10 @@ document.addEventListener("click", e => {
   else if(a==="refresh"){ loadData(); if(S.tab==="coupons") loadCoupons(); }
   else if(a==="day"){ const n = +t.dataset.n; S.day = n===0 ? today() : addDays(S.day,n); S.open = null; render(); }
   else if(a==="toggle"){ S.open = S.open===id ? null : id; render(); }
-  else if(a==="status"){ if(t.dataset.confirm && !confirm(t.dataset.confirm)) return; patch(id, { status:t.dataset.v }); }
-  else if(a==="pay"){ patch(id, { ps:"Paid", pm:t.dataset.v }); }
+  else if(a==="status"){ if(t.dataset.confirm && !confirm(t.dataset.confirm)) return; const b = S.bookings.find(x => x.id===id), v = t.dataset.v, extra = {};
+    if(v==="Completed" && b && !isPaid(b)){ if(isMgr()){ toast("Mark it paid first (cash, UPI or card), then complete.", true); return; } if(!confirm("This booking is not paid. Complete it anyway? This will be logged.")) return; extra.unpaidOk = true; }
+    patch(id, { status:v }, extra); }
+  else if(a==="pay"){ const m = t.dataset.v; if(m==="UPI") openRef(id, m); else patch(id, { ps:"Paid", pm:m }); }
   else if(a==="fstatus"){ S.fStatus = t.dataset.v; S.limit = 60; render(); }
   else if(a==="range"){ S.range = +t.dataset.v; render(); }
   else if(a==="more"){ S.limit += 60; render(); }
@@ -806,6 +846,8 @@ document.addEventListener("click", e => {
   else if(a==="payedit"){ openPay(id); }
   else if(a==="csv"){ exportCsv(t.dataset.v); }
   else if(a==="add"){ openAdd(); }
+  else if(a==="unpaid"){ S.tab = "bookings"; S.fStatus = "Unpaid"; S.q = ""; S.limit = 60; render(); window.scrollTo(0,0); }
+  else if(a==="closeday"){ openClose(); }
   else if(a==="close"){ $("#modal").innerHTML = ""; S.lb = null; }
   else if(a==="theme"){ S.theme = {auto:"light",light:"dark",dark:"auto"}[S.theme]; store.set("mp_theme", S.theme); applyTheme(); render(); }
   else if(a==="signout"){ signOut(); }
@@ -816,12 +858,13 @@ document.addEventListener("click", e => {
 document.addEventListener("input", e => {
   if(e.target.id==="q"){ S.q = e.target.value; S.limit = 60; $("#list").innerHTML = listHtml(); }
   else if(e.target.id==="cq"){ $("#ctab").innerHTML = couponTable(e.target.value); }
+  else if(e.target.id==="c_c" && S.closeData){ const d = num(e.target.value) - S.closeData.expected; $("#c_d").textContent = e.target.value==="" ? "" : d===0 ? "Cash matches." : (d<0 ? "Short by " : "Extra ")+inr(Math.abs(d)); }
 });
 document.addEventListener("change", e => { if(e.target.id==="fmode"){ S.fMode = e.target.value; S.limit = 60; $("#list").innerHTML = listHtml(); } });
 document.addEventListener("focusout", e => {
   const t = e.target; if(t.dataset && t.dataset.act==="note"){ const b = S.bookings.find(x => x.id===t.dataset.id); if(b && b.note!==t.value) patch(b.id, { note:t.value }); }
 });
-document.addEventListener("submit", e => { if(e.target.id==="loginf") submitLogin(e); else if(e.target.id==="pwf") submitPw(e); else if(e.target.id==="addf") submitAdd(e); else if(e.target.id==="payf") submitPay(e); else if(e.target.id==="fixf") submitFix(e); });
+document.addEventListener("submit", e => { if(e.target.id==="loginf") submitLogin(e); else if(e.target.id==="pwf") submitPw(e); else if(e.target.id==="addf") submitAdd(e); else if(e.target.id==="payf") submitPay(e); else if(e.target.id==="fixf") submitFix(e); else if(e.target.id==="reff") submitRef(e); else if(e.target.id==="closef") submitClose(e); });
 document.addEventListener("keydown", e => { if(e.key==="Escape"){ $("#modal").innerHTML = ""; S.lb = null; } });
 
 /* ============ theme / install / lifecycle ============ */
@@ -840,7 +883,7 @@ function enter(){
 }
 function boot(){
   applyTheme();
-  if(DEMO){ S.sess = { name:"Demo admin", email:"demo@mypod.example" }; enter(); return; }
+  if(DEMO){ S.sess = { name:"Demo admin", email:"demo@mypod.example", role:/[?&]manager\b/.test(location.search)?"manager":"owner" }; enter(); return; }
   try{ S.sess = JSON.parse(store.get(SK)||"null"); }catch(e){ S.sess = null; }
   if(S.sess && S.sess.token && S.sess.exp > Date.now()) enter(); else { S.sess = null; showLogin(); }
 }
@@ -890,7 +933,8 @@ function demoApi(action, p){
     if(action==="adminPhotos"){ const o = {}; (p.ids||[]).forEach(id => { o[id] = demoPhoto(id); }); return res({ ok:true, photos:o }); }
     if(action==="adminPaySave"){ const i = S.demoAtt.pay.findIndex(x => x.staffId===p.staffId); if(i>=0) S.demoAtt.pay[i] = p; else S.demoAtt.pay.push(p); return res({ ok:true }); }
     if(action==="adminAttFix"){ const x = S.demoAtt.shifts.find(v => v.id===p.shiftId); if(x){ x.outIso = p.outIso; x.fixed = true; } return res({ ok:true }); }
-    if(action==="adminBookings") return res({ ok:true, bookings:S.demo.map((r,i) => Object.assign({_row:i+2}, r)) });
+    if(action==="adminBookings") return res({ ok:true, role:(S.sess&&S.sess.role)||"owner", bookings:S.demo.map((r,i) => Object.assign({_row:i+2}, r)) });
+    if(action==="adminCloseDay") return res({ ok:true });
     if(action==="adminUpdate"){ const r = S.demo.find(x => x.bookingid===p.bookingId); if(r) Object.assign(r, p.fields); return res({ ok:true }); }
     if(action==="adminCreate"){ const id = "MPA-"+p.booking.date.replace(/-/g,"")+"-"+Math.random().toString(36).slice(2,5).toUpperCase(); S.demo.push(Object.assign({}, p.booking, { bookingid:id, status:"Confirmed", source:"Admin" })); return res({ ok:true, bookingId:id }); }
     if(action==="adminCoupons"){ const rows = []; for(let i=1;i<=24;i++) rows.push(["MYPOD-"+(1000+i*37), ["Ceramic 20% off","PPF 10% off","Car Washing ₹299","Bike Washing ₹99"][i%4], "31 Dec 2026"]); return res({ ok:true, headers:["Code","Offer","Valid until"], rows }); }
