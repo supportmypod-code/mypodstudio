@@ -124,6 +124,12 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;paddin
 .kb button:active{background:#ffd51b;color:#111111}
 .kb .wide{flex:2.5 1 0!important}
 
+/* Returning customer */
+.screen>.ret{margin-left:14px;padding:22px 30px;font-size:22px;border-radius:16px;vertical-align:top}
+.chips{display:flex;flex-wrap:wrap;margin-top:10px}
+.chip{padding:12px 18px;border-radius:10px;background:#13161a;border:2px solid #2a2d31;font:600 18px 'JetBrains Mono',Menlo,Courier,monospace;margin:0 10px 8px 0}
+.chip.on{border-color:#ffd51b;background:#292300}
+.welcome{border-color:#2ecc59}
 /* Pay */
 .pay{display:flex;flex-wrap:wrap;margin:0 -7px}
 .pay>*{width:calc(50% - 14px);margin:0 7px 14px}
@@ -543,7 +549,7 @@ function upiUrl(amt){return 'upi://pay?pa='+encodeURIComponent(UPI_ID).replace(/
 var STEPS=['welcome','vehicle','services','slot','details','pay','done'];
 var RAIL=[['vehicle','Vehicle'],['services','Services'],['slot','Slot'],['details','Details'],['pay','Pay']];
 var S;
-function fresh(){return{step:'welcome',vt:null,size:null,sel:{},slot:null,startNow:false,name:'',phone:'',plate:'',email:'',field:'name',method:'upi',disc:'',discOpen:false,token:null,paid:false,tried:false};}
+function fresh(){return{step:'welcome',vt:null,size:null,sel:{},slot:null,startNow:false,name:'',phone:'',plate:'',email:'',field:'phone',q:'',matches:[],ret:false,auto:'',method:'upi',disc:'',discOpen:false,token:null,paid:false,tried:false};}
 S=fresh();
 var tokenSeq=47;
 var jobs=[
@@ -570,7 +576,7 @@ var longJob=function(){return mins()>=1440};
 
 function go(step){S.step=step;if(step==='slot')loadBusy();render();var sc=$('screen');try{sc.scrollIntoView({block:'nearest'})}catch(e){}}
 function stepIdx(){return RAIL.map(function(r){return r[0]}).indexOf(S.step)}
-var NEXTF={name:'phone',phone:'plate',plate:'email',email:'name'};
+var NEXTF={phone:'name',name:'plate',plate:'email',email:'phone'};
 function emailOk(){return !S.email||/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(S.email)}
 function canNext(){
   switch(S.step){
@@ -584,15 +590,33 @@ function canNext(){
 function render(){
   /* rail */
   var i=stepIdx();
-  $('rail').innerHTML=(S.step==='welcome'||S.step==='done')?'<div class="'+(S.step==='done'?'done':'on')+'"><b>'+(S.step==='done'?'✓':'•')+'</b>'+(S.step==='done'?'Booked':'Touch to begin')+'</div>':
+  $('rail').innerHTML=(S.step==='welcome'||S.step==='done'||S.step==='find')?'<div class="'+(S.step==='done'?'done':'on')+'"><b>'+(S.step==='done'?'✓':'•')+'</b>'+(S.step==='done'?'Booked':S.step==='find'?'Find your details':'Touch to begin')+'</div>':
     RAIL.map(function(r,k){return '<div class="'+(k<i?'done':k===i?'on':'')+'"><b>'+(k<i?'✓':k+1)+'</b>'+r[1]+'</div>'}).join('');
   var h='',f='';
   var sc=$('screen');
   if(S.step==='welcome'){
     h='<div class="hero"><span class="kicker">Booking open · Newtown, Kolkata</span><div class="big">Clean cars.<br>Zero <em>hassle.</em></div><p>Pick a service, choose a slot and get your token in under a minute. No queue at the counter.</p></div>'+
       '<div class="offer"><span><b>Experience our doorstep service with exciting offers:</b> 20% off Ceramic and 10% off PPF. T&amp;C apply.</span>'+(dayFull()?'<span>Fully booked for today</span>':'')+'</div>'+
-      (dayFull()?fullHtml():'<button class="btn pri start" data-a="start">Touch to start</button>'+qrCard('small'));
+      (dayFull()?fullHtml():'<button class="btn pri start" data-a="start">Touch to start</button><button class="btn ret" data-a="ret">Returning customer?</button>'+qrCard('small'));
     f='<div class="cart"><small>Open daily</small><em>'+fmtMin(HRS.open)+' to '+fmtMin(HRS.close)+'</em></div>';
+  }
+  else if(S.step==='find'){
+    var qq=S.q,srch=!!RMP[qq];
+    if((qq.length===4||qq.length===10)&&RM[qq]===undefined&&!RMP[qq]){srch=true;remoteFind(qq,function(){if(S.step==='find'&&S.q===qq)render()})}
+    var ms=S.q.length>=4?cbFind(S.q):[];S.matches=ms;
+    var FB=function(c,l,cls){return '<button'+(cls?' class="'+cls+'"':'')+' data-a="fkey" data-v="'+c+'">'+l+'</button>'};
+    var FR=function(i){return '<div class="row">'+i+'</div>'};
+    h='<h2>Welcome back</h2><p class="sub">Type your mobile number, or just the last 4 digits of your vehicle number.</p>'+
+      '<div class="fields"><div class="field act full"><small>Mobile number or last 4 of vehicle no.</small><span class="'+(S.q?'':'ph')+'">'+(S.q||'e.g. 1234')+'</span></div></div>';
+    if(ms.length){
+      h+='<div class="grid">'+ms.map(function(m,i){
+        var lastSv=(m.v.svcNames&&m.v.svcNames.length)?m.v.svcNames.join(', '):'';
+        return '<div role="button" tabindex="0" class="tile" data-a="pick" data-v="'+i+'"><h3>'+esc(m.c.name)+'</h3><p>'+esc(m.v.plate||'Plate not saved')+' · '+(m.v.vt==='bike'?'Bike':'Car')+'</p>'+(lastSv?'<p>Last time: '+esc(lastSv)+'</p>':'')+'<div class="meta"><span class="dur">'+(m.c.visits||1)+' visit'+((m.c.visits||1)>1?'s':'')+' · '+MP.long(m.v.at)+'</span></div></div>'}).join('')+'</div>';
+    }else if(S.q.length>=4){
+      h+='<p class="formnote">'+(srch?'Searching all past bookings…':'No booking found for these digits yet. Keep typing, or tap New customer.')+'</p>';
+    }
+    h+='<div class="kb pad">'+FR(FB('1','1')+FB('2','2')+FB('3','3'))+FR(FB('4','4')+FB('5','5')+FB('6','6'))+FR(FB('7','7')+FB('8','8')+FB('9','9'))+FR(FB('DEL','Del','fn')+FB('0','0')+FB('CLR','Clear','fn'))+'</div>';
+    f='<div class="cart"><small>First time here?</small><em>Tap New customer to book as usual</em></div><div class="btns"><button class="btn" data-a="back">Back</button><button class="btn pri" data-a="start">New customer</button></div>';
   }
   else if(S.step==='vehicle'){
     h='<h2>What are we detailing?</h2><p class="sub">Pick your vehicle, then its size or type. Price depends on it.</p>'+
@@ -603,7 +627,7 @@ function render(){
   else if(S.step==='services'){
     var main=SERVICES[S.vt].filter(function(x){return !x.add}),add=SERVICES[S.vt].filter(function(x){return x.add});
     var tile=function(sv){return '<div role="button" tabindex="0" class="tile" data-a="svc" data-v="'+sv.id+'" aria-pressed="'+!!S.sel[sv.id]+'"><span class="chk"></span>'+(sv.tag?'<span class="badge">'+sv.tag+'</span>':'')+'<h3>'+sv.name+(sv.pet?'<span class="ast">*</span>':'')+'</h3>'+(sv.desc?'<p>'+sv.desc+'</p>':'')+(sv.inc?'<ul class="inc">'+sv.inc.map(function(x){return '<li>'+x+'</li>'}).join('')+'</ul>':'')+'<div class="meta"><span class="price">'+inr(price(sv))+'</span><span class="dur">'+dur(sv.mins)+'</span></div></div>'};
-    h='<h2>Choose your services</h2><p class="sub">'+sizeObj().label+' prices shown. Pick as many as you like.'+(S.vt==='car'?' Packages marked * may have extra charges for pet hair removal.':'')+'</p>'+
+    h='<h2>Choose your services</h2><p class="sub">'+(S.ret?'Your last services are ticked. Change anything you like. ':'')+sizeObj().label+' prices shown. Pick as many as you like.'+(S.vt==='car'?' Packages marked * may have extra charges for pet hair removal.':'')+'</p>'+
       '<div class="group"><h4>Packages</h4><div class="grid">'+main.map(tile).join('')+'</div>'+(S.vt==='car'?'<p class="foot-ast"><span class="ast">*</span> Extra charges may apply for pet hair removal.</p>':'')+'</div>'+
       '<div class="group"><h4>Add-ons</h4><div class="grid">'+add.map(tile).join('')+'</div></div>';
   }
@@ -622,8 +646,10 @@ function render(){
   }
   else if(S.step==='details'){
     var fld=function(k,l,ph,val,bad,xc){return '<div role="button" tabindex="0" class="field'+(xc?' '+xc:'')+(S.field===k?' act':'')+(bad&&S.tried?' bad':'')+'" data-a="field" data-v="'+k+'"><small>'+l+'</small><span class="'+(val?'':'ph')+'">'+(val?esc(val):ph)+'</span></div>'};
-    h='<h2>Who do we call?</h2><p class="sub">We send the token and progress updates on WhatsApp.</p>'+
-      '<div class="fields">'+fld('name','Your name','e.g. Arjun Das',S.name,S.name.trim().length<2)+fld('phone','Mobile number','10 digits',S.phone,!/^[6-9]\d{9}$/.test(S.phone))+fld('plate','Vehicle number','WB 02 AB 1234',S.plate,S.plate.trim().length<4)+fld('email','Email for invoice (optional)','name@example.com',S.email,!emailOk(),'full')+'</div>'+(S.tried&&!emailOk()?'<p class="formerr">That email does not look right. Check it, or leave it empty.</p>':'<p class="formnote">Email is optional. Add it if you would like your invoice by email.</p>')+kb();
+    var cu=S.phone.length===10?cbGet(S.phone):null,cvs=cu?cu.vehicles.filter(function(v){return v.vt===S.vt&&v.plate}):[];
+    var banner=cu?'<div class="summary welcome"><b>Welcome back, '+esc(cu.name.split(' ')[0])+'.</b> We filled in your details.'+(cvs.length>1?' Tap your vehicle:<div class="chips">'+cvs.map(function(v){return '<button class="chip'+(plk(v.plate)===plk(S.plate)?' on':'')+'" data-a="veh" data-v="'+esc(v.plate)+'">'+esc(v.plate)+'</button>'}).join('')+'</div>':'')+'</div>':'';
+    h='<h2>Who do we call?</h2><p class="sub">We send the token and progress updates on WhatsApp.</p>'+banner+
+      '<div class="fields">'+fld('phone','Mobile number','10 digits',S.phone,!/^[6-9]\d{9}$/.test(S.phone))+fld('name','Your name','e.g. Arjun Das',S.name,S.name.trim().length<2)+fld('plate','Vehicle number','WB 02 AB 1234',S.plate,S.plate.trim().length<4)+fld('email','Email for invoice (optional)','name@example.com',S.email,!emailOk(),'full')+'</div>'+(S.tried&&!emailOk()?'<p class="formerr">That email does not look right. Check it, or leave it empty.</p>':'<p class="formnote">Email is optional. Add it if you would like your invoice by email.</p>')+kb();
   }
   else if(S.step==='pay'){
     var t0=total(),dc=disc(),d=t0-dc,adv=Math.round(d*(longJob()?0.3:1));
@@ -697,6 +723,10 @@ function typeKey(k){
   else{if(v.length<28)v=v?v+k.toLowerCase():k}
   if(f==='name'){/* capitalise words */ v=v.replace(/(^|\s)([a-z])/g,function(m,a,b){return a+b.toUpperCase()})}
   S[f]=v;
+  if(f==='phone'&&v.length===10){
+    if(autofill())return;
+    if(!cbGet(v))remoteFind(v,function(){var r=RM[v];if(r&&r.length&&!cbGet(v)){CB[v]=r[0];cbSave()}if(S.step==='details'&&S.phone===v)autofill()});
+  }
   if(S.tried&&f==='email'){render();return}
   var box=document.querySelector('.field.act'),sp=box&&box.getElementsByTagName('span')[0];
   if(sp){sp.className=v?'':'ph';sp.textContent=v||PH[f]}
@@ -754,6 +784,11 @@ function onTap(e){
     if(v==='DEL')ds=ds.slice(0,-1);else if(v==='CLR')ds='';else if(/^\d$/.test(v)&&ds.length<6)ds=(ds+v).replace(/^0+(?=\d)/,'');
     S.disc=ds;S.disc=disc()>0?String(disc()):'';render()}
   else if(a==='restart'){S=fresh();render()}
+  else if(a==='ret'){S.q='';S.matches=[];go('find')}
+  else if(a==='fkey'){var q=S.q||'';if(v==='DEL')q=q.slice(0,-1);else if(v==='CLR')q='';else if(/^\d$/.test(v)&&q.length<10)q+=v;S.q=q;render()}
+  else if(a==='pick'){pickCust(parseInt(v,10))}
+  else if(a==='veh'){S.plate=v;render()}
+  else if(a==='back'&&S.step==='find'){S.q='';go('welcome')}
   else if(a==='back'){var order=['welcome','vehicle','services','slot','details','pay'];var i=order.indexOf(S.step);go(order[Math.max(0,i-1)])}
   else if(a==='next'){
     if(S.step==='vehicle')go('services');
@@ -779,6 +814,76 @@ document.addEventListener('keydown',function(e){
   else if(e.key.length===1&&/[@._-]/.test(e.key)){if(S.field==='email')typeKey(e.key);e.preventDefault()}
   else if(e.key==='Tab'){setField(NEXTF[S.field]);e.preventDefault()}
 });
+/* ---------- Customer book: remembers every customer on this iPad, found by mobile number or last 4 digits of the vehicle number ---------- */
+var CBKEY='mypod_kiosk_customers';
+var CB=(function(){try{var o=JSON.parse(localStorage.getItem(CBKEY)||'{}');return(o&&typeof o==='object')?o:{}}catch(e){return {}}})();
+function cbSave(){try{localStorage.setItem(CBKEY,JSON.stringify(CB))}catch(e){}}
+function cbGet(ph){return CB.hasOwnProperty(ph)?CB[ph]:null}
+function plk(p){return String(p||'').replace(/\s+/g,'').toUpperCase()}
+function cbRemember(){
+  var ph=S.phone,c=cbGet(ph)||{name:'',email:'',visits:0,vehicles:[]};
+  c.phone=ph;c.name=S.name.trim();if(S.email)c.email=S.email;c.visits=(c.visits||0)+1;c.last=Date.now();
+  var rec={plate:S.plate.trim(),vt:S.vt,size:S.size,svc:Object.keys(S.sel).filter(function(k){return S.sel[k]}),svcNames:chosen().map(function(x){return x.name}),at:Date.now()};
+  c.vehicles=[rec].concat(c.vehicles.filter(function(v){return plk(v.plate)!==plk(rec.plate)})).slice(0,6);
+  CB[ph]=c;cbSave();
+}
+/* Sheet lookup: asks the Google Sheet (past kiosk and website bookings). Used at 4 and 10 digits, and when a mobile number is typed in Details. */
+var RM={},RMP={};
+function cbNormV(v){
+  var vt=String(v.vt||'').toLowerCase();if(!SIZES[vt])return null;
+  var z=SIZES[vt].filter(function(x){return x.id===v.size||x.label===v.size})[0];
+  return {plate:String(v.plate||'').trim(),vt:vt,size:z?z.id:null,svc:v.svc||[],svcNames:v.svcNames||[],at:Number(v.at)||0};
+}
+function remoteFind(q,done){
+  if(RM[q]!==undefined){if(done)done();return}
+  if(RMP[q])return;
+  RMP[q]=true;
+  send({action:'findCustomer',kioskKey:KIOSK_KEY,website:'',q:q},12000,function(st,d){
+    RMP[q]=false;
+    if(st==='ok'&&d&&d.customers){
+      var list=[];
+      d.customers.forEach(function(c){
+        var vs=(c.vehicles||[]).map(cbNormV).filter(Boolean);if(!vs.length)return;
+        list.push({phone:String(c.phone),name:c.name,email:c.email||'',visits:c.visits||1,last:c.last||0,vehicles:vs});
+      });
+      RM[q]=list;
+    }else if(st==='reject'){RM[q]=[]}
+    else return;   /* no connection: try again on the next tap */
+    if(done)done();
+  });
+}
+function cbFind(q){
+  var out=[],seen={},k;
+  function add(c,v){var key=c.phone+'|'+(plk(v.plate)||(v.vt+(v.size||'')));if(seen[key])return;seen[key]=1;out.push({c:c,v:v})}
+  if(q.length===10){var c0=cbGet(q);if(c0)c0.vehicles.forEach(function(v){add(c0,v)})}
+  else if(q.length>=4){
+    for(k in CB){if(!CB.hasOwnProperty(k))continue;
+      (function(c,k){var pm=k.slice(-q.length)===q;c.vehicles.forEach(function(v){if(pm||plk(v.plate).slice(-q.length)===q)add(c,v)})})(CB[k],k)}
+  }
+  (RM[q]||[]).forEach(function(c){c.vehicles.forEach(function(v){add(c,v)})});
+  out.sort(function(a,b){return b.v.at-a.v.at});
+  return out.slice(0,6);
+}
+function pickCust(i){
+  var m=S.matches[i];if(!m||!SIZES[m.v.vt])return;
+  var c=m.c,v=m.v;
+  S.name=c.name;S.phone=c.phone;S.email=c.email||'';S.plate=v.plate;S.vt=v.vt;
+  S.size=SIZES[v.vt].some(function(z){return z.id===v.size})?v.size:null;
+  S.sel={};
+  if(S.size)SERVICES[v.vt].forEach(function(x){if((v.svc||[]).indexOf(x.id)>=0||(v.svcNames||[]).indexOf(x.name)>=0)S.sel[x.id]=true});
+  S.slot=null;S.startNow=false;S.auto=c.phone;S.ret=true;S.field='phone';
+  go(S.size?'services':'vehicle');
+}
+function autofill(){
+  var c=cbGet(S.phone);if(!c||S.auto===S.phone)return false;
+  S.auto=S.phone;
+  if(!S.name)S.name=c.name;
+  if(!S.email&&c.email)S.email=c.email;
+  var vs=c.vehicles.filter(function(v){return v.vt===S.vt&&v.plate});
+  if(!S.plate&&vs.length===1)S.plate=vs[0].plate;
+  S.field=S.plate?'phone':'plate';
+  render();return true;
+}
 /* ---------- Send each booking to the shared Google Sheet (same Apps Script as the website) ---------- */
 var SHEET_URL='https://script.google.com/macros/s/AKfycbx74xNj_y54Q5fY8HT2veK_EkzL0Q_fm3L86R-Miei4qGZtbMZDH-YIIn9AwYNta8m9tA/exec';
 var KIOSK_KEY='mpk-1ce913646b3a'; /* must match KIOSK_KEY in the Apps Script */
@@ -939,6 +1044,7 @@ function confirmBooking(){
     paymentMethod:{upi:'UPI',card:'Card',counter:'Pay at counter'}[S.method],paymentStatus:S.paid?(S.method==='upi'?'Paid (UPI), verify in PNB app':'Paid'):'Pay at counter'
   });
   qSet(q);badge();syncQueue();
+  cbRemember();
   go('done');
 }
 render();
