@@ -911,6 +911,19 @@ header{max-width:calc(100vw - 20px);box-sizing:border-box}
   .more-menu a{padding:14px 16px;border-radius:16px}
 }
 @media(prefers-reduced-transparency:reduce){.more-menu{background:#28292d;-webkit-backdrop-filter:none;backdrop-filter:none}}
+
+/* Package step photos + island service-station card */
+.svcrow .sph{position:relative;aspect-ratio:16/9;overflow:hidden;background:#1d1e21;cursor:pointer}
+.svcrow .sph img{display:block;width:100%;height:100%;object-fit:cover}
+.svcrow .sph .badge{position:absolute;top:10px;left:10px;box-shadow:0 2px 10px rgba(0,0,0,.4)}
+.lp-stn{display:flex;flex-wrap:wrap;align-items:flex-start;gap:6px 12px;margin:12px 0 4px;padding:12px 14px;border-radius:var(--r-md,18px);background:rgba(255,201,60,.1);box-shadow:inset 0 0 0 1.5px rgba(255,201,60,.45)}
+.lp-stn[hidden]{display:none}
+.lp-stn>svg{flex:none;width:22px;height:22px;color:var(--y);margin-top:2px}
+.lp-stn>div{flex:1;min-width:0}
+.lp-stn small{display:block;font-size:11.5px;color:var(--y);font-weight:600;margin-bottom:2px}
+.lp-stn b{display:block;font-size:14px;color:#fff;overflow-wrap:anywhere}
+.lp-stn span{display:block;font-size:13px;color:#d9dadc;line-height:1.4;margin-top:2px;overflow-wrap:anywhere}
+.lp-stn .stn-go{flex:1 0 100%;display:flex;align-items:center;justify-content:center;min-height:42px;margin-top:6px;border-radius:999px;background:var(--y);color:#2b2d31;font-weight:700;font-size:14px;text-decoration:none}
 </style></head><body>
 <!-- Google Tag Manager (noscript) -->
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-M59C9SG3" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
@@ -1720,6 +1733,16 @@ function renderSvc(){
     const row = document.createElement('div'); row.className = "svcrow";
     const l = document.createElement('label'); l.className = "svc";
     const i = document.createElement('input'); i.type = "radio"; i.name = "svc"; i.value = it.name; i.checked = it.name === $('service').value;
+    // Same photo as the service card; if the file is missing the row simply shows no photo
+    const photoSrc = SERVICE_PHOTOS[vehicle() + "|" + it.name]; let ph = null;
+    if (photoSrc) {
+      ph = document.createElement('div'); ph.className = "sph";
+      const im = document.createElement('img'); im.src = photoSrc; im.alt = it.name + " " + vehicle().toLowerCase() + " service"; im.width = 640; im.height = 360; im.loading = "lazy"; im.decoding = "async";
+      im.addEventListener('error', () => ph.remove());
+      ph.appendChild(im);
+      if (it.popular) { const bd = document.createElement('span'); bd.className = "badge"; bd.textContent = "Most popular"; ph.appendChild(bd); }
+      ph.addEventListener('click', () => i.click());   // tapping the photo picks the package
+    }
     const t = document.createElement('span'); t.className = "t"; const n = document.createElement('b'); n.textContent = it.name;
     const s2 = document.createElement('small'); s2.textContent = it.detail; t.append(n, s2);
     const pv = priceOf(it), p = document.createElement('span'); p.className = "p"; p.textContent = pv == null ? "from " + inr(fromPrice(it)) : inr(pv);
@@ -1739,7 +1762,7 @@ function renderSvc(){
       $('service').value = it.name; if (!was) onServiceChange();
       openThis(was ? tg.getAttribute('aria-expanded') !== "true" : true);
     });
-    row.append(l, tg, panel); box.appendChild(row);
+    if (ph) row.appendChild(ph); row.append(l, tg, panel); box.appendChild(row);
   });
 }
 function initWizard(){
@@ -2037,6 +2060,7 @@ function showConfirmation(b, email){
 const livePill = (() => {
   const KEY="mypod_live_booking", HIDE="mypod_pill_hidden", H=3600000;
   const MGR_NAME="Chanchal Hazra", MGR_MAIL="supportmypod@gmail.com";
+  const STN_NAME="MYPOD DETAILING STUDIO", STN_ADDR="Action Area I, Newtown, Kolkata", STN_MAP="https://maps.app.goo.gl/vMwQJ2rdmXrjrmKKA";
   const wn="918167504253", MGR_TEL="+"+wn, MGR_SHOW="+91 81675 04253";   // service manager
   let el, scrim, timer, data, open=false;
   const startMs = b => { const [y,m,d]=b.date.split("-"), t=/(\d+):(\d+) (AM|PM)/.exec(b.time); let h=+t[1]%12; if(t[3]==="PM")h+=12; return new Date(+y,+m-1,+d,h,+t[2]).getTime(); };
@@ -2049,6 +2073,7 @@ const livePill = (() => {
     '<div class="lp-panel" id="lpPanel"><div class="lp-in"><div class="lp-body">'+
     '<div class="lp-top"><div><b data-f="svc"></b><small data-f="id"></small></div><span class="lp-chip" data-f="chip"></span></div>'+
     '<dl class="lp-det"><dt>When</dt><dd data-f="when"></dd><dt>Where</dt><dd data-f="where"></dd><dt>Amount</dt><dd data-f="amt"></dd></dl>'+
+    '<div class="lp-stn" data-f="stn" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.800 12 21 12 21z"/><circle cx="12" cy="9.500" r="2.500"/></svg><div><small>Service station</small><b data-f="stnName"></b><span data-f="stnAddr"></span></div><a class="stn-go" data-f="stnMap" target="_blank" rel="noopener">Get directions</a></div>'+
     '<h5>Tracking</h5><ol class="lp-track" data-f="track"></ol><p class="lp-note">Status follows your booked time. For the crew\'s live location, call the service manager.</p>'+
     '<h5>Service manager</h5><div class="lp-mgr"><span class="av" aria-hidden="true">C</span><b></b><small data-f="phone"></small><div class="btns"><a class="call" data-f="call">Call</a><a data-f="wa" target="_blank" rel="noopener">WhatsApp</a></div></div>'+
     '<div class="lp-act"><button type="button" data-f="cal">Add to calendar</button><button type="button" data-f="mine">My bookings</button></div>'+
@@ -2063,7 +2088,7 @@ const livePill = (() => {
     el.querySelector('.lp-bar').addEventListener('click',()=>toggle());
     scrim.addEventListener('click',()=>toggle(false));
     addEventListener('keydown',e=>{ if(e.key==="Escape"&&open) toggle(false); });
-    f('cal').addEventListener('click',()=>{ if(!data) return; const url=URL.createObjectURL(new Blob([icsFor(Object.assign({address:"MyPod"},data))],{type:"text/calendar"})); const a=document.createElement('a'); a.href=url; a.download=data.bookingId+".ics"; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),1000); });
+    f('cal').addEventListener('click',()=>{ if(!data) return; const url=URL.createObjectURL(new Blob([icsFor(Object.assign({},data,{address:data.serviceMode==="Drive-through"?STN_NAME+", "+STN_ADDR:(data.address||"MyPod")}))],{type:"text/calendar"})); const a=document.createElement('a'); a.href=url; a.download=data.bookingId+".ics"; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),1000); });
     f('mine').addEventListener('click',()=>{ toggle(false); if(typeof acct!=='undefined') acct.open('up'); });
     f('cancel').addEventListener('click',()=>{ f('cancel').hidden=true; f('cwrap').hidden=false; f('cerr').textContent=""; try{ haptic("select"); }catch(e){} });
     f('cno').addEventListener('click',()=>{ f('cwrap').hidden=true; f('cancel').hidden=false; });
@@ -2094,7 +2119,7 @@ const livePill = (() => {
     const list=[
       {t:"Booking confirmed",s:d.bookingId,done:true},
       {t:"Reminder sent",s:"We email you 24 hours and 1 hour before",done:left<=24*H},
-      {t:door?"Crew on the way":"Head to the studio",s:door?"About 30 minutes before your slot":"Arrive a few minutes early",done:left<=30*60000},
+      {t:door?"Crew on the way":"Head to the studio",s:door?"About 30 minutes before your slot":"Arrive a few minutes early at "+STN_ADDR,done:left<=30*60000},
       {t:"Service in progress",s:"Your car is being cared for",done:now>=at},
       {t:"Completed",s:"Thank you for choosing MyPod",done:now>=at+60*60000}];
     const cur=list.findIndex(x=>!x.done); return {list,cur};
@@ -2111,7 +2136,10 @@ const livePill = (() => {
     if(left<=0){ f('cancel').hidden=true; f('cwrap').hidden=true; } else if(f('cwrap').hidden){ f('cancel').hidden=false; }
     f('chip').textContent=left>0?"Upcoming":now<at+60*60000?"In progress":"Completed";
     f('when').textContent=dayText(data)+" · "+data.time;
-    f('where').textContent=data.serviceMode==="Drive-through"?"MyPod Studio, Action Area I, Newtown":(data.address||"Your doorstep");
+    const dtMode=data.serviceMode==="Drive-through";
+    f('where').textContent=dtMode?"Drive-through at our studio":(data.address||"Your doorstep");
+    f('stn').hidden=!dtMode;
+    if(dtMode){ f('stnName').textContent=STN_NAME; f('stnAddr').textContent=STN_ADDR; f('stnMap').href=STN_MAP; }
     f('amt').textContent=data.price==null?"Final quote by MyPod":inr(data.price);
     if(open){
       const tr=f('track'), st=steps(data,now); tr.textContent="";
