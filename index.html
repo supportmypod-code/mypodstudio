@@ -758,6 +758,14 @@ header{top:10px;margin:10px auto 0;width:min(1240px,calc(100% - 20px));height:60
 .scard .sphoto{margin:-28px -28px 2px;aspect-ratio:16/10;overflow:hidden;border-radius:var(--r-xl) var(--r-xl) 0 0;background:#1d1e21}
 .scard .sphoto img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .6s var(--ease)}
 .scard:hover .sphoto img{transform:scale(1.05)}
+.scard .sphoto{position:relative}
+.scard .stags{display:flex;flex-wrap:wrap;gap:6px;max-width:calc(100% - 24px)}
+.scard .sphoto .stags{position:absolute;top:12px;left:12px;z-index:1}
+.scard .stags .badge{box-shadow:0 2px 10px rgba(0,0,0,.35)}
+.badge.t-winter{background:#bfe3ff;color:#0b2a44}
+.badge.t-monthly{background:#7be0b0;color:#06301e}
+.badge.t-offer{background:#ff8a5c;color:#3a1204}
+.badge.t-new{background:#fff;color:#1b1c1f}
 .scard h3{font-size:24px;letter-spacing:-.03em}
 .scard .vt{font:500 13px var(--body);text-transform:none;letter-spacing:0;color:var(--muted)}
 .scard p{font-size:15px}
@@ -1284,6 +1292,13 @@ const SIZES = {
   Bike:[{name:"Naked Bike",hint:"Splendor, Pulsar, FZ"},{name:"Covered Bike",hint:"Bikes with body panels or fairing"}]
 };
 const PET_NOTE = "Extra charges may apply for pet hair removal.";
+/* Extra tags on service cards. Key = "Vehicle|Service name"; kind picks the colour: winter | monthly | offer | new.
+   "Most popular" comes from popular:true in CATALOG. Edit, add or delete lines freely. */
+const SERVICE_TAGS = {
+  "Car|Interior Gold (Deep Cleaning)": [{text:"Winter special", kind:"winter"}],
+  "Car|Express Plus":                  [{text:"Monthly pack special", kind:"monthly"}],
+  "Bike|Go Premium":                   [{text:"Monthly pack special", kind:"monthly"}]
+};
 /* Service photos (WebP) live in the "images" folder next to index.html; swap in full URLs if you prefer.
    Key = "Vehicle|Service name". Leave a service out (or the file missing) and its card simply shows no photo. */
 const SERVICE_PHOTOS = {
@@ -1315,7 +1330,7 @@ const CATALOG = {
   Bike: [
     {name:"Go Premium", detail:"Foam wash, dressing, chain clean and lube", popular:false, pet:false, prices:{"Naked Bike": 250, "Covered Bike": 300},
      inc:["Foam wash", "Cloth drying", "Instant dressing", "Chain clean and lube"]},
-    {name:"Detail Boost", detail:"Go Premium plus hand polish, wax and tyre dressing", popular:false, pet:false, prices:{"Naked Bike": 800, "Covered Bike": 900},
+    {name:"Detail Boost", detail:"Go Premium plus hand polish, wax and tyre dressing", popular:true, pet:false, prices:{"Naked Bike": 800, "Covered Bike": 900},
      inc:["Foam wash", "Cloth drying", "Instant dressing", "Chain clean and lube", "Hand polishing and waxing", "Tyre cleaning and dressing"]},
     {name:"Ultimate Pods", detail:"Full-body degrease, paint correction and sealant wax", popular:false, pet:false, prices:{"Naked Bike": 1500, "Covered Bike": 1900},
      inc:["Foam wash", "Cloth drying", "Cladding part polish", "Chain clean and lube", "Full-body degreasing", "Engine degreasing", "Emblem cleaning", "Paint correction (buffing)", "Soil removal (polishing)", "Synthetic sealant and waxing", "Tyre cleaning and polishing"]}
@@ -2393,16 +2408,20 @@ function renderServiceCards(){
   };
   ["Car","Bike"].forEach(v => CATALOG[v].forEach(it => {
     const c = document.createElement('article'); c.className = "scard tap";
-    const photoSrc = SERVICE_PHOTOS[v + "|" + it.name];
+    const key = v + "|" + it.name, photoSrc = SERVICE_PHOTOS[key];
+    const tagList = (it.popular ? [{text:"Most popular"}] : []).concat(SERVICE_TAGS[key] || []);
+    const tagBox = document.createElement('div'); tagBox.className = "stags";
+    tagList.forEach(t => { const bd = document.createElement('span'); bd.className = "badge" + (t.kind ? " t-" + t.kind : ""); bd.textContent = t.text; tagBox.appendChild(bd); });
+    let tagsOnPhoto = false;
     if (photoSrc) {
       const ph = document.createElement('div'); ph.className = "sphoto";
       const im = document.createElement('img'); im.src = photoSrc; im.alt = it.name + " " + v.toLowerCase() + " service"; im.loading = "lazy"; im.decoding = "async";
-      im.addEventListener('error', () => ph.remove());
-      ph.appendChild(im); c.appendChild(ph);
+      im.addEventListener('error', () => { ph.remove(); if (tagBox.childNodes.length) top.appendChild(tagBox); });
+      ph.appendChild(im); if (tagList.length) { ph.appendChild(tagBox); tagsOnPhoto = true; } c.appendChild(ph);
     }
     const top = document.createElement('div'); top.className = "top";
     const ic = document.createElement('span'); ic.className = "sico"; ic.innerHTML = ICON[v]; top.appendChild(ic);
-    if (it.popular) { const bd = document.createElement('span'); bd.className = "badge"; bd.textContent = "Most popular"; top.appendChild(bd); }
+    if (!tagsOnPhoto && tagList.length) top.appendChild(tagBox);
     const vt = document.createElement('span'); vt.className = "vt"; vt.textContent = v;
     const h = document.createElement('h3'); h.textContent = it.name;
     const p = document.createElement('p'); p.textContent = it.detail;
