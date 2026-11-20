@@ -924,6 +924,12 @@ header{max-width:calc(100vw - 20px);box-sizing:border-box}
 .lp-stn b{display:block;font-size:14px;color:#fff;overflow-wrap:anywhere}
 .lp-stn span{display:block;font-size:13px;color:#d9dadc;line-height:1.4;margin-top:2px;overflow-wrap:anywhere}
 .lp-stn .stn-go{flex:1 0 100%;display:flex;align-items:center;justify-content:center;min-height:42px;margin-top:6px;border-radius:999px;background:var(--y);color:#2b2d31;font-weight:700;font-size:14px;text-decoration:none}
+
+/* Service card: single Book button (sizes are picked inside the booking wizard) */
+.scard .cardbook{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:50px;margin-top:auto;border:0;border-radius:999px;background:var(--y);color:#2b2d31;font:700 16px var(--body);cursor:pointer;transition:transform .35s var(--ease),filter .25s var(--ease)}
+.scard .cardbook i{font-style:normal}
+.scard .cardbook:hover,.scard .cardbook:focus-visible{filter:brightness(1.06)}
+.scard .cardbook:active{transform:scale(.97)}
 </style></head><body>
 <!-- Google Tag Manager (noscript) -->
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-M59C9SG3" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
@@ -2462,16 +2468,10 @@ function renderServiceCards(){
     const flip = () => setOpen(tg, panel, tg.getAttribute('aria-expanded') !== "true");
     tg.addEventListener('click', flip);
     c.addEventListener('click', e => { if (!e.target.closest('button')) flip(); });
-    const help = document.createElement('div'); help.className = "szhelp"; help.textContent = "Tap your size to book";
-    const list = document.createElement('div'); list.className = "szlist"; list.setAttribute('role', 'group'); list.setAttribute('aria-label', it.name + ": book by vehicle size");
-    SIZES[v].forEach(z => {
-      const b = document.createElement('button'); b.type = "button"; b.className = "szbtn";
-      const nm = document.createElement('span'); nm.textContent = z.name;
-      const pc = document.createElement('b'); pc.textContent = inr(it.prices[z.name]);
-      const go2 = document.createElement('i'); go2.textContent = "Book →";
-      b.append(nm, pc, go2); b.addEventListener('click', () => pick(it.name, v, z.name)); list.appendChild(b);
-    });
-    c.append(top, vt, h, p, pr, tg, panel, help, list); box.appendChild(c);
+    const bk = document.createElement('button'); bk.type = "button"; bk.className = "cardbook";
+    bk.setAttribute('aria-label', "Book " + it.name); bk.innerHTML = "<span>Book now</span><i>→</i>";
+    bk.addEventListener('click', () => pick(it.name, v));   // vehicle size is chosen in the booking steps
+    c.append(top, vt, h, p, pr, tg, panel, bk); box.appendChild(c);
   }));
 }
 
