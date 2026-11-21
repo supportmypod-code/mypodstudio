@@ -196,6 +196,27 @@ input,select,textarea,.field{font-size:16px}
 .daynav h2{min-width:0}.kv dd,.dl{overflow-wrap:anywhere}
 .cg{grid-template-columns:repeat(auto-fit,minmax(96px,1fr))}.cg b{overflow-wrap:anywhere}
 img,svg{max-width:100%}
+/* ---- alerts / new-order popup / activity ---- */
+.alertlayer{position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:16px}
+.acard{width:min(440px,100%);max-height:92vh;overflow:auto;background:var(--panel);border:2px solid var(--y);border-radius:22px;padding:22px 18px calc(18px + env(safe-area-inset-bottom,0px));animation:up .28s cubic-bezier(.2,.9,.3,1)}
+.acard h2{font-size:22px;display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.bell{width:42px;height:42px;border-radius:50%;background:var(--y);color:var(--on-y);display:grid;place-items:center;flex:none;animation:ring 1s ease-in-out infinite}
+.bell svg{width:22px;height:22px}
+@keyframes ring{0%,100%{transform:rotate(0)}15%{transform:rotate(14deg)}30%{transform:rotate(-12deg)}45%{transform:rotate(8deg)}60%{transform:rotate(-6deg)}75%{transform:rotate(0)}}
+.bell.quiet{animation:none}
+@media(prefers-reduced-motion:reduce){.bell{animation:none}.acard{animation:none}}
+.ao{border:1px solid var(--line);background:var(--panel2);border-radius:12px;padding:12px;margin-bottom:10px;display:grid;gap:2px}
+.ao b{font-size:16px}.ao span{color:var(--muted);font-size:13px}.ao .pr{color:var(--text);font-weight:700;font-size:15px}
+.acard .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.acard .row .btn{flex:1 1 120px}
+.ahint{font-size:12.5px;color:var(--warn);margin:8px 0 0}
+.al-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.al-row:last-of-type{border-bottom:0}.al-row small{display:block;color:var(--muted);font-size:12.5px;line-height:1.35;margin-top:2px}
+.al-r{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.al-warn{border-color:var(--warn)}
+.al-ok{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 14px}.al-ok .sp2{flex:1;min-width:8px}
+.actl{list-style:none;margin:0;padding:0}.actl li{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}.actl li:last-child{border-bottom:0}
+.actl i{width:9px;height:9px;border-radius:50%;margin-top:6px;flex:none;background:var(--c,var(--muted))}
+.actl b{font-weight:600;font-size:14px;display:block}.actl small{color:var(--muted);font-size:12.5px}.actl time{margin-left:auto;color:var(--muted);font-size:12px;white-space:nowrap;padding-left:8px}
 </style>
 </head>
 <body>
@@ -264,7 +285,7 @@ function toast(msg, bad){ const t=$("#toast"); t.textContent=msg; t.className="s
 const A = { id:["bookingid","id"], name:["customername","name","customer"], phone:["customerphone","phone","mobile"], email:["customeremail","email"], mode:["servicemode","mode"],
   address:["address"], landmark:["landmark"], map:["maplink"], veh:["vehicletype"], size:["vehiclesize"], plate:["vehiclenumber","plate"], svc:["servicename","service"], addons:["addons"],
   coupon:["couponcode","coupon"], disc:["discount","discountinr"], price:["price","total","totalprice","amount","totalinr","finalprice","totalamount","grandtotal","netprice","bookingamount","payable"], date:["date","bookingdate"], time:["time","slot","timeslot"], dur:["durationmins","durationmin"],
-  src:["source"], pm:["paymentmethod"], ps:["paymentstatus"], status:["status"], note:["adminnote","notes","note"], ref:["paymentref","utr"] };
+  created:["createdat","timestamp","createdon","bookedat"], src:["source"], pm:["paymentmethod"], ps:["paymentstatus"], status:["status"], note:["adminnote","notes","note"], ref:["paymentref","utr"] };
 function normB(r){
   const o = { _row:r._row };
   for(const k in A){ for(const a of A[k]){ if(r[a]!==undefined && r[a]!==null && r[a]!==""){ o[k]=r[a]; break; } } }
@@ -272,6 +293,7 @@ function normB(r){
   o.date = String(o.date||"").slice(0,10); o.time = String(o.time||"").replace(/^Start now,\s*/i,""); o.phone = String(o.phone||"");
   o.name = String(o.name||"Customer"); o.svc = String(o.svc||"Service"); o.ps = String(o.ps||""); o.pm = String(o.pm||""); o.note = String(o.note||""); o.ref = String(o.ref||"");
   o.addons = Array.isArray(o.addons) ? o.addons.join(", ") : String(o.addons||"");
+  o.created = Date.parse(o.created) || 0;
   return o;
 }
 const isMgr = () => !!(S.sess && S.sess.role==="manager");
@@ -323,7 +345,7 @@ async function submitLogin(e){
 }
 function signOut(msg){
   store.del(SK); store.del(CK); S.sess = null; S.bookings = []; S.loaded = false; S.coupons = null; S.ph = {}; S.phTry = {};
-  S.att = { loaded:false, loading:false, month:"", roster:[], shifts:[], photos:[], pay:[] }; $("#modal").innerHTML = ""; showLogin(msg);
+  S.att = { loaded:false, loading:false, month:"", roster:[], shifts:[], photos:[], pay:[] }; $("#modal").innerHTML = ""; stopRing(); pend = []; renderAlert(); setBadge(0); showLogin(msg);
 }
 function openPw(){
   const L = (id,t) => '<label style="font-weight:600;font-size:13px;display:block;margin:12px 0 6px" for="'+id+'">'+t+'</label>';
@@ -345,17 +367,22 @@ async function submitPw(e){
 
 /* ============ data loading ============ */
 function loadCache(){ try{ const c = JSON.parse(store.get(CK)||"null"); if(c && c.rows){ S.bookings = c.rows.map(normB); S.fetchedAt = c.at; S.loaded = true; } }catch(e){} }
-async function loadData(){
-  if(S.loading) return; S.loading = true; renderSync();
+async function loadData(o){
+  o = o || {}; if(S.loading) return; S.loading = true; if(!o.quiet) renderSync();
   try{
     const t = today();
     const d = await api("adminBookings", S.all ? {} : { from:addDays(t,-CFG.HISTORY_DAYS), to:addDays(t,CFG.FUTURE_DAYS) });
     S.bookings = d.bookings.map(normB); if(d.role && S.sess && S.sess.role!==d.role){ S.sess.role = d.role; if(!DEMO) store.set(SK, JSON.stringify(S.sess)); } S.fetchedAt = Date.now(); S.offline = false; S.loaded = true;
     if(!DEMO) store.set(CK, JSON.stringify({ at:S.fetchedAt, rows:d.bookings }));
     loadAtt();
+    try{ detectNew(S.bookings); }catch(e2){}
   }catch(e){
-    if(e.code!=="auth"){ S.offline = true; toast(e.message, true); }
-  }finally{ S.loading = false; render(); }
+    if(e.code!=="auth"){ S.offline = true; if(!o.quiet) toast(e.message, true); }
+  }finally{
+    S.loading = false;
+    const busy = o.quiet && (S.open || $("#modal").innerHTML || /^(TEXTAREA|INPUT|SELECT)$/.test((document.activeElement||{}).tagName||""));
+    if(busy) renderSync(); else render();
+  }
 }
 
 async function patch(id, fields, extra){
@@ -364,7 +391,8 @@ async function patch(id, fields, extra){
   const old = {}, wire = {};
   for(const k in fields){ old[k] = b[k]; b[k] = fields[k]; wire[MAP[k]] = fields[k]; }
   render();
-  try{ await api("adminUpdate", Object.assign({ bookingId:id, fields:wire }, extra||{})); toast("Saved"); }
+  try{ await api("adminUpdate", Object.assign({ bookingId:id, fields:wire }, extra||{})); toast("Saved");
+    if(fields.status) logAct("st", b.name+" → "+fields.status, b.svc); else if(fields.ps) logAct("pay", b.name+" marked "+fields.ps+(fields.pm?" ("+fields.pm+")":""), b.svc+(b.price?" · "+inr(b.price):"")); }
   catch(e){ for(const k in old) b[k] = old[k]; render(); toast(e.message, true); }
 }
 
@@ -483,7 +511,7 @@ function vBoard(){
       tile(m.done+"/"+m.act,"Vehicles done",plural(m.cars,"car")+" · "+plural(m.bikes,"bike"))+
       tile(inr(m.sales),"Total sales","Cash "+inr(ps.cash.a)+" · Online "+inr(ps.online.a)+(nop?" · "+nop+" with no price":""))+
       tile(inr(m.due),"To collect",plural(ps.due.n+ps.ver.n,"unpaid booking"),m.due>0?"hot":"")+'</div>'+
-    unpaidHtml()+collHtml(list.filter(live), isToday?"Collected today":"Collected")+dutyHtml();
+    alertsHtml()+unpaidHtml()+collHtml(list.filter(live), isToday?"Collected today":"Collected")+dutyHtml()+activityHtml();
   if(!list.length) return h + '<div class="empty">No bookings for this day.<br><button class="btn pri" style="margin-top:14px" data-act="add">Add a booking</button></div>';
   const nowM = new Date().getHours()*60 + new Date().getMinutes(); let marked = !isToday;
   list.forEach(b => { if(!marked && toMin(b.time) >= nowM){ h += '<div class="now">NOW '+fmtMin(nowM)+'</div>'; marked = true; } h += ticket(b); });
@@ -746,7 +774,7 @@ function vMore(){
     '<div><b>'+esc(u.name||"Admin")+'</b><div class="muted" style="font-size:13px">'+esc(u.email)+' · '+(isMgr()?"Manager":"Owner")+'</div></div></div>'+
     '<div class="card gap"><button class="btn pri" style="width:100%" data-act="add">Add a booking</button>'+
     '<button class="btn" style="width:100%" data-act="tab" data-t="coupons">Coupons</button>'+'<button class="btn" style="width:100%" data-act="closeday">Close day (count cash)</button>'+
-    '<button class="btn" style="width:100%" data-act="refresh">Refresh data</button>'+
+    '<button class="btn" style="width:100%" data-act="alertset">Alerts &amp; notifications</button>'+'<button class="btn" style="width:100%" data-act="refresh">Refresh data</button>'+
     '<button class="btn" style="width:100%" data-act="theme">Theme: '+th+'</button>'+
     '<button class="btn" style="width:100%" id="inst" data-act="install" hidden>Install app</button>'+
     '<p class="muted" id="iosHint" style="font-size:13px;margin:0" hidden>On iPhone: tap Share, then Add to Home Screen.</p></div>'+
@@ -820,6 +848,201 @@ async function submitAdd(e){
   }catch(err){ go.disabled = false; go.textContent = "Save booking"; toast(err.message, true); }
 }
 
+/* ============ new-order alerts: popup, 7-second sound, notifications, recent activity ============ */
+const AL = { SEEN:"mp_seen_ids", ACT:"mp_activity", PREF:"mp_alert_pref", BG:"mp_bg_confirmed", SECS:7, POLL:30000 };
+const pref = Object.assign({ sound:true, wake:false }, (() => { try{ return JSON.parse(store.get(AL.PREF)||"{}"); }catch(e){ return {}; } })());
+const savePref = () => store.set(AL.PREF, JSON.stringify(pref));
+let seen = null, acts = [], pend = [], ac = null, ring = null, ringT = null, ringing = false, soundBlocked = false, bgState = "unknown", askedOnce = false, wl = null;
+try{ acts = JSON.parse(store.get(AL.ACT)||"[]"); }catch(e){ acts = []; }
+function logAct(k, t, sub){ acts.unshift({ k:k, t:t, s:sub||"", ts:Date.now() }); acts = acts.slice(0,40); store.set(AL.ACT, JSON.stringify(acts)); }
+
+/* ---- remembering which bookings were already seen ---- */
+function loadSeen(){ try{ seen = JSON.parse(store.get(AL.SEEN)||"null"); }catch(e){ seen = null; } }
+function saveSeen(){
+  const ks = Object.keys(seen||{});
+  if(ks.length > 1500){ ks.sort((a,b) => seen[a]-seen[b]).slice(0, ks.length-1500).forEach(k => delete seen[k]); }
+  store.set(AL.SEEN, JSON.stringify(seen)); syncToSW();
+}
+/* A booking counts as a NEW ORDER only when it was never seen before and is recent. The first ever load just records what exists. */
+function detectNew(rows){
+  if(DEMO) return;
+  const first = seen === null; if(first) seen = {};
+  const fresh = [], cut = addDays(today(), -1);
+  rows.forEach(b => {
+    if(!b.id || seen[b.id] !== undefined) return;
+    seen[b.id] = first ? 0 : Date.now();
+    const recent = b.created ? (Date.now() - b.created < 48*36e5) : (b.date >= cut);
+    if(!first && recent && live(b) && srcOf(b) !== "Admin") fresh.push(b);
+  });
+  saveSeen();
+  if(fresh.length) raise(fresh);
+}
+function raise(list, isTest){
+  pend = pend.concat(list.map(b => Object.assign({}, b, isTest ? { _test:true } : {})));
+  renderAlert(); startRing(); setBadge(pend.length);
+  if(document.hidden) sysNotify(list);
+}
+
+/* ---- the 7-second sound (Web Audio, no file needed) ---- */
+function audioCtx(){ if(!ac){ const C = window.AudioContext || window.webkitAudioContext; if(C){ try{ ac = new C(); }catch(e){} } } return ac; }
+function unlockAudio(){ const c = audioCtx(); if(c && c.state === "suspended") c.resume().catch(() => {}); }
+function startRing(){
+  stopRing(true);
+  try{ if(navigator.vibrate) navigator.vibrate([450,150,450,150,450,150,450]); }catch(e){}
+  if(!pref.sound) return;
+  const c = audioCtx(); if(!c) return;
+  if(c.state === "suspended") c.resume().catch(() => {});
+  const t0 = c.currentTime + .05, T = AL.SECS, master = c.createGain();
+  master.gain.setValueAtTime(.9, t0); master.gain.setValueAtTime(.9, t0+T-.35); master.gain.linearRampToValueAtTime(0, t0+T);
+  master.connect(c.destination);
+  for(let i = 0; i*.9 + .8 < T; i++){
+    [[988,0],[1319,.24]].forEach(n => {
+      const o = c.createOscillator(), g = c.createGain(), st = t0 + i*.9 + n[1];
+      o.type = "triangle"; o.frequency.value = n[0];
+      g.gain.setValueAtTime(0, st); g.gain.linearRampToValueAtTime(.6, st+.02); g.gain.exponentialRampToValueAtTime(.001, st+.5);
+      o.connect(g); g.connect(master); o.start(st); o.stop(st+.55);
+    });
+  }
+  ring = master; ringing = true; clearTimeout(ringT); ringT = setTimeout(() => stopRing(), T*1000 + 200);
+  setTimeout(() => { if(ringing && ac && ac.state !== "running"){ soundBlocked = true; renderAlert(); } }, 300);
+}
+function stopRing(silent){
+  clearTimeout(ringT);
+  if(ring){ try{ ring.gain.cancelScheduledValues(0); ring.gain.value = 0; ring.disconnect(); }catch(e){} ring = null; }
+  try{ if(navigator.vibrate) navigator.vibrate(0); }catch(e){}
+  const was = ringing; ringing = false; if(was && !silent) renderAlert();
+}
+
+/* ---- popup ---- */
+const bellSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg>';
+function renderAlert(){
+  let L = $("#alertlayer");
+  if(!pend.length){ if(L) L.remove(); return; }
+  if(!L){ L = document.createElement("div"); L.id = "alertlayer"; L.className = "alertlayer"; L.setAttribute("role","alertdialog"); L.setAttribute("aria-modal","true"); L.setAttribute("aria-label","New order"); document.body.appendChild(L); }
+  const n = pend.length, one = pend[0];
+  const card = b => '<div class="ao"><b>'+esc(b.name)+'</b><span>'+esc(b.svc)+(b.plate?" · "+esc(b.plate):"")+(b.veh?" · "+esc(b.veh):"")+'</span>'+
+    '<span>'+(b.date?esc(dLabel(b.date)):"")+" "+esc(b.time)+(b.dur?" · "+fmtDur(b.dur):"")+'</span><span>'+esc(modeOf(b))+" · "+esc(srcOf(b))+(isPaid(b)?" · Paid":"")+'</span><span class="pr">'+(b.price?inr(b.price):"Quote")+'</span></div>';
+  L.innerHTML = '<div class="acard"><h2><span class="bell'+(ringing?"":" quiet")+'">'+bellSvg+'</span>'+(n===1 ? (one._test?"Test alert":"New order") : n+" new orders")+'</h2>'+
+    pend.slice(0,3).map(card).join("")+(n>3 ? '<p class="muted" style="margin:0">+ '+(n-3)+' more</p>' : "")+
+    (soundBlocked ? '<p class="ahint">Your phone is holding the sound back. Tap Play sound once to allow it.</p>' : "")+
+    '<div class="row"><button class="btn pri" data-act="alertok">Got it</button>'+(one._test?"":'<button class="btn" data-act="alertview">View</button>')+
+    (pref.sound ? '<button class="btn" data-act="alertsound">'+(ringing?"Stop sound":"Play sound")+'</button>' : "")+'</div></div>';
+  const f = L.querySelector('[data-act="alertok"]'); if(f && !L.dataset.focused){ L.dataset.focused = "1"; f.focus(); }
+}
+function ackAlert(){ stopRing(); pend = []; soundBlocked = false; renderAlert(); setBadge(0); }
+function setBadge(n){
+  try{ if(n){ if(navigator.setAppBadge) navigator.setAppBadge(n); } else if(navigator.clearAppBadge) navigator.clearAppBadge(); }catch(e){}
+  document.title = (n ? "("+n+") " : "") + "MyPod Admin";
+}
+
+/* ---- system notification (when the app is in the background) ---- */
+async function sysNotify(list){
+  if(!("Notification" in window) || Notification.permission !== "granted") return;
+  const b = list[0], title = list.length > 1 ? list.length+" new orders" : "New order · "+b.name;
+  const body = list.length > 1 ? list.slice(0,4).map(x => x.name+" · "+x.svc).join("\n") : [b.svc, ((b.date?dLabel(b.date):"")+" "+b.time).trim(), b.price?inr(b.price):""].filter(Boolean).join(" · ");
+  const o = { body:body, tag:"mp-new-order", renotify:true, requireInteraction:true, vibrate:[450,150,450,150,450], icon:"apple-touch-icon.png", badge:"favicon-32.png" };
+  try{ const reg = await navigator.serviceWorker.getRegistration(); if(reg && reg.showNotification){ await reg.showNotification(title, o); return; } }catch(e){}
+  try{ new Notification(title, o); }catch(e){}
+}
+
+/* ---- permission, background checks, keep-awake ---- */
+const permState = () => ("Notification" in window) ? Notification.permission : "unsupported";
+const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+function askPerm(){
+  if(!("Notification" in window)) return Promise.resolve();
+  return Promise.resolve(Notification.requestPermission()).then(() => { regPeriodic(); refreshAlertUI(); }).catch(() => {});
+}
+function idbPut(k, v){ return new Promise(res => { try{ const r = indexedDB.open("mpadmin",1); r.onupgradeneeded = () => r.result.createObjectStore("kv"); r.onsuccess = () => { const tx = r.result.transaction("kv","readwrite"); tx.objectStore("kv").put(v,k); tx.oncomplete = () => res(true); tx.onerror = () => res(false); }; r.onerror = () => res(false); }catch(e){ res(false); } }); }
+function syncToSW(){ if(DEMO || !S.sess || !seen) return; idbPut("cfg", { api:CFG.API, token:S.sess.token, seen:Object.keys(seen).slice(-1500) }); }
+async function regPeriodic(){
+  try{
+    const reg = await navigator.serviceWorker.ready;
+    if(!reg || !("periodicSync" in reg)){ bgState = "unsupported"; return; }
+    const st = await navigator.permissions.query({ name:"periodic-background-sync" });
+    if(st.state !== "granted"){ bgState = "denied"; return; }
+    await reg.periodicSync.register("mp-orders", { minInterval:15*60*1000 }); bgState = "on";
+  }catch(e){ bgState = "unsupported"; }
+  if(S.tab === "board" && !$("#modal").innerHTML) render();
+}
+async function setWake(on){
+  try{
+    if(on && "wakeLock" in navigator && !document.hidden){ if(!wl){ wl = await navigator.wakeLock.request("screen"); wl.addEventListener("release", () => { wl = null; }); } }
+    else if(wl){ await wl.release(); wl = null; }
+  }catch(e){}
+}
+function alertBoot(){ syncToSW(); regPeriodic(); if(pref.wake) setWake(true); }
+const bgOk = () => bgState === "on" || (Date.now() - Number(store.get(AL.BG)||0) < 30*864e5);
+function pollNew(){ if(S.sess && $("#app") && !$("#app").hidden) loadData({ quiet:true }); }
+setInterval(pollNew, AL.POLL);
+["pointerdown","keydown","touchend"].forEach(ev => document.addEventListener(ev, () => {
+  unlockAudio();
+  if(S.sess && !DEMO && permState() === "default" && !askedOnce){ askedOnce = true; askPerm(); }   // first tap after sign-in asks for notification permission
+}, { passive:true }));
+
+/* ---- alerts checklist (Board card and More > Alerts) ---- */
+function panelInner(){
+  const p = permState(), inst = standalone, row = (t, chip, sub, btn) => '<div class="al-row"><div><b>'+t+'</b>'+(sub?'<small>'+sub+'</small>':"")+'</div><div class="al-r">'+(chip||"")+(btn||"")+'</div></div>';
+  const chip = (c, t) => '<span class="chip s-'+c+'">'+t+'</span>';
+  let h = "";
+  h += p==="granted" ? row("Notifications", chip("ok","Allowed")) :
+       p==="denied" ? row("Notifications", chip("bad","Blocked"), isIOS ? "Open Settings &gt; Notifications &gt; MyPod Admin and turn Allow Notifications on." : "Tap the lock icon by the address bar (or Settings &gt; Apps &gt; MyPod Admin &gt; Notifications) and set Notifications to Allow.") :
+       p==="unsupported" ? row("Notifications", chip("warn","Not available"), isIOS ? "On iPhone, first tap Share &gt; Add to Home Screen, then open MyPod Admin from the home screen." : "This browser cannot show notifications.") :
+       row("Notifications", chip("warn","Not allowed yet"), "Needed so new orders reach you when the app is not on screen.", '<button class="btn sm pri" data-act="allownotif">Allow</button>');
+  h += row("Alert sound", pref.sound ? chip("ok","On · 7 seconds") : chip("warn","Muted"), "Rings for 7 seconds with the popup. Keep the phone's volume up and silent mode off.", '<button class="btn sm" data-act="testalert">Test</button><button class="btn sm" data-act="snd">'+(pref.sound?"Mute":"Unmute")+'</button>');
+  h += row("Installed as an app", inst ? chip("ok","Installed") : chip("warn","In browser"), inst ? "" : (isIOS ? "Share &gt; Add to Home Screen. Required for alerts on iPhone." : "Use More &gt; Install app for more reliable alerts."));
+  h += row("Background refresh", bgState==="on" ? chip("ok","On · about every 15 min") : bgOk() ? chip("ok","Confirmed") : chip("warn","Check phone settings"),
+       bgState==="on" ? "" : (isIOS ? "Settings &gt; General &gt; Background App Refresh &gt; MyPod Admin (on)." : "Settings &gt; Apps &gt; MyPod Admin &gt; Battery &gt; Unrestricted (allow background activity)."),
+       (bgState==="on"||bgOk()) ? "" : '<button class="btn sm" data-act="bgdone">I turned it on</button>');
+  h += row("Keep screen on", pref.wake ? chip("ok","On") : chip("info","Off"), "Stops the screen sleeping while the app is open, so the sound can always ring (best for a counter tablet).", '<button class="btn sm" data-act="wake">'+(pref.wake?"Turn off":"Turn on")+'</button>');
+  h += '<p class="muted" style="font-size:12px;margin:10px 0 0">A web app can only ask for these. You grant them in the phone settings. Alerts arrive within about 30 seconds while the app is open or recently used. When it is fully closed, they depend on the phone allowing background refresh.</p>';
+  return h;
+}
+function alertsHtml(){
+  if(permState()==="granted" && bgOk()) return '<div class="card al-ok"><span class="chip s-ok">Alerts on</span><span class="muted" style="font-size:13px">7 s sound</span><span class="sp2"></span><button class="btn sm" data-act="testalert">Test</button><button class="btn sm" data-act="alertset">Settings</button></div>';
+  return '<div class="card al-warn"><div class="ct">Turn on order alerts</div>'+panelInner()+'</div>';
+}
+function openAlertSet(){ $("#modal").innerHTML = '<div class="scrim" data-act="closeScrim"><div class="sheet" id="alsheet"><h2>Alerts &amp; notifications</h2><div id="alp">'+panelInner()+'</div><button class="btn" style="width:100%;margin-top:14px" data-act="close">Close</button></div></div>'; }
+function refreshAlertUI(){ const p = $("#alp"); if(p) p.innerHTML = panelInner(); if(!$("#modal").innerHTML) render(); }
+function alertAct(a, t){
+  if(a==="allownotif"){ unlockAudio(); askPerm(); }
+  else if(a==="testalert"){ unlockAudio(); raise([{ id:"TEST", name:"Test customer", svc:"Sample wash", plate:"WB 00 A 0000", veh:"Car", date:today(), time:fmtMin(new Date().getHours()*60+new Date().getMinutes()), mode:"Drive-through", src:"Website", price:599, status:"Confirmed", ps:"" }], true); }
+  else if(a==="alertok"){ ackAlert(); }
+  else if(a==="alertsound"){ if(ringing) stopRing(); else { soundBlocked = false; unlockAudio(); startRing(); renderAlert(); } }
+  else if(a==="alertview"){ const b = pend[0]; ackAlert(); if(b){ S.tab = "board"; S.day = b.date || today(); S.open = b.id; render(); window.scrollTo(0,0); } }
+  else if(a==="alertset"){ openAlertSet(); }
+  else if(a==="snd"){ pref.sound = !pref.sound; savePref(); if(!pref.sound) stopRing(); refreshAlertUI(); }
+  else if(a==="wake"){ pref.wake = !pref.wake; savePref(); setWake(pref.wake); refreshAlertUI(); }
+  else if(a==="bgdone"){ store.set(AL.BG, String(Date.now())); refreshAlertUI(); toast("Saved. We'll remind you in 30 days."); }
+  else if(a==="actmore"){ S.actN = (S.actN||8) + 10; render(); }
+  else return false;
+  return true;
+}
+
+/* ---- recent activity (Board) ---- */
+function whenOf(ts){
+  const d = new Date(ts), m = Math.round((Date.now()-ts)/60000);
+  if(m < 60) return m < 1 ? "just now" : m+"m ago";
+  const t = fmtMin(d.getHours()*60+d.getMinutes());
+  return ymd(d)===today() ? t : dLabel(ymd(d))+" "+t;
+}
+function activityItems(){
+  const items = [], lim = Date.now() - 7*864e5;
+  S.bookings.forEach(b => { const ts = b.created || (seen && seen[b.id]) || 0; if(ts > lim) items.push({ ts:ts, k:"new", t:"New booking · "+b.name, s:b.svc+(b.price?" · "+inr(b.price):"")+" · "+srcOf(b) }); });
+  if(S.att && S.att.shifts) S.att.shifts.forEach(x => {
+    const a = Date.parse(x.inIso), o = Date.parse(x.outIso);
+    if(a > lim) items.push({ ts:a, k:"in", t:nameOf(x)+" clocked in", s:x.role||"" });
+    if(o > lim) items.push({ ts:o, k:"out", t:nameOf(x)+" clocked out", s:x.role||"" });
+  });
+  acts.forEach(a => { if(a.ts > lim) items.push({ ts:a.ts, k:a.k, t:a.t, s:(a.s?a.s+" · ":"")+"by you" }); });
+  return items.sort((a,b) => b.ts-a.ts);
+}
+function activityHtml(){
+  const all = activityItems(), n = S.actN || 8, col = { new:"var(--y)", in:"var(--ok)", out:"var(--muted)", st:"var(--info)", pay:"var(--ok)" };
+  if(!all.length) return '<div class="card"><div class="ct">Recent activity</div><p class="muted" style="margin:0">Nothing yet. New bookings, staff clock-ins and your changes will show up here.</p></div>';
+  return '<div class="card"><div class="ct">Recent activity</div><ul class="actl">'+all.slice(0,n).map(i => '<li><i style="--c:'+(col[i.k]||"var(--muted)")+'"></i><div><b>'+esc(i.t)+'</b>'+(i.s?'<small>'+esc(i.s)+'</small>':"")+'</div><time>'+esc(whenOf(i.ts))+'</time></li>').join("")+'</ul>'+
+    (all.length > n ? '<button class="btn sm" style="width:100%;margin-top:10px" data-act="actmore">Show more</button>' : "")+'</div>';
+}
+
 /* ============ events ============ */
 document.addEventListener("click", e => {
   const t = e.target.closest("[data-act]"); if(!t) return;
@@ -853,6 +1076,7 @@ document.addEventListener("click", e => {
   else if(a==="signout"){ signOut(); }
   else if(a==="changepw"){ openPw(); }
   else if(a==="showpw"){ const f = $("#l_pass"), show = f.type==="password"; f.type = show ? "text" : "password"; t.textContent = show ? "Hide" : "Show"; }
+  else if(alertAct(a, t)){}
   else if(a==="install"){ if(deferred){ deferred.prompt(); deferred = null; } }
 });
 document.addEventListener("input", e => {
@@ -874,12 +1098,12 @@ window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferr
 const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
 new MutationObserver(() => { const b = $("#inst"), h = $("#iosHint"); if(b && deferred) b.hidden = false; if(h && /iPhone|iPad/.test(navigator.userAgent) && !standalone) h.hidden = false; }).observe($("#view"), {childList:true});
 window.addEventListener("online", () => loadData());
-document.addEventListener("visibilitychange", () => { if(!document.hidden && S.sess && Date.now()-S.fetchedAt > 60000) loadData(); });
+document.addEventListener("visibilitychange", () => { if(!document.hidden && S.sess){ pollNew(); unlockAudio(); if(pref.wake) setWake(true); regPeriodic(); } });
 setInterval(() => { if(!document.hidden && $("#app") && !$("#app").hidden && S.tab==="board" && !S.open && !$("#modal").innerHTML) loadData(); else renderSync(); }, 60000);
 
 function enter(){
   $("#login").hidden = true; $("#app").hidden = false;
-  if(!DEMO) loadCache(); render(); loadData();
+  if(!DEMO) loadCache(); loadSeen(); render(); loadData(); alertBoot();
 }
 function boot(){
   applyTheme();
