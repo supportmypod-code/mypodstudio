@@ -930,6 +930,28 @@ header{max-width:calc(100vw - 20px);box-sizing:border-box}
 .scard .cardbook i{font-style:normal}
 .scard .cardbook:hover,.scard .cardbook:focus-visible{filter:brightness(1.06)}
 .scard .cardbook:active{transform:scale(.97)}
+
+/* Package step: Book button on each price card */
+.svcrow .svcbook{display:flex;align-items:center;justify-content:center;gap:8px;width:calc(100% - 24px);min-height:46px;margin:2px 12px 12px;border:0;border-radius:999px;background:var(--y);color:#2b2d31;font:700 15px var(--body);cursor:pointer;transition:transform .35s var(--ease),filter .25s var(--ease)}
+.svcrow .svcbook i{font-style:normal}
+.svcrow .svcbook:hover,.svcrow .svcbook:focus-visible{filter:brightness(1.06)}
+.svcrow .svcbook:active{transform:scale(.97)}
+
+/* Price indication: green offer badge, struck-through list price, "OFF" line */
+.pxw{display:flex;flex-direction:column;gap:6px;min-width:0}
+.pxrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.pxfrom{font:500 13px var(--body);color:var(--muted)}
+.pxbadge{display:inline-block;padding:4px 12px 5px;border-radius:12px;background:#2e8b34;color:#fff;font:800 26px/1.15 var(--body);letter-spacing:-.02em;box-shadow:3px 3px 0 #0b4a14;border:1.5px solid #0b4a14}
+.pxmrp{font:600 18px var(--body);color:#8b909a;text-decoration:line-through;text-decoration-thickness:2px}
+.pxoff{display:flex;align-items:center;gap:10px;color:#3fb950;font:800 15px var(--body);letter-spacing:.01em}
+.pxoff::after{content:"";flex:1;border-top:1.5px dashed rgba(255,255,255,.25)}
+.svcrow .svc .p{display:block;flex:none;text-align:right;color:inherit;font:inherit}
+.svcrow .svc .pxw{align-items:flex-end}
+.svcrow .svc .pxrow{justify-content:flex-end;gap:8px}
+.svcrow .svc .pxbadge{font-size:20px;padding:3px 9px 4px;border-radius:10px;box-shadow:2px 2px 0 #0b4a14}
+.svcrow .svc .pxmrp{font-size:14px}
+.svcrow .svc .pxoff{font-size:12.5px;width:100%}
+.svcrow .svc .pxoff::after{display:none}
 </style><style>
 .ncard{margin-top:16px;padding:14px 16px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid var(--line2);text-align:left;font-size:14px;line-height:1.45}
 .ncard b{display:block;font-size:15px;margin-bottom:2px}.ncard small{display:block;color:var(--muted);font-size:13px}
@@ -1386,6 +1408,27 @@ const DRIVE_ONLY = ["Engine steam wash"];   // not offered for Doorstep bookings
 const vsize = () => { const r = document.querySelector('input[name="size"]:checked'); return r ? r.value : ""; };
 const priceOf = (it, sz) => { sz = sz === undefined ? vsize() : sz; return sz && it.prices[sz] != null ? it.prices[sz] : null; };
 const fromPrice = it => Math.min(...Object.values(it.prices));
+/* List price ("MRP") shown struck through beside the offer price.
+   EDIT HERE: set LIST_PRICE_MARKUP to 0 to hide it, or give a service its own  mrp:{"Hatchback":690,...}  in CATALOG. */
+const LIST_PRICE_MARKUP = 1.25;
+function listPrice(it, sz){
+  const price = it.prices[sz]; if (price == null) return null;
+  if (it.mrp && it.mrp[sz] > price) return it.mrp[sz];
+  if (!LIST_PRICE_MARKUP) return null;
+  const m = Math.round(price * LIST_PRICE_MARKUP / 10) * 10; return m > price ? m : null;
+}
+const minSize = it => Object.keys(it.prices).reduce((a, b) => it.prices[b] < it.prices[a] ? b : a);
+function priceTag(it, sz, showFrom){
+  const price = sz ? it.prices[sz] : fromPrice(it), key = sz || minSize(it), mrp = listPrice(it, key);
+  const w = document.createElement('div'); w.className = "pxw";
+  const row = document.createElement('div'); row.className = "pxrow";
+  if (showFrom) { const f = document.createElement('span'); f.className = "pxfrom"; f.textContent = "from"; row.appendChild(f); }
+  const b = document.createElement('b'); b.className = "pxbadge"; b.textContent = inr(price); row.appendChild(b);
+  if (mrp) { const x = document.createElement('s'); x.className = "pxmrp"; x.textContent = inr(mrp); row.appendChild(x); }
+  w.appendChild(row);
+  if (mrp) { const o = document.createElement('div'); o.className = "pxoff"; const t = document.createElement('span'); t.textContent = inr(mrp - price) + " OFF"; o.appendChild(t); w.appendChild(o); }
+  return w;
+}
 const addOnsFor = () => ADD_ON_CATALOG[vehicle()] || [];
 const NEWTOWN = /(newtown|new town|rajarhat|action area|700156|700157|700160|700161|700135)/i;
 
@@ -1760,7 +1803,7 @@ function renderSvc(){
     }
     const t = document.createElement('span'); t.className = "t"; const n = document.createElement('b'); n.textContent = it.name;
     const s2 = document.createElement('small'); s2.textContent = it.detail; t.append(n, s2);
-    const pv = priceOf(it), p = document.createElement('span'); p.className = "p"; p.textContent = pv == null ? "from " + inr(fromPrice(it)) : inr(pv);
+    const pv = priceOf(it), p = document.createElement('span'); p.className = "p"; p.appendChild(priceTag(it, pv == null ? null : vsize(), pv == null));
     l.append(i, t, p);
     const id = "inc" + (++incSeq);
     const tg = document.createElement('button'); tg.type = "button"; tg.className = "inc-toggle"; tg.setAttribute('aria-controls', id);
@@ -1777,7 +1820,15 @@ function renderSvc(){
       $('service').value = it.name; if (!was) onServiceChange();
       openThis(was ? tg.getAttribute('aria-expanded') !== "true" : true);
     });
-    if (ph) row.appendChild(ph); row.append(l, tg, panel); box.appendChild(row);
+    const bkb = document.createElement('button'); bkb.type = "button"; bkb.className = "svcbook";
+    bkb.setAttribute('aria-label', "Book " + it.name); bkb.innerHTML = "<span>Book now</span><i>\u2192</i>";
+    bkb.addEventListener('click', () => {        // select this package and move straight on to the next step
+      const was = $('service').value === it.name;
+      $('service').value = it.name; if (!was) onServiceChange();
+      box.querySelectorAll('.svcrow input').forEach(r => { r.checked = r.value === it.name; });
+      nextStep();
+    });
+    if (ph) row.appendChild(ph); row.append(l, tg, panel, bkb); box.appendChild(row);
   });
 }
 function initWizard(){
@@ -2006,7 +2057,16 @@ async function submitBooking(ev){
   state.busy = true; $('bookBtn').disabled = true; $('bookBtn').textContent = "Saving your booking…"; setMsg($('msg'), "", "");
   try {
     const r = await api('createBooking', payload);
-    r.booking.paymentMethod = r.booking.paymentMethod || payload.paymentMethod;
+    // Some backend versions return the booking fields at the top level (or only an ID), not inside `booking`.
+    const bk = Object.assign({
+      bookingId: r.bookingId || r.id || "", status: r.status || "Confirmed", serviceMode: payload.serviceMode, address: payload.address,
+      vehicleType: payload.vehicleType, vehicleSize: payload.vehicleSize, serviceName: payload.serviceName, couponCode: payload.couponCode,
+      addOns: payload.addOns, date: payload.date, time: payload.time, price: (r.price != null ? r.price : payTotal())
+    }, (r.booking && typeof r.booking === "object") ? r.booking : r);
+    delete bk.ok; delete bk.message;
+    bk.paymentMethod = bk.paymentMethod || payload.paymentMethod;
+    if (!bk.bookingId) bk.bookingId = "Pending \u2013 we will confirm by email";
+    r.booking = bk;
     rememberCustomer(); showConfirmation(r.booking, $('customerEmail').value.trim());
     setMsg($('msg'), "Booking confirmed. " + (LIVE ? "A confirmation email is on its way to " + $('customerEmail').value.trim() + "." : "Save your booking ID."), "ok");
     toast("Booking confirmed: " + r.booking.bookingId);
@@ -2454,7 +2514,11 @@ const notifyUI = (() => {
   return {
     init(){ render(); idbSync(); regPeriodic(); timer = setInterval(poll, 45000); setTimeout(poll, 4000);
       document.addEventListener('visibilitychange', () => { if(!document.hidden){ render(); poll(); regPeriodic(); } }); },
-    afterBooking(b, phone){ watch(b, phone); render(); },
+    afterBooking(b, phone){
+      watch(b, phone); render();
+      // Lock-screen / top banner right away (on iPhone this slides out of the Dynamic Island) once notifications are allowed
+      if (perm() === "granted") show("bk-"+b.bookingId, "Booking confirmed \u2713", (b.serviceName||"Your service")+" \u00b7 "+(b.date||"")+" "+(b.time||"")+(b.bookingId?" \u00b7 "+b.bookingId:""));
+    },
     afterLookup(box, b, phone){ watch(b, phone); const d = document.createElement('div'); d.className = "ncard"; box.appendChild(d); render(); }
   };
 })();
@@ -2558,7 +2622,7 @@ function renderServiceCards(){
     const vt = document.createElement('span'); vt.className = "vt"; vt.textContent = v;
     const h = document.createElement('h3'); h.textContent = it.name;
     const p = document.createElement('p'); p.textContent = it.detail;
-    const pr = document.createElement('div'); pr.className = "price"; pr.textContent = inr(fromPrice(it)); const sm = document.createElement('small'); sm.textContent = "from"; pr.prepend(sm); sm.style.marginLeft = "0"; sm.style.marginRight = "8px";
+    const pr = priceTag(it, null, true);
     const id = "inc" + (++incSeq);
     const tg = document.createElement('button'); tg.type = "button"; tg.className = "inc-toggle"; tg.setAttribute('aria-controls', id);
     tg.innerHTML = "<span>What's included</span>" + CHEV;
