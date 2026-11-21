@@ -971,9 +971,24 @@ header{max-width:calc(100vw - 20px);box-sizing:border-box}
   .appbar button:focus-visible{outline:2px solid var(--y);outline-offset:-2px}
   .abdot{position:absolute;top:4px;left:calc(50% + 6px);min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:#ff3b30;color:#fff;font:700 10px/16px var(--body);text-align:center}
   body{padding-bottom:calc(68px + env(safe-area-inset-bottom,0px))}
+  #hdrAcct{display:none!important}
   .toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
   .nbar{bottom:calc(80px + env(safe-area-inset-bottom,0px))}
 }
+
+/* Hero image slider */
+.hslider{position:relative;width:100%;max-width:520px;aspect-ratio:16/10;margin:0 0 24px;border-radius:24px;overflow:hidden;background:#1d1e21;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08),0 18px 50px rgba(0,0,0,.45);touch-action:pan-y;-webkit-user-select:none;user-select:none}
+.hslider[hidden]{display:none}
+.hs-track{display:flex;height:100%;transition:transform .6s cubic-bezier(.22,.8,.24,1);will-change:transform}
+.hs-slide{flex:0 0 100%;height:100%;position:relative}
+.hs-slide img{display:block;width:100%;height:100%;object-fit:cover;pointer-events:none}
+.hslider::after{content:"";position:absolute;inset:auto 0 0 0;height:55%;background:linear-gradient(180deg,transparent,rgba(0,0,0,.72));pointer-events:none}
+.hs-cap{position:absolute;left:18px;bottom:34px;right:18px;z-index:2;color:#fff;font:700 20px/1.2 var(--body);letter-spacing:-.02em;text-shadow:0 2px 12px rgba(0,0,0,.6);pointer-events:none}
+.hs-cap small{display:block;margin-top:4px;font:500 13px var(--body);color:#ffd45a;letter-spacing:0}
+.hs-dots{position:absolute;left:0;right:0;bottom:12px;z-index:2;display:flex;justify-content:center;gap:6px}
+.hs-dots button{width:7px;height:7px;padding:0;border:0;border-radius:4px;background:rgba(255,255,255,.45);cursor:pointer;transition:width .3s,background .3s}
+.hs-dots button.on{width:22px;background:var(--y)}
+@media(prefers-reduced-motion:reduce){.hs-track{transition:none}}
 </style><style>
 .ncard{margin-top:16px;padding:14px 16px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid var(--line2);text-align:left;font-size:14px;line-height:1.45}
 .ncard b{display:block;font-size:15px;margin-bottom:2px}.ncard small{display:block;color:var(--muted);font-size:13px}
@@ -998,7 +1013,8 @@ header{max-width:calc(100vw - 20px);box-sizing:border-box}
 <main><section class="hero" id="home"><div class="wrap grid"><div class="hero-copy">
 <span class="status"><i aria-hidden="true"></i><span id="nextSlot">Booking open · Newtown, Kolkata</span></span>
 <h1>Your ride deserves<br><span class="y">a little love.</span></h1>
-<p class="copy">From the daily office run to the weekend family drive, we bring back that just-bought shine. We come to your doorstep in Newtown, or welcome you at MyPod Detailing Studio. Pick a live slot and get instant confirmation.</p>
+<div class="hslider" id="hSlider" role="region" aria-roledescription="carousel" aria-label="MyPod service photos"><div class="hs-track" id="hsTrack"></div><div class="hs-cap" id="hsCap" aria-live="polite"></div><div class="hs-dots" id="hsDots"></div></div>
+<p class="copy" id="heroCopy" hidden>From the daily office run to the weekend family drive, we bring back that just-bought shine. We come to your doorstep in Newtown, or welcome you at MyPod Detailing Studio. Pick a live slot and get instant confirmation.</p>
 <div class="cta-row"><a class="btn" href="#booking">Book now</a><a class="btn alt" href="#services">View pricing</a></div>
 <div class="specs"><div><small>Your time</small><b>See open slots before you book</b></div><div><small>Instant</small><b>Booking ID and email, right away</b></div><div><small>No stress</small><b>Check or cancel online anytime</b></div></div>
 </div>
@@ -2576,23 +2592,91 @@ $('quickDates').addEventListener('click', e => { if (e.target.closest('button'))
 $('manageForm').addEventListener('submit', findBooking);
 onMode(); renderSummary(); initWizard(); notifyUI.init();
 
+/* ---------- Hero image slider (replaces the intro text; text returns if no photo loads) ---------- */
+(function(){
+  const box = $('hSlider'), track = $('hsTrack'), dots = $('hsDots'), cap = $('hsCap'); if (!box) return;
+  const SLIDES = [
+    ["images/01_Basic_Wash_Car_1920x1080.webp", "Basic Wash", "Foam wash, vacuum and tyre clean"],
+    ["images/03_Detail_Boost_Car_Polishing_1920x1080.webp", "Detail Boost", "Polish, dressing and a wax finish"],
+    ["images/04_Interior_Gold_Seat_Extraction_1920x1080.webp", "Interior Gold", "Deep clean of seats and carpets"],
+    ["images/05_Exterior_Gold_Paint_Polishing_1920x1080.webp", "Exterior Gold", "Paint correction and sealant wax"],
+    ["images/06_Ultimate_Revival_Detail_1920x1080.webp", "Ultimate Revival Detail", "Deep clean and polish, inside and out"],
+    ["images/07_Go_Premium_Bike_Wash_1920x1080.webp", "Go Premium", "Bike wash, dressing and chain lube"]
+  ];
+  let idx = 0, timer = null, ok = [];
+  function go(n, user){
+    if (!ok.length) return; idx = (n + ok.length) % ok.length;
+    track.style.transform = "translateX(" + (-100 * idx) + "%)";
+    [...dots.children].forEach((d, i) => d.classList.toggle('on', i === idx));
+    cap.textContent = ""; const t = document.createElement('span'); t.textContent = ok[idx].t; const sm = document.createElement('small'); sm.textContent = ok[idx].d; cap.append(t, sm);
+    if (user) restart();
+  }
+  function restart(){ clearInterval(timer); if (ok.length > 1 && !matchMedia('(prefers-reduced-motion: reduce)').matches) timer = setInterval(() => { if (!document.hidden) go(idx + 1); }, 4000); }
+  function build(){
+    track.innerHTML = ""; dots.innerHTML = "";
+    ok.forEach((x, i) => {
+      track.appendChild(x.el);
+      const d = document.createElement('button'); d.type = "button"; d.setAttribute('aria-label', "Show photo " + (i + 1));
+      d.addEventListener('click', () => go(i, true)); dots.appendChild(d);
+    });
+    if (ok.length < 2) dots.hidden = true;
+    go(0); restart();
+  }
+  let pending = SLIDES.length;
+  const found = [];
+  SLIDES.forEach((s, order) => {
+    const slide = document.createElement('div'); slide.className = "hs-slide";
+    const im = document.createElement('img'); im.alt = s[1] + " - " + s[2]; im.decoding = "async"; im.draggable = false;
+    const done = good => {
+      if (good) found.push({order, el:slide, t:s[1], d:s[2]});
+      if (--pending === 0) {
+        found.sort((a, b) => a.order - b.order); ok = found;
+        if (ok.length) { $('heroCopy').hidden = true; box.hidden = false; build(); } else { box.hidden = true; $('heroCopy').hidden = false; }
+      }
+    };
+    im.addEventListener('load', () => done(true)); im.addEventListener('error', () => done(false));
+    slide.appendChild(im); im.src = s[0];
+    if (im.complete && im.naturalWidth) { /* cached: load event still fires */ }
+  });
+  box.hidden = true; $('heroCopy').hidden = false;           // text shows until at least one photo has loaded
+  // swipe
+  let x0 = null, y0 = 0;
+  box.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, {passive:true});
+  box.addEventListener('touchend', e => { if (x0 == null) return; const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0; x0 = null; if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) go(idx + (dx < 0 ? 1 : -1), true); }, {passive:true});
+  box.addEventListener('mouseenter', () => clearInterval(timer)); box.addEventListener('mouseleave', restart);
+  box.addEventListener('keydown', e => { if (e.key === "ArrowRight") go(idx + 1, true); else if (e.key === "ArrowLeft") go(idx - 1, true); });
+})();
+
 /* ---------- App-style bottom bar: Home, My bookings, Podify PLUS, Profile ---------- */
 (function(){
   const bar = $('appbar'); if (!bar) return;
   const plus = $('plusModal');
   const setOn = k => bar.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.ab === k));
-  function openPlus(){ const wa = "https://wa.me/" + SUPPORT_WHATSAPP + "?text=" + encodeURIComponent("Hi MyPod, please add me to the Podify PLUS waitlist."); $('plusWait').href = wa; plus.hidden = false; document.body.style.overflow = "hidden"; }
+  function openPlus(){ const wa = "https://wa.me/" + (typeof WHATSAPP_NUMBER !== "undefined" ? WHATSAPP_NUMBER : "919886950617") + "?text=" + encodeURIComponent("Hi MyPod, please add me to the Podify PLUS waitlist."); $('plusWait').href = wa; plus.hidden = false; document.body.style.overflow = "hidden"; }
   function closePlus(){ plus.hidden = true; document.body.style.overflow = ""; setOn('home'); }
   $('plusClose').addEventListener('click', closePlus);
   plus.addEventListener('click', e => { if (e.target === plus) closePlus(); });
   document.addEventListener('keydown', e => { if (e.key === "Escape" && !plus.hidden) closePlus(); });
+  function closeAll(){
+    try { $('acctModal').hidden = true; } catch(e) {}
+    plus.hidden = true; document.body.style.overflow = "";
+    const lp = document.querySelector('.lpill.open .lp-bar'); if (lp) lp.click();
+  }
   bar.addEventListener('click', e => {
     const b = e.target.closest('button[data-ab]'); if (!b) return;
-    haptic("select"); const k = b.dataset.ab; setOn(k);
-    if (k === "home") { window.scrollTo({top:0, behavior:"smooth"}); }
-    else if (k === "bookings") acct.open("up");
-    else if (k === "profile") acct.open();
-    else if (k === "plus") openPlus();
+    const k = b.dataset.ab;
+    try { haptic("select"); } catch(x) {}
+    setOn(k);
+    try {
+      if (k === "home") {
+        closeAll();
+        window.scrollTo(0, 0); document.documentElement.scrollTop = 0; document.body.scrollTop = 0;
+        try { window.scrollTo({top:0, behavior:"smooth"}); } catch(x) {}
+      }
+      else if (k === "bookings") { closeAll(); $('hdrAcct').click(); }          // same as the old header button: unread alerts first, else upcoming bookings
+      else if (k === "profile") { plus.hidden = true; acct.open(); }
+      else if (k === "plus") { $('acctModal').hidden = true; openPlus(); }
+    } catch(err) { try { toast("Something went wrong. Please try again."); } catch(x) {} console.error(err); }
   });
   // return to "Home" once the account panel is closed
   $('acctModal').addEventListener('click', () => setTimeout(() => { if ($('acctModal').hidden) setOn('home'); }, 50));
