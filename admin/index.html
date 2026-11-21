@@ -884,31 +884,45 @@ function raise(list, isTest){
 }
 
 /* ---- the 7-second sound (Web Audio, no file needed) ---- */
-function audioCtx(){ if(!ac){ const C = window.AudioContext || window.webkitAudioContext; if(C){ try{ ac = new C(); }catch(e){} } } return ac; }
-function unlockAudio(){ const c = audioCtx(); if(c && c.state === "suspended") c.resume().catch(() => {}); }
+/* iPhone plays <audio> as media (it ignores the silent switch and works after one tap), so the 7 s alert is a generated WAV file. */
+let snd = null, sndUrl = "", unlocked = false;
+function makeWav(){
+  const sr = 22050, T = AL.SECS, n = sr*T, buf = new ArrayBuffer(44 + n*2), v = new DataView(buf);
+  const w = (o, str) => { for(let i = 0; i < str.length; i++) v.setUint8(o+i, str.charCodeAt(i)); };
+  w(0,"RIFF"); v.setUint32(4, 36+n*2, true); w(8,"WAVE"); w(12,"fmt "); v.setUint32(16,16,true); v.setUint16(20,1,true); v.setUint16(22,1,true);
+  v.setUint32(24,sr,true); v.setUint32(28,sr*2,true); v.setUint16(32,2,true); v.setUint16(34,16,true); w(36,"data"); v.setUint32(40,n*2,true);
+  const tri = (f,t) => 2/Math.PI*Math.asin(Math.sin(2*Math.PI*f*t));
+  for(let i = 0; i < n; i++){
+    const t = i/sr, k = Math.floor(t/.9), lt = t - k*.9; let x = 0;
+    [[988,0],[1319,.24]].forEach(nt => { const d = lt - nt[1]; if(d >= 0 && d < .55) x += tri(nt[0], t) * Math.min(d/.02,1) * Math.exp(-d*7); });
+    const fade = t > T-.35 ? (T-t)/.35 : 1;
+    v.setInt16(44+i*2, Math.max(-1, Math.min(1, x*.8*fade))*32767, true);
+  }
+  return URL.createObjectURL(new Blob([buf], { type:"audio/wav" }));
+}
+function sndEl(){
+  if(!snd){ try{ if(navigator.audioSession) navigator.audioSession.type = "playback"; }catch(e){} sndUrl = makeWav(); snd = new Audio(sndUrl); snd.preload = "auto"; snd.setAttribute("playsinline",""); }
+  return snd;
+}
+/* Called from a real tap: lets the phone play the alert later without another tap. */
+function unlockAudio(){
+  if(unlocked || ringing) return;
+  try{ const a = sndEl(), p = a.play(); if(p && p.then) p.then(() => { if(!ringing){ a.pause(); a.currentTime = 0; } unlocked = true; }).catch(() => {}); }catch(e){}
+}
 function startRing(){
   stopRing(true);
   try{ if(navigator.vibrate) navigator.vibrate([450,150,450,150,450,150,450]); }catch(e){}
   if(!pref.sound) return;
-  const c = audioCtx(); if(!c) return;
-  if(c.state === "suspended") c.resume().catch(() => {});
-  const t0 = c.currentTime + .05, T = AL.SECS, master = c.createGain();
-  master.gain.setValueAtTime(.9, t0); master.gain.setValueAtTime(.9, t0+T-.35); master.gain.linearRampToValueAtTime(0, t0+T);
-  master.connect(c.destination);
-  for(let i = 0; i*.9 + .8 < T; i++){
-    [[988,0],[1319,.24]].forEach(n => {
-      const o = c.createOscillator(), g = c.createGain(), st = t0 + i*.9 + n[1];
-      o.type = "triangle"; o.frequency.value = n[0];
-      g.gain.setValueAtTime(0, st); g.gain.linearRampToValueAtTime(.6, st+.02); g.gain.exponentialRampToValueAtTime(.001, st+.5);
-      o.connect(g); g.connect(master); o.start(st); o.stop(st+.55);
-    });
-  }
-  ring = master; ringing = true; clearTimeout(ringT); ringT = setTimeout(() => stopRing(), T*1000 + 200);
-  setTimeout(() => { if(ringing && ac && ac.state !== "running"){ soundBlocked = true; renderAlert(); } }, 300);
+  try{
+    const a = sndEl(); a.currentTime = 0; ringing = true;
+    const p = a.play();
+    if(p && p.catch) p.catch(() => { ringing = false; soundBlocked = true; renderAlert(); });
+    clearTimeout(ringT); ringT = setTimeout(() => stopRing(), AL.SECS*1000 + 200);
+  }catch(e){ ringing = false; soundBlocked = true; }
 }
 function stopRing(silent){
   clearTimeout(ringT);
-  if(ring){ try{ ring.gain.cancelScheduledValues(0); ring.gain.value = 0; ring.disconnect(); }catch(e){} ring = null; }
+  if(snd){ try{ snd.pause(); snd.currentTime = 0; }catch(e){} }
   try{ if(navigator.vibrate) navigator.vibrate(0); }catch(e){}
   const was = ringing; ringing = false; if(was && !silent) renderAlert();
 }
@@ -1005,9 +1019,9 @@ function openAlertSet(){ $("#modal").innerHTML = '<div class="scrim" data-act="c
 function refreshAlertUI(){ const p = $("#alp"); if(p) p.innerHTML = panelInner(); if(!$("#modal").innerHTML) render(); }
 function alertAct(a, t){
   if(a==="allownotif"){ unlockAudio(); askPerm(); }
-  else if(a==="testalert"){ unlockAudio(); raise([{ id:"TEST", name:"Test customer", svc:"Sample wash", plate:"WB 00 A 0000", veh:"Car", date:today(), time:fmtMin(new Date().getHours()*60+new Date().getMinutes()), mode:"Drive-through", src:"Website", price:599, status:"Confirmed", ps:"" }], true); }
+  else if(a==="testalert"){ raise([{ id:"TEST", name:"Test customer", svc:"Sample wash", plate:"WB 00 A 0000", veh:"Car", date:today(), time:fmtMin(new Date().getHours()*60+new Date().getMinutes()), mode:"Drive-through", src:"Website", price:599, status:"Confirmed", ps:"" }], true); }
   else if(a==="alertok"){ ackAlert(); }
-  else if(a==="alertsound"){ if(ringing) stopRing(); else { soundBlocked = false; unlockAudio(); startRing(); renderAlert(); } }
+  else if(a==="alertsound"){ if(ringing) stopRing(); else { soundBlocked = false; startRing(); renderAlert(); } }
   else if(a==="alertview"){ const b = pend[0]; ackAlert(); if(b){ S.tab = "board"; S.day = b.date || today(); S.open = b.id; render(); window.scrollTo(0,0); } }
   else if(a==="alertset"){ openAlertSet(); }
   else if(a==="snd"){ pref.sound = !pref.sound; savePref(); if(!pref.sound) stopRing(); refreshAlertUI(); }
