@@ -1006,24 +1006,28 @@ header{max-width:calc(100vw - 20px);box-sizing:border-box}
    ===================================================================== */
 :root{
   color-scheme:dark;
-  --bg:#121418; --bg2:#16191e; --panel:#1c1f25; --panel2:#23272e; --raise:#2a2f37;
-  --fill:rgba(238,243,247,.06); --fill2:rgba(238,243,247,.09); --fill3:rgba(238,243,247,.14);
-  --line:rgba(238,243,247,.08); --line2:rgba(238,243,247,.16);
-  --text:#eef3f7; --muted:#9aa3ae; --y:#ffc93c; --y-ink:#ffc93c; --on-y:#1a1405; --y-soft:rgba(255,201,60,.13);
-  --rinse:#8fd3ff; --green:#3ddc84; --red:#ff5a4e;
-  --glass:rgba(20,23,28,.72); --glass-line:rgba(238,243,247,.12); --hi:inset 0 1px 0 rgba(255,255,255,.06);
-  --shadow:0 18px 50px rgba(0,0,0,.45);
+  /* Brand: Gray #2B2D31, Silver #D9DADC, Yellow #FFC93C */
+  --gray:#2b2d31; --silver:#d9dadc;
+  --bg:#2b2d31; --bg2:#26282c; --panel:#323439; --panel2:#393b41; --raise:#3f4248;
+  --fill:rgba(217,218,220,.06); --fill2:rgba(217,218,220,.1); --fill3:rgba(217,218,220,.16);
+  --line:rgba(217,218,220,.1); --line2:rgba(217,218,220,.2);
+  --text:#f1f2f3; --muted:#a9acb2; --y:#ffc93c; --y-ink:#ffc93c; --on-y:#2b2d31; --y-soft:rgba(255,201,60,.14);
+  --rinse:#8fd3ff; --green:#3ddc84; --red:#ff6b5e;
+  --glass:rgba(43,45,49,.8); --glass-line:rgba(217,218,220,.14); --hi:inset 0 1px 0 rgba(255,255,255,.06);
+  --shadow:0 18px 50px rgba(0,0,0,.35);
   --foam:#e9f1f7; --foam-b:rgba(255,255,255,.9);
+  --chrome:linear-gradient(180deg,#ffffff 18%,#d9dadc 58%,#8d9096 112%);
   --disp:"Archivo",system-ui,-apple-system,"Segoe UI",Arial,sans-serif; --body:var(--disp); --mono:var(--disp);
   --ease:cubic-bezier(.22,1,.36,1); --ease-io:cubic-bezier(.65,0,.35,1);
   --r-xl:28px; --r-lg:22px; --r-md:16px; --r-sm:12px;
 }
 html[data-theme="light"]{
   color-scheme:light;
-  --bg:#eef2f5; --bg2:#e7ecf0; --panel:#ffffff; --panel2:#f6f8fa; --raise:#ffffff;
+  --chrome:linear-gradient(180deg,#2b2d31 30%,#5b5e65 115%);
+  --bg:#ecedee; --bg2:#e3e4e6; --panel:#ffffff; --panel2:#f6f8fa; --raise:#ffffff;
   --fill:rgba(20,22,26,.045); --fill2:rgba(20,22,26,.07); --fill3:rgba(20,22,26,.11);
   --line:rgba(20,22,26,.09); --line2:rgba(20,22,26,.17);
-  --text:#14161a; --muted:#545c67; --y-ink:#8a5d00; --on-y:#1a1405; --y-soft:rgba(255,201,60,.22);
+  --text:#2b2d31; --muted:#5a5d64; --y-ink:#8a5d00; --on-y:#2b2d31; --y-soft:rgba(255,201,60,.22);
   --rinse:#1f7fbf; --green:#12924a; --red:#c8321f;
   --glass:rgba(250,252,253,.82); --glass-line:rgba(20,22,26,.1); --hi:none;
   --shadow:0 16px 40px rgba(20,30,40,.12);
@@ -1436,6 +1440,93 @@ html[data-theme="light"] .v3-bub{background:
 /* notification settings cards removed from the page (updates still offered by the bottom bar) */
 .ncard{display:none!important}
 
+/* =====================================================================
+   v3.1  Brand colour headlines (chrome + yellow livery highlight)
+   ===================================================================== */
+/* Hero: chrome lettering, a single white glint, then a yellow highlight is laid down */
+.hero h1,html[data-theme="light"] .hero h1{
+  background:linear-gradient(100deg,transparent 40%,rgba(255,255,255,.95) 50%,transparent 60%) 100% 0/260% 100% no-repeat,var(--chrome);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:var(--text);
+  animation:v3glint2 1.6s var(--ease) 1.9s both}
+html[data-theme="light"] .hero h1{background:linear-gradient(100deg,transparent 40%,rgba(255,201,60,.9) 50%,transparent 60%) 100% 0/260% 100% no-repeat,var(--chrome);-webkit-background-clip:text;background-clip:text}
+.hero-copy>h1{animation:v3glint2 1.6s var(--ease) 1.9s both}
+@keyframes v3glint2{from{background-position:100% 0,0 0}to{background-position:-60% 0,0 0}}
+.hero h1 .y,html[data-theme="light"] .hero h1 .y,
+.sec-head h2 .y,.manage h2 .y,#wsH .y,.isheet h2 .y,
+html[data-theme="light"] .sec-head h2 .y,html[data-theme="light"] .manage h2 .y,html[data-theme="light"] #wsH .y{
+  display:inline;padding:0 .14em .02em;margin:0 -.04em;border-radius:.14em;
+  -webkit-box-decoration-break:clone;box-decoration-break:clone;
+  background:linear-gradient(var(--y),var(--y)) 0 0/100% 100% no-repeat;-webkit-background-clip:border-box;background-clip:border-box;
+  color:var(--gray);-webkit-text-fill-color:var(--gray);
+  box-shadow:0 10px 30px -12px rgba(255,201,60,.55)}
+.hero h1 .y{background-size:0% 100%;-webkit-text-fill-color:var(--text);color:var(--text);animation:v3mark .7s var(--ease) 1.75s forwards}
+html[data-theme="light"] .hero h1 .y{-webkit-text-fill-color:var(--gray)}
+@keyframes v3mark{to{background-size:100% 100%;-webkit-text-fill-color:var(--gray);color:var(--gray)}}
+/* section headings: chrome words, highlight drawn after the squeegee wipe */
+.sec-head h2,.manage h2{background:var(--chrome);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.sec-head h2.v3-wipe .y,.manage h2.v3-wipe .y{background-size:0% 100%;-webkit-text-fill-color:var(--text);transition:background-size .8s var(--ease) .7s,-webkit-text-fill-color .3s ease 1.05s,color .3s ease 1.05s}
+.sec-head h2.v3-wipe.v3-on .y,.manage h2.v3-wipe.v3-on .y{background-size:100% 100%;-webkit-text-fill-color:var(--gray)}
+.road h3{background:var(--chrome);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.kicker{color:var(--silver)}
+html[data-theme="light"] .kicker{color:var(--gray)}
+.v3-facts b{background:var(--chrome);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.v3-facts div:first-child b{background:none;-webkit-text-fill-color:var(--y)}
+html[data-theme="light"] .v3-facts div:first-child b{-webkit-text-fill-color:var(--y-ink)}
+.status{border-color:rgba(255,201,60,.3)}
+@media(prefers-reduced-motion:reduce){.hero h1 .y,.sec-head h2.v3-wipe .y,.manage h2.v3-wipe .y{animation:none;background-size:100% 100%;-webkit-text-fill-color:var(--gray);transition:none}}
+
+/* =====================================================================
+   v3.1  Pricing cards: anchor price, Most popular, Save %
+   ===================================================================== */
+#services .cards{gap:40px 20px;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));padding-top:16px;align-items:stretch}
+.scard,html[data-theme="light"] .scard{display:flex;flex-direction:column;gap:0;overflow:visible;padding:34px 28px 28px;border-radius:24px;
+  background:linear-gradient(180deg,var(--panel),var(--bg2));border:1px solid var(--line2);box-shadow:0 24px 50px -30px rgba(0,0,0,.6)}
+html[data-theme="light"] .scard{background:#fff}
+.scard::before{border-radius:inherit}
+.scard .sphoto,.scard .top{display:none!important}
+.scard.v3-pop,html[data-theme="light"] .scard.v3-pop{border:1.5px solid var(--y);
+  box-shadow:0 0 0 4px rgba(255,201,60,.1),0 30px 80px -24px rgba(255,201,60,.45),0 0 70px -10px rgba(255,201,60,.25)}
+.scard.v3-pop:hover{box-shadow:0 0 0 4px rgba(255,201,60,.16),0 36px 90px -24px rgba(255,201,60,.55),0 0 90px -10px rgba(255,201,60,.32)}
+.v3-ribbon{position:absolute;top:0;left:50%;transform:translate(-50%,-50%);display:flex;gap:6px;white-space:nowrap;z-index:2}
+.v3-ribbon .badge{padding:8px 16px;border-radius:999px;font:800 13px/1 var(--body);font-stretch:108%;box-shadow:0 8px 22px -6px rgba(0,0,0,.5)}
+.v3-ribbon .badge:not([class*="t-"]){box-shadow:0 8px 26px -4px rgba(255,201,60,.7)}
+.scard .vt{order:1;margin:0 0 6px;font:600 15px var(--body);color:var(--muted)}
+.scard h3{order:2;margin:0 0 8px;font-size:24px;font-stretch:114%;letter-spacing:-.03em}
+.scard>p{order:3;margin:0 0 22px;font-size:15px;line-height:1.5;color:var(--muted);flex:0 0 auto}
+.scard .pxw{order:4;gap:12px;margin-bottom:22px}
+.scard .pxrow{gap:10px;align-items:baseline}
+.scard .pxmrp{order:0;font:600 20px var(--body);color:var(--muted);text-decoration-thickness:2px}
+.scard .pxbadge{order:1;padding:0;background:none;box-shadow:none;border:0;color:var(--text);font:800 52px/1 var(--disp);font-stretch:116%;letter-spacing:-.045em}
+.scard .pxfrom{order:2;font:500 15px var(--body);color:var(--muted)}
+.scard .pxoff{display:none}
+.v3-save{align-self:flex-start;display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:9px;background:rgba(61,220,132,.13);color:var(--green);font:700 14px var(--body)}
+.v3-save small{font-weight:500;opacity:.8;font-size:13px}
+.scard .inc{order:5;display:grid;grid-template-rows:1fr!important}
+.scard .inc-in{visibility:visible!important;overflow:visible}
+.scard .inc ul{display:grid;gap:11px;padding:0;margin:0}
+.scard .inc li{padding-left:28px;font-size:15px;line-height:1.4;color:var(--text)}
+.scard .inc li::before{content:"";top:1px;left:0;width:18px;height:18px;border-radius:0;background:var(--green);
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12.5 4.5 4.5L19 7.5'/%3E%3C/svg%3E") center/16px no-repeat;
+          mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12.5 4.5 4.5L19 7.5'/%3E%3C/svg%3E") center/16px no-repeat}
+.scard .inc li:nth-child(n+6){display:none}
+.scard .inc-toggle[aria-expanded="true"]~.inc li,.scard:has(.inc-toggle[aria-expanded="true"]) .inc li{display:block}
+.scard .inc .inc-note{padding:12px 0 0;font-size:13px;color:var(--muted)}
+.scard .inc-toggle{order:6;margin:12px 0 24px;padding:0;min-height:32px;justify-content:flex-start;gap:6px;color:var(--y-ink);font:600 14px var(--body)}
+.scard .inc-toggle .v3-less,.scard .inc-toggle[aria-expanded="true"] .v3-more{display:none}
+.scard .inc-toggle[aria-expanded="true"] .v3-less{display:inline}
+.scard .inc-toggle.v3-none{visibility:hidden}
+.scard .cardbook,html[data-theme="light"] .scard .cardbook{order:7;margin-top:auto;min-height:54px;border-radius:14px;
+  background:var(--fill2);color:var(--text);border:1px solid var(--line2);font:700 16px var(--body);font-stretch:108%}
+.scard .cardbook:hover{background:var(--fill3)}
+.scard.v3-pop .cardbook,html[data-theme="light"] .scard.v3-pop .cardbook{background:var(--y);color:var(--on-y);border-color:var(--y);box-shadow:0 12px 30px -10px rgba(255,201,60,.75)}
+.scard.v3-pop .cardbook:hover{filter:brightness(1.05)}
+.scard .v3-spacer{order:6;flex:1}
+.scard:hover,html[data-theme="light"] .scard:hover{transform:translateY(-6px)}
+/* Starting price in the fact strip gets the yellow highlight box */
+.v3-facts div:last-child b,html[data-theme="light"] .v3-facts div:last-child b{display:inline-block;padding:.06em .16em .04em;border-radius:.14em;
+  background:var(--y);-webkit-background-clip:border-box;background-clip:border-box;-webkit-text-fill-color:var(--gray);color:var(--gray);
+  box-shadow:0 10px 30px -12px rgba(255,201,60,.6)}
+
 </style>
 </head><body>
 <!-- Google Tag Manager (noscript) -->
@@ -1741,7 +1832,7 @@ s.addEventListener('pointermove',function(e){if(e.pointerType&&e.pointerType!=='
 s.addEventListener('pointerleave',function(){tx=0;ty=0;kick()});
 })();</script>
 
-<section class="sec" id="why"><div class="wrap"><div class="sec-head"><span class="kicker">Why MyPod</span><h2>Made for Kolkata roads.</h2><p class="lead">Monsoon mud, summer dust, Puja-season traffic. Your car and bike carry you through all of it, every single day. We think they deserve a little love back.</p></div>
+<section class="sec" id="why"><div class="wrap"><div class="sec-head"><span class="kicker">Why MyPod</span><h2>Made for <span class="y">Kolkata roads.</span></h2><p class="lead">Monsoon mud, summer dust, Puja-season traffic. Your car and bike carry you through all of it, every single day. We think they deserve a little love back.</p></div>
 <ul class="roads">
 <li class="road"><h3>Monsoon mud</h3><p>We start underneath with an underbody chassis wash, then a full top-body foam wash and tyre clean. The splash from waterlogged lanes comes off first.</p><a href="#services">Basic Wash, from ₹550</a></li>
 <li class="road"><h3>Summer dust</h3><p>Seats, carpets, ceiling and AC vents get a deep clean, along with the dashboard, door pads and an engine steam clean.</p><a href="#services">Interior Gold, from ₹2,800</a></li>
@@ -1751,7 +1842,7 @@ s.addEventListener('pointerleave',function(){tx=0;ty=0;kick()});
 <section class="sec" id="services"><div class="wrap"><div class="sec-head"><span class="kicker">Services &amp; pricing</span><h2>Know the price <span class="y">before you book.</span></h2><p class="lead">Wash and detailing packages for cars and bikes. Choose your vehicle size to see the exact price, and tap any package to see everything included. Optional extras are available while booking. Explore: <a href="car-wash-newtown-kolkata.html">car wash</a>, <a href="bike-wash-newtown-kolkata.html">bike wash</a>, <a href="car-interior-deep-cleaning-kolkata.html">interior cleaning</a>, <a href="car-polish-paint-correction-kolkata.html">paint polish</a>.</p></div>
 <div class="cards" id="svcCards" aria-live="polite"></div></div></section>
 
-<section class="sec" id="how"><div class="wrap"><div class="sec-head"><span class="kicker">How it works</span><h2>Booked in about a minute.</h2></div>
+<section class="sec" id="how"><div class="wrap"><div class="sec-head"><span class="kicker">How it works</span><h2>Booked in <span class="y">about a minute.</span></h2></div>
 <ol class="steps">
 <li><span class="n">STEP 01</span><h3>Choose your package</h3><p>Pick your car or bike, then the care you want. The price shows straight away.</p></li>
 <li><span class="n">STEP 02</span><h3>Pick a place and time</h3><p>Share your location for doorstep service, or choose the studio. Then select any open slot.</p></li>
@@ -1772,7 +1863,7 @@ s.addEventListener('pointerleave',function(){tx=0;ty=0;kick()});
 <a class="chipl" href="https://www.instagram.com/mypod_studio/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>@mypod_studio</a>
 </div></div></section>
 
-<section class="sec" id="faq"><div class="wrap"><div class="sec-head"><span class="kicker">FAQ</span><h2>Questions? We have answers.</h2></div>
+<section class="sec" id="faq"><div class="wrap"><div class="sec-head"><span class="kicker">FAQ</span><h2>Questions? We have <span class="y">answers.</span></h2></div>
 <div class="faq">
 <details name="faq" open><summary>Do you come to my home?</summary><p>Yes. Our doorstep service covers Action Area I, II and III in Newtown, at your home, office or society parking. You can also drive in to MyPod Detailing Studio in Action Area I.</p></details>
 <details name="faq"><summary>How do I book?</summary><p>Choose car or bike, pick a package, then a place and an open slot. Add your name, phone and email, and your booking ID and confirmation email arrive right away.</p></details>
@@ -3547,6 +3638,25 @@ document.querySelectorAll(".themebtn").forEach(function(b){b.addEventListener("c
   if (cards && fine) cards.addEventListener('pointermove', function(e){
     var c = e.target.closest('.scard'); if (!c) return;
     var r = c.getBoundingClientRect(); c.style.setProperty('--mx', (e.clientX - r.left) + 'px'); c.style.setProperty('--my', (e.clientY - r.top) + 'px');
+  });
+
+  /* Pricing cards: ribbon, anchor price, Save %, visible checklist */
+  if (cards) $$('.scard', cards).forEach(function(c){
+    var tags = $('.stags', c);
+    if (tags){ var rib = document.createElement('div'); rib.className = 'v3-ribbon'; while (tags.firstChild) rib.appendChild(tags.firstChild); c.appendChild(rib); tags.remove();
+      if ($$('.badge', rib).some(function(b){ return /popular/i.test(b.textContent); })) c.classList.add('v3-pop'); }
+    var pr = $('.pxbadge', c), mrp = $('.pxmrp', c), from = $('.pxfrom', c), w = $('.pxw', c);
+    if (from) from.textContent = 'onwards';
+    if (pr && mrp && w){
+      var p = +pr.textContent.replace(/\D/g, ''), m = +mrp.textContent.replace(/\D/g, '');
+      if (m > p){ var s = document.createElement('span'); s.className = 'v3-save';
+        s.innerHTML = 'Save ' + Math.round((m - p) / m * 100) + '%<small>(\u20b9' + (m - p).toLocaleString('en-IN') + ' off)</small>'; w.appendChild(s); }
+    }
+    var tg = $('.inc-toggle', c), panel = $('.inc', c), n = panel ? $$('li', panel).length : 0;
+    if (tg){
+      if (n > 5) tg.innerHTML = '<span class="v3-more">+ ' + (n - 5) + ' more included</span><span class="v3-less">Show less</span>';
+      else tg.classList.add('v3-none');
+    }
   });
 
   /* Service filter: All / Car / Bike */
