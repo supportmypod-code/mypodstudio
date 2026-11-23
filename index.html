@@ -1527,6 +1527,22 @@ html[data-theme="light"] .scard{background:#fff}
   background:var(--y);-webkit-background-clip:border-box;background-clip:border-box;-webkit-text-fill-color:var(--gray);color:var(--gray);
   box-shadow:0 10px 30px -12px rgba(255,201,60,.6)}
 
+/* Doorstep unavailable at the customer's location */
+.opt.v3-na{cursor:not-allowed}
+.opt.v3-na input{cursor:not-allowed}
+.opt.v3-na>span,.opt.v3-na input:checked+span{position:relative;border:1.5px dashed rgba(255,107,94,.55);background:rgba(255,107,94,.06);box-shadow:none}
+.opt.v3-na>span b{color:var(--muted);text-decoration:line-through;text-decoration-color:rgba(255,107,94,.8);text-decoration-thickness:2px}
+.opt.v3-na>span small:not(.v3-na-note){display:none}
+.opt.v3-na .oimg{filter:grayscale(1) brightness(.6);opacity:.55}
+.v3-na-tag{position:absolute;top:10px;left:10px;right:10px;z-index:1;display:flex;justify-content:center;white-space:nowrap;align-items:center;gap:5px;padding:5px 8px;border-radius:999px;
+  background:var(--red);color:#fff;font:700 11px/1.1 var(--body);font-style:normal;letter-spacing:0;box-shadow:0 6px 16px -6px rgba(255,107,94,.8)}
+.v3-na-tag::before{content:"";width:10px;height:10px;flex:none;background:#fff;
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='3.4' stroke-linecap='round'%3E%3Cpath d='M6 6l12 12M18 6 6 18'/%3E%3C/svg%3E") center/contain no-repeat;
+          mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='3.4' stroke-linecap='round'%3E%3Cpath d='M6 6l12 12M18 6 6 18'/%3E%3C/svg%3E") center/contain no-repeat}
+.v3-na-note{display:block;margin-top:4px;color:var(--red)!important;font-size:12.5px!important;line-height:1.4}
+.v3-na-note button{display:inline;padding:0;margin-left:2px;border:0;background:none;color:var(--text);font:700 12.5px var(--body);text-decoration:underline;text-decoration-color:var(--y);text-underline-offset:2px;cursor:pointer}
+html[data-theme="light"] .opt.v3-na>span{background:rgba(200,50,31,.05)}
+
 </style>
 </head><body>
 <!-- Google Tag Manager (noscript) -->
@@ -1547,10 +1563,9 @@ html[data-theme="light"] .scard{background:#fff}
 <div class="cta-row"><a class="btn" href="#booking">Book now</a><a class="btn alt" href="#services">View pricing</a></div>
 <div class="specs"><div><small>Your time</small><b>See open slots before you book</b></div><div><small>Instant</small><b>Booking ID and email, right away</b></div><div><small>No stress</small><b>Check or cancel online anytime</b></div></div>
 </div>
-<form class="booking" id="booking" novalidate>
+<input class="hp" type="text" name="mp_trap_9x" id="mpTrap" tabindex="-1" autocomplete="off" readonly aria-hidden="true" data-lpignore="true" data-1p-ignore="true" data-form-type="other"><form class="booking" id="booking" novalidate>
 <div class="bhead"><h2>Book your service</h2><span>Takes about a minute</span></div>
 <div class="banner" id="demoBanner" hidden>Preview only: the booking service is not connected yet, so bookings are saved in this browser only.</div>
-<input class="hp" type="text" name="mp_trap_9x" id="mpTrap" tabindex="-1" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true" aria-hidden="true">
 <ol class="prog" id="prog"><li data-s="1" class="on"><i>1</i>Type</li><li data-s="2"><i>2</i>Vehicle</li><li data-s="3"><i>3</i>Package</li><li data-s="4"><i>4</i>Extras</li><li data-s="5"><i>5</i>Time</li><li data-s="6"><i>6</i>Details</li><li data-s="7"><i>7</i>Pay</li></ol>
 
 <section class="pane" data-pane="1">
@@ -1642,7 +1657,7 @@ html[data-theme="light"] .scard{background:#fff}
 <div class="wrap v3-facts" aria-label="MyPod at a glance">
 <div><b data-count="4.7">4.7</b><span>Google rating from 165 reviews of our Newtown studio</span></div>
 <div><b data-count="3">3</b><span>Action Areas covered at your doorstep: I, II and III</span></div>
-<div><b data-count="14">14</b><span>Bookable slots a day, from 8:30 AM to 6:00 PM</span></div>
+<div><b data-count="7">7</b><span>Bookable slots a day, from 9:00 AM to 7:00 PM</span></div>
 <div><b data-count="250" data-pre="₹">₹250</b><span>Starting price for a bike wash. Cars from ₹550</span></div>
 </div></section>
 
@@ -2047,7 +2062,9 @@ const validEmail = v => /^[A-Za-z0-9._%+\-]+@[A-Za-z0-9\-]+(\.[A-Za-z0-9\-]+)*\.
 const validPhone = v => /^[6-9]\d{9}$/.test(cleanPhone(v));
 const pad = n => String(n).padStart(2,"0");
 const ymd = d => d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
-const todayStr = () => ymd(new Date());
+/* Kolkata wall-clock time as a Date, so dates and slot times match the booking system on any device time zone */
+const istNow = () => new Date(Date.now() + (330 + new Date().getTimezoneOffset()) * 60000);
+const todayStr = () => ymd(istNow());
 function setMsg(el, text, cls){ el.textContent = text; el.className = (el.className.split(" ")[0]) + (cls ? " "+cls : ""); }
 function toast(s){ const el=$('toast'); el.textContent=s; el.classList.add('show'); clearTimeout(toast.t); toast.t=setTimeout(()=>el.classList.remove('show'),4200); }
 
@@ -2446,7 +2463,7 @@ function initWizard(){
 function buildQuickDates(){
   const wrap = $('quickDates'); wrap.innerHTML = "";
   ["Today","Tomorrow","Day after"].forEach((label,i) => {
-    const d = new Date(); d.setDate(d.getDate()+i);
+    const d = istNow(); d.setDate(d.getDate()+i);
     const b = document.createElement('button'); b.type="button"; b.dataset.date = ymd(d);
     b.textContent = (i===2 ? d.toLocaleDateString("en-IN",{weekday:"short"}) : label) + " " + d.getDate();
     b.addEventListener('click', () => { $('date').value = b.dataset.date; syncQuick(); loadSlots(); });
@@ -2456,7 +2473,7 @@ function buildQuickDates(){
 }
 function syncQuick(){ document.querySelectorAll('#quickDates button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.date===$('date').value))); }
 function slotMinutes(t){ const m=/(\d+):(\d+) (AM|PM)/.exec(t); let h=+m[1]%12; if(m[3]==="PM")h+=12; return h*60+ +m[2]; }
-function isPast(t){ if($('date').value!==todayStr())return false; const n=new Date(); return slotMinutes(t) < n.getHours()*60+n.getMinutes()+60; }
+function isPast(t){ if($('date').value!==todayStr())return false; const n=istNow(); return slotMinutes(t) < n.getHours()*60+n.getMinutes()+60; }
 function normalizeCouponCode(value){
   const raw=String(value||"").trim().toUpperCase();
   const compact=raw.replace(/\bAUTO\b|\bDASH\b/g,"").replace(/[\s‐‑‒–—-]+/g,"");
@@ -2491,7 +2508,6 @@ async function loadSlots(){
       const a = slotMinutes(s.time), b = i + 1 < real.length ? slotMinutes(real[i + 1].time) : a + 100;
       list.push({time: s.time, off: !s.available || isPast(s.time), demo: false});
       // Demo times in the gap between two slots: shown as not available (the buffer between bookings), never selectable.
-      for (let t = a + 40; t < b && t < DEMO_END_MINUTES; t += 40) list.push({time: fmtMin(t), off: true, demo: true});
     });
     list.forEach(s => {
       if (!s.off) open++;
@@ -3340,9 +3356,9 @@ function renderServiceCards(){
 async function loadNextSlot(){
   const el = $('nextSlot'); if (!el) return;
   try {
-    const now = new Date(), minsNow = now.getHours()*60 + now.getMinutes() + 60;
+    const now = istNow(), minsNow = now.getHours()*60 + now.getMinutes() + 60;
     for (let i = 0; i < 3; i++) {
-      const d = new Date(); d.setDate(d.getDate() + i);
+      const d = istNow(); d.setDate(d.getDate() + i);
       const r = await api('getSlots', {serviceMode:"Doorstep", date:ymd(d)});
       const open = r.slots.find(s => s.available && slotMinutes(s.time) <= LAST_SLOT_MINUTES && (i > 0 || slotMinutes(s.time) >= minsNow));
       if (open) { el.textContent = "Next open slot · " + (i===0 ? "Today" : i===1 ? "Tomorrow" : d.toLocaleDateString("en-IN",{weekday:"long"})) + " " + open.time; return; }
@@ -3359,9 +3375,9 @@ function nbEl(tag, cls, text){ const e = document.createElement(tag); if (cls) e
 function nbSetOpen(v){ nbOpen = v; $('nearby').classList.toggle('open', v); $('nbBar').setAttribute('aria-expanded', String(v)); }
 
 async function nbNextSlot(modeName){
-  const now = new Date(), nowMin = now.getHours()*60 + now.getMinutes();
+  const now = istNow(), nowMin = now.getHours()*60 + now.getMinutes();
   for (let i = 0; i < 3; i++) {
-    const d = new Date(); d.setDate(d.getDate() + i);
+    const d = istNow(); d.setDate(d.getDate() + i);
     const r = await api('getSlots', {serviceMode: modeName, date: ymd(d)});
     const open = r.slots.find(s => s.available && slotMinutes(s.time) <= LAST_SLOT_MINUTES && (i > 0 || slotMinutes(s.time) >= nowMin + NB_LEAD_MIN));
     if (open) return {day: i, date: d, time: open.time, mins: i === 0 ? slotMinutes(open.time) - nowMin : null};
@@ -3558,6 +3574,54 @@ document.querySelectorAll(".themebtn").forEach(function(b){b.addEventListener("c
       hero.addEventListener('pointermove', function(ev){ var r = hero.getBoundingClientRect(); tx = ((ev.clientX - r.left) / r.width - .5) * -30; ty = ((ev.clientY - r.top) / r.height - .5) * -20; if (!raf) raf = requestAnimationFrame(loop); });
     }
   }
+
+  /* Booking date: never older than today, at most 60 days ahead (same limit as the booking system).
+     A page left open overnight moves itself to today when the customer comes back. */
+  function freshDate(){
+    try{
+      var el = document.getElementById('date'); if (!el || typeof todayStr !== 'function') return;
+      var t = todayStr(), m = istNow(); m.setDate(m.getDate() + 60);
+      el.min = t; el.max = ymd(m);
+      if (!el.value || el.value < t){ el.value = t; if (typeof buildQuickDates === 'function') buildQuickDates(); if (typeof loadSlots === 'function') loadSlots(); }
+      else if (el.value > el.max){ el.value = el.max; if (typeof loadSlots === 'function') loadSlots(); }
+    }catch(e){}
+  }
+  freshDate();
+  document.addEventListener('visibilitychange', function(){ if (!document.hidden) freshDate(); });   /* stale page check */
+  addEventListener('pageshow', freshDate);
+
+  /* Doorstep card: marked "Not available in your area" when the customer's location is outside the service area */
+  function syncDoorstep(){
+    try{
+      var inp = document.querySelector('input[name="serviceMode"][value="Doorstep"]'); if (!inp) return;
+      var opt = inp.closest('.opt'), span = opt && opt.querySelector('span'); if (!span) return;
+      var out = typeof state !== 'undefined' && state.loc && state.loc.ok === false;
+      var tag = span.querySelector('.v3-na-tag'), note = span.querySelector('.v3-na-note');
+      opt.classList.toggle('v3-na', !!out); inp.disabled = !!out;
+      opt.setAttribute('aria-disabled', out ? 'true' : 'false');
+      if (out){
+        if (!tag){ tag = document.createElement('em'); tag.className = 'v3-na-tag'; tag.textContent = 'Not available in your area'; span.insertBefore(tag, span.firstChild); }
+        if (!note){
+          note = document.createElement('small'); note.className = 'v3-na-note';
+          note.innerHTML = 'Your location is outside our doorstep area. <button type="button">Change location</button>';
+          note.querySelector('button').addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); if (typeof openLoc === 'function') openLoc(); });
+          span.appendChild(note);
+        }
+        if (inp.checked){
+          var dt = document.querySelector('input[name="serviceMode"][value="Drive-through"]');
+          if (dt){ dt.checked = true; if (typeof onMode === 'function') onMode(); }
+          if (typeof toast === 'function') toast("Doorstep isn't available at your location yet. We've switched you to drive-through at our studio.");
+        }
+      } else {
+        if (tag) tag.remove(); if (note) note.remove();
+      }
+    }catch(e){}
+  }
+  if (typeof setLoc === 'function'){
+    var _setLoc = setLoc;
+    setLoc = function(l){ _setLoc(l); syncDoorstep(); };   // every location change (GPS, typed address, "near you" card)
+  }
+  syncDoorstep();
 
   /* Scroll waterline + compact header */
   var bar = document.createElement('div'); bar.className = 'v3-prog'; bar.setAttribute('aria-hidden', 'true'); document.body.appendChild(bar);
