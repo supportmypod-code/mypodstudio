@@ -334,6 +334,39 @@ h1,h2,h3{font-family:var(--disp);letter-spacing:-.025em}
 .rchips .fchip{flex:none;white-space:normal;text-align:left}
 .btn.pri.bad2{background:var(--bad);border-color:var(--bad);color:#fff;box-shadow:0 8px 22px -10px rgba(255,90,78,.8)}
 
+.answ{position:relative;flex:none;width:52px;height:30px;cursor:pointer}
+.answ input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.answ i{position:absolute;inset:0;border-radius:20px;background:var(--panel2);border:1px solid var(--line2);transition:background .2s}
+.answ i::after{content:"";position:absolute;left:3px;top:3px;width:22px;height:22px;border-radius:50%;background:var(--muted);transition:transform .2s,background .2s}
+.answ input:checked+i{background:#1fae5b;border-color:#1fae5b}.answ input:checked+i::after{transform:translateX(22px);background:#fff}
+.answ input:focus-visible+i{outline:2px solid var(--y);outline-offset:2px}
+.anchips{flex-wrap:wrap}
+.fchip.on,.fchip[aria-pressed="true"]{border-color:var(--y);background:rgba(255,213,27,.14);color:var(--text)}
+.ancol{display:flex;gap:10px;flex-wrap:wrap}
+.ancol button{width:36px;height:36px;border-radius:50%;background:var(--c);border:3px solid transparent;box-shadow:0 0 0 1px var(--line2);cursor:pointer}
+.ancol button[aria-pressed="true"]{border-color:var(--panel);box-shadow:0 0 0 3px var(--text)}
+.ancheck{display:flex;gap:10px;align-items:flex-start;padding:12px;border-radius:12px;background:var(--panel2);cursor:pointer}
+.ancheck input{margin-top:3px;width:18px;height:18px;accent-color:#ef3b45}
+.ancheck b{display:block;font-size:14px}.ancheck small{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
+.anerr{margin:0;color:var(--bad);font-weight:600;font-size:13.5px}.anerr:empty{display:none}
+.anp{--c:#ffd51b;--ink:#07080a;display:grid;grid-template-columns:minmax(0,1fr) 40%;gap:10px;align-items:center;padding:16px;border-radius:18px;background:linear-gradient(160deg,color-mix(in srgb,var(--c) 18%,#0e1013),#0e1013);border:1px solid color-mix(in srgb,var(--c) 45%,transparent);color:#f4f5f6}
+.anp[data-theme="red"]{--c:#ef3b45;--ink:#fff}.anp[data-theme="orange"]{--c:#ff7a1a;--ink:#fff}.anp[data-theme="purple"]{--c:#8b4dff;--ink:#fff}.anp[data-theme="green"]{--c:#1fae5b;--ink:#fff}.anp[data-theme="blue"]{--c:#2f6bff;--ink:#fff}
+.anp-c>b{display:block;font-size:21px;line-height:1.1;font-weight:900;letter-spacing:-.02em}
+.anp-c p{margin:6px 0 0;color:#9aa1a9;font-size:12.5px;line-height:1.4}
+.anp-w{display:block;margin-top:6px;font-size:12px;font-weight:700}
+.anp-a{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.anp-code{font-size:11.5px;padding:5px 8px;border-radius:8px;border:1px dashed var(--c);color:#c9ced4}.anp-code b{color:#fff;letter-spacing:.05em}
+.anp-go{font-size:12px;font-weight:800;padding:6px 10px;border-radius:9px;background:var(--c);color:var(--ink)}
+.anp-h{display:grid;justify-items:center;transform-origin:50% 0;animation:anpSw 4s ease-in-out infinite}
+.anp-h i{width:12px;height:12px;border-radius:50%;border:3px solid #f4f5f6;margin-bottom:14px;position:relative}
+.anp-h i::before,.anp-h i::after{content:"";position:absolute;top:6px;width:2px;height:30px;background:#9aa1a9;transform-origin:top}
+.anp-h i::before{left:2px;transform:rotate(50deg)}.anp-h i::after{left:2px;transform:rotate(-50deg)}
+.anp-s{display:grid;justify-items:center;width:100%;padding:8px 6px;border-radius:10px;background:var(--c);color:var(--ink);text-align:center;box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 35%,transparent)}
+.anp-s small{font-size:11px;font-weight:700}.anp-s b{font-size:20px;font-weight:900;text-transform:uppercase;line-height:1}
+@keyframes anpSw{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.andates{display:grid;grid-template-columns:1fr 1fr;gap:10px}.andates .field{width:100%;min-width:0;box-sizing:border-box}@media(max-width:520px){.andates{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -526,10 +559,10 @@ const ICON = {
   chart:'<path d="M5 20V10M12 20V4M19 20v-7"/>', staff:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.2-5.5 6.5-5.5s5.9 1.9 6.5 5.5M16 4.8a3.5 3.5 0 0 1 0 6.4M18 14.8c2 .6 3.3 2.3 3.7 5.2"/>', tag:'<path d="M3 12V4h8l10 10-8 8L3 12zM7.5 8.5h.01"/>', user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/>' };
 const TABS = [["board","Board","board"],["bookings","Bookings","list"],["staff","Staff","staff"],["insights","Insights","chart"],["more","More","user"]];
 const svg = p => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+p+'</svg>';
-const TITLES = { board:"Board", bookings:"Bookings", staff:"Staff", insights:"Insights", coupons:"Coupons", more:"More" };
+const TITLES = { board:"Board", bookings:"Bookings", staff:"Staff", insights:"Insights", coupons:"Coupons", announce:"Announcement", more:"More" };
 
 function renderNav(){
-  const btn = ([k,l,i]) => '<button data-act="tab" data-t="'+k+'"'+((S.tab===k||(k==="more"&&S.tab==="coupons"))?' aria-current="page"':'')+'>'+svg(ICON[i])+l+'</button>';
+  const btn = ([k,l,i]) => '<button data-act="tab" data-t="'+k+'"'+((S.tab===k||(k==="more"&&(S.tab==="coupons"||S.tab==="announce")))?' aria-current="page"':'')+'>'+svg(ICON[i])+l+'</button>';
   $("#tabs").innerHTML = TABS.map(btn).join("");
   $("#rail").innerHTML = '<div class="brand"><img src="data:image/png;base64,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" alt="" width="32" height="32">MyPod Admin</div>'+TABS.map(btn).join("");
 }
@@ -544,7 +577,7 @@ function render(){
   $("#ttl").textContent = TITLES[S.tab];
   $("#fab").hidden = !(S.tab==="board" || S.tab==="bookings") || !!S.open;
   wantPh = [];
-  const v = { board:vBoard, bookings:vBookings, staff:vStaff, insights:vInsights, coupons:vCoupons, more:vMore }[S.tab];
+  const v = { board:vBoard, bookings:vBookings, staff:vStaff, insights:vInsights, coupons:vCoupons, announce:vAnnounce, more:vMore }[S.tab];
   $("#view").innerHTML = (S.offline && S.loaded ? '<div class="banner">You\'re offline. Showing the last saved bookings. Changes need a connection.</div>' : "") + v();
   if(S.tab==="coupons" && !S.coupons) loadCoupons();
   if(wantPh.length) fetchPh();
@@ -906,7 +939,7 @@ function vMore(){
   return '<div class="gap"><div class="card row">'+(u.picture?'<img class="avatar" src="'+esc(u.picture)+'" alt="" referrerpolicy="no-referrer">':'<div class="avatar"></div>')+
     '<div><b>'+esc(u.name||"Admin")+'</b><div class="muted" style="font-size:13px">'+esc(u.email)+' · '+(isMgr()?"Manager":"Owner")+'</div></div></div>'+
     '<div class="card gap"><button class="btn pri" style="width:100%" data-act="add">Add a booking</button>'+
-    '<button class="btn" style="width:100%" data-act="tab" data-t="coupons">Coupons</button>'+'<button class="btn" style="width:100%" data-act="closeday">Close day (count cash)</button>'+
+    '<button class="btn" style="width:100%" data-act="tab" data-t="coupons">Coupons</button>'+'<button class="btn" style="width:100%" data-act="tab" data-t="announce">Website announcement</button>'+'<button class="btn" style="width:100%" data-act="closeday">Close day (count cash)</button>'+
     '<button class="btn" style="width:100%" data-act="alertset">Alerts &amp; notifications</button>'+'<button class="btn" style="width:100%" data-act="refresh">Refresh data</button>'+
     '<button class="btn" style="width:100%" data-act="theme">Theme: '+th+'</button>'+
     '<button class="btn" style="width:100%" id="inst" data-act="install" hidden>Install app</button>'+
@@ -1207,13 +1240,108 @@ function activityHtml(){
     (all.length > n ? '<button class="btn sm" style="width:100%;margin-top:10px" data-act="actmore">Show more</button>' : "")+'</div>';
 }
 
+/* ============ website announcement (Back shortly / Black Friday / Pooja special) ============ */
+const AN_TPL = {
+  back:   { kind:"closed", theme:"red",    title:"We will be back shortly!", text:"", sign1:"Temporarily", sign2:"Closed", cta:"book", pause:true },
+  holiday:{ kind:"closed", theme:"red",    title:"Closed for the holiday", text:"We reopen soon. You can book a slot for after we reopen.", sign1:"Holiday", sign2:"Closed", cta:"book", pause:true },
+  bf:     { kind:"sale",   theme:"purple", title:"Black Friday sale is live", text:"Big savings on washes and detailing. This weekend only.", sign1:"Black Friday", sign2:"Sale", cta:"book", pause:false },
+  pooja:  { kind:"sale",   theme:"orange", title:"Pooja special: shine for the festival", text:"Get your car festival-ready with a special price this Pooja.", sign1:"Pooja special", sign2:"Offer", cta:"book", pause:false },
+  diwali: { kind:"sale",   theme:"yellow", title:"Diwali offer is here", text:"Make it sparkle for Diwali. Limited slots.", sign1:"Diwali", sign2:"Offer", cta:"book", pause:false },
+  info:   { kind:"info",   theme:"blue",   title:"Now open on Sundays", text:"Book a Sunday slot from the booking form.", sign1:"New", sign2:"Sundays", cta:"book", pause:false }
+};
+const AN_THEMES = [["red","#ef3b45"],["orange","#ff7a1a"],["yellow","#ffd51b"],["purple","#8b4dff"],["green","#1fae5b"],["blue","#2f6bff"]];
+const anLocal = v => { v = String(v||""); return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(v) ? v.slice(0,16) : ""; };
+async function loadAnnounce(){
+  S.an = S.an || null;
+  try{ const d = await api("adminAnnounceGet"); S.anSaved = d.announcement || null; }
+  catch(e){ S.anSaved = null; S.anErr = e.message; }
+  const a = S.anSaved || {};
+  S.an = { on:!!a.on, kind:a.kind||"sale", theme:a.theme||"yellow", title:a.title||"", text:a.text||"", sign1:a.sign1||"", sign2:a.sign2||"", code:a.code||"", cta:a.cta||"book",
+           start:anLocal(a.start), end:anLocal(a.end), pause:!!a.pause };
+  if(!S.coupons) loadCoupons();
+  if(S.tab==="announce") render();
+}
+function anStatus(){
+  const a = S.anSaved; if(!a || !a.on) return ['s-info','Off. Nothing is shown on the website.'];
+  const n = Date.now(), s = a.start ? Date.parse(a.start) : 0, e = a.end ? Date.parse(a.end) : Infinity;
+  if(n < s) return ['s-warn','Scheduled. Shows from '+new Date(s).toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'})+'.'];
+  if(n >= e) return ['s-info','Ended. The end time has passed.'];
+  return ['s-ok','Live on the website now'+(a.pause?', and bookings in that time are paused':'')+'.'];
+}
+function anPreview(a){
+  const sub = a.text || (a.kind==="closed" ? "You can still book a slot for after we reopen." : "");
+  const when = a.end ? (a.kind==="closed" ? "Back at "+new Date(a.end).toLocaleString('en-IN',{weekday:'short',hour:'numeric',minute:'2-digit'}) : "Ends "+new Date(a.end).toLocaleString('en-IN',{day:'numeric',month:'short',hour:'numeric',minute:'2-digit'})) : "";
+  return '<div class="anp" data-theme="'+esc(a.theme)+'"><div class="anp-c"><b>'+esc(a.title||"Your headline")+'</b>'+(sub?'<p>'+esc(sub)+'</p>':'')+(when?'<span class="anp-w">'+esc(when)+'</span>':'')+
+    '<div class="anp-a">'+(a.code?'<span class="anp-code">Use code <b>'+esc(a.code.toUpperCase())+'</b></span>':'')+''+'</div></div>'+
+    ((a.sign1||a.sign2)?'<div class="anp-h"><i></i><div class="anp-s"><small>'+esc(a.sign1)+'</small><b>'+esc(a.sign2)+'</b></div></div>':'')+'</div>';
+}
+function vAnnounce(){
+  if(!S.an) { loadAnnounce(); return '<div class="empty">Loading the announcement…</div>'; }
+  const a = S.an, st = anStatus(), codes = (S.coupons && S.coupons.rows || []).map(r => String(r[0]||"").trim()).filter(Boolean);
+  const seg = (k, v, l) => '<button type="button" class="fchip'+(a[k]===v?' on':'')+'" data-act="anset" data-k="'+k+'" data-v="'+v+'" aria-pressed="'+(a[k]===v)+'">'+l+'</button>';
+  return '<form id="anf" class="gap" autocomplete="off">'+
+    '<div class="card"><div class="row" style="justify-content:space-between;gap:12px"><div><b>Show on the website</b><div class="muted" style="font-size:13px"><span class="chip '+st[0]+'" style="margin-right:6px">'+(st[0]==="s-ok"?"Live":st[0]==="s-warn"?"Scheduled":"Off")+'</span>'+esc(st[1])+'</div></div>'+
+      '<label class="answ"><input type="checkbox" id="an_on"'+(a.on?' checked':'')+'><i></i><span class="sr-only">Show on the website</span></label></div></div>'+
+    '<div class="card"><label class="lb">Start from a template</label><div class="chips anchips">'+
+      [["back","Back shortly"],["holiday","Holiday closed"],["bf","Black Friday"],["pooja","Pooja special"],["diwali","Diwali"],["info","News"]].map(x => '<button type="button" class="fchip" data-act="antpl" data-v="'+x[0]+'">'+x[1]+'</button>').join("")+'</div></div>'+
+    '<div class="card"><label class="lb">Preview</label><div id="anpv">'+anPreview(a)+'</div></div>'+
+    '<div class="card gap">'+
+      '<div><label class="lb">Type</label><div class="seg">'+seg("kind","closed","Closed notice")+seg("kind","sale","Sale or offer")+seg("kind","info","News")+'</div></div>'+
+      '<div><label class="lb" for="an_title">Headline</label><input class="field" id="an_title" maxlength="70" value="'+esc(a.title)+'" placeholder="Black Friday sale is live"></div>'+
+      '<div><label class="lb" for="an_text">Message (optional)</label><textarea class="field" id="an_text" maxlength="180" rows="2" placeholder="20% off ceramic coating this weekend.">'+esc(a.text)+'</textarea></div>'+
+      '<div class="row" style="gap:10px"><div class="sp"><label class="lb" for="an_s1">Sign, small line</label><input class="field" id="an_s1" maxlength="22" value="'+esc(a.sign1)+'" placeholder="Black Friday"></div>'+
+        '<div class="sp"><label class="lb" for="an_s2">Sign, big word</label><input class="field" id="an_s2" maxlength="16" value="'+esc(a.sign2)+'" placeholder="20% off"></div></div>'+
+      '<div><label class="lb">Colour</label><div class="ancol">'+AN_THEMES.map(([k,c]) => '<button type="button" data-act="anset" data-k="theme" data-v="'+k+'" style="--c:'+c+'" aria-label="'+k+'" aria-pressed="'+(a.theme===k)+'"></button>').join("")+'</div></div>'+
+    '</div>'+
+    '<div class="card gap">'+
+      '<div><label class="lb" for="an_code">Promo code (optional)</label><input class="field" id="an_code" list="an_codes" maxlength="24" value="'+esc(a.code)+'" placeholder="Pick or type a code from your Coupons sheet" autocapitalize="characters">'+
+        '<datalist id="an_codes">'+codes.slice(0,300).map(c => '<option value="'+esc(c)+'">').join("")+'</datalist>'+
+        '<p class="muted" style="font-size:12px;margin:6px 0 0">The code must exist in your Coupons sheet to give a discount. Customers see it on the card and type it in when they book.</p></div>'+
+    '</div>'+
+    '<div class="card gap">'+
+      '<div class="andates"><div><label class="lb" for="an_start">Start (optional)</label><input class="field" type="datetime-local" id="an_start" value="'+esc(a.start)+'"></div>'+
+        '<div><label class="lb" for="an_end">'+(a.kind==="closed"?"Reopen at":"End")+(a.kind==="closed"&&a.pause?"":" (optional)")+'</label><input class="field" type="datetime-local" id="an_end" value="'+esc(a.end)+'"></div></div>'+
+      '<p class="muted" style="font-size:12px;margin:0">Times are India time. Leave start empty to show it right away, and end empty to keep it until you turn it off.</p>'+
+      (a.kind==="closed" ? '<label class="ancheck"><input type="checkbox" id="an_pause"'+(a.pause?' checked':'')+'><span><b>Pause website bookings until we reopen</b><small>Slots between the start and the reopen time can\'t be booked online. Slots after it stay open.</small></span></label>' : '')+
+    '</div>'+
+    '<p class="anerr" id="an_err" role="alert"></p>'+
+    '<div class="row" style="gap:10px"><button type="button" class="btn sp" data-act="anoff"'+(S.anSaved&&S.anSaved.on?'':' disabled')+'>Turn off now</button><button class="btn pri sp" type="submit" id="an_save">Save</button></div>'+
+    (S.anSaved && S.anSaved.updatedAt ? '<p class="muted" style="font-size:12px;text-align:center">Last saved by '+esc(S.anSaved.updatedBy||"")+', '+esc(new Date(S.anSaved.updatedAt).toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'}))+'</p>' : '')+
+  '</form>';
+}
+function anRead(){
+  const a = S.an, v = id => { const el = $("#"+id); return el ? el.value : ""; };
+  a.title = v("an_title"); a.text = v("an_text"); a.sign1 = v("an_s1"); a.sign2 = v("an_s2"); a.code = v("an_code").toUpperCase(); a.start = v("an_start"); a.end = v("an_end");
+  const on = $("#an_on"); if(on) a.on = on.checked; const p = $("#an_pause"); if(p) a.pause = p.checked;
+}
+function anPaint(){ const p = $("#anpv"); if(p) p.innerHTML = anPreview(S.an); }
+function anAct(t, a){
+  if(S.tab!=="announce" || !S.an) return false;
+  anRead();
+  if(a==="antpl"){ Object.assign(S.an, AN_TPL[t.dataset.v]); if(!S.an.on) S.an.on = true; render(); return true; }
+  if(a==="anset"){ S.an[t.dataset.k] = t.dataset.v; if(t.dataset.k==="kind" && t.dataset.v!=="closed") S.an.pause = false; render(); return true; }
+  if(a==="anoff"){ if(!confirm("Turn off the announcement on the website now?")) return true; S.an.on = false; anSave(); return true; }
+  return false;
+}
+async function anSave(){
+  const err = $("#an_err"), btn = $("#an_save");
+  const a = S.an; if(err) err.textContent = "";
+  if(a.on && !a.title.trim()) { if(err) err.textContent = "Add a headline."; return; }
+  if(a.kind==="closed" && a.pause && !a.end) { if(err) err.textContent = "Add the reopen time to pause bookings."; return; }
+  if(a.start && a.end && a.end <= a.start) { if(err) err.textContent = "The end time must be after the start time."; return; }
+  if(btn){ btn.disabled = true; btn.textContent = "Saving…"; }
+  try{ const d = await api("adminAnnounceSave", { announcement:a }); S.anSaved = d.announcement; toast(a.on ? "Announcement saved" : "Announcement turned off"); render(); }
+  catch(e){ if(err) err.textContent = e.message; if(btn){ btn.disabled = false; btn.textContent = "Save"; } }
+}
+
 /* ============ events ============ */
 document.addEventListener("click", e => {
   const t = e.target.closest("[data-act]"); if(!t) return;
   const a = t.dataset.act, id = t.dataset.id;
   if(a==="closeScrim"){ if(e.target===t){ $("#modal").innerHTML = ""; S.lb = null; } return; }
   if(t.tagName==="TEXTAREA" || t.tagName==="INPUT" || t.tagName==="SELECT") return;
-  if(a==="tab"){ S.tab = t.dataset.t; S.open = null; render(); window.scrollTo(0,0); }
+  if(a.indexOf("an")===0 && anAct(t, a)) return;
+  if(a==="tab"){ S.tab = t.dataset.t; S.open = null; if(S.tab==="announce") S.an = null; render(); window.scrollTo(0,0); }
   else if(a==="refresh"){ loadData(); if(S.tab==="coupons") loadCoupons(); }
   else if(a==="day"){ const n = +t.dataset.n; S.day = n===0 ? today() : addDays(S.day,n); S.open = null; render(); }
   else if(a==="toggle"){ S.open = S.open===id ? null : id; render(); }
@@ -1249,6 +1377,7 @@ document.addEventListener("click", e => {
   else if(a==="install"){ if(deferred){ deferred.prompt(); deferred = null; } }
 });
 document.addEventListener("input", e => {
+  if(S.tab==="announce" && S.an && /^an_/.test(e.target.id)){ anRead(); anPaint(); return; }
   if(e.target.id==="q"){ S.q = e.target.value; S.limit = 60; $("#list").innerHTML = listHtml(); }
   else if(e.target.id==="cq"){ $("#ctab").innerHTML = couponTable(e.target.value); }
   else if(e.target.id==="c_c" && S.closeData){ const d = num(e.target.value) - S.closeData.expected; $("#c_d").textContent = e.target.value==="" ? "" : d===0 ? "Cash matches." : (d<0 ? "Short by " : "Extra ")+inr(Math.abs(d)); }
@@ -1257,7 +1386,7 @@ document.addEventListener("change", e => { if(e.target.id==="fmode"){ S.fMode = 
 document.addEventListener("focusout", e => {
   const t = e.target; if(t.dataset && t.dataset.act==="note"){ const b = S.bookings.find(x => x.id===t.dataset.id); if(b && b.note!==t.value) patch(b.id, { note:t.value }); }
 });
-document.addEventListener("submit", e => { if(e.target.id==="loginf") submitLogin(e); else if(e.target.id==="pwf") submitPw(e); else if(e.target.id==="addf") submitAdd(e); else if(e.target.id==="payf") submitPay(e); else if(e.target.id==="fixf") submitFix(e); else if(e.target.id==="reff") submitRef(e); else if(e.target.id==="closef") submitClose(e); else if(e.target.id==="cancf") submitCancel(e); });
+document.addEventListener("submit", e => { if(e.target.id==="anf"){ e.preventDefault(); anRead(); anSave(); return; } if(e.target.id==="loginf") submitLogin(e); else if(e.target.id==="pwf") submitPw(e); else if(e.target.id==="addf") submitAdd(e); else if(e.target.id==="payf") submitPay(e); else if(e.target.id==="fixf") submitFix(e); else if(e.target.id==="reff") submitRef(e); else if(e.target.id==="closef") submitClose(e); else if(e.target.id==="cancf") submitCancel(e); });
 document.addEventListener("keydown", e => { if(e.key==="Escape"){ $("#modal").innerHTML = ""; S.lb = null; } });
 
 /* ============ theme / install / lifecycle ============ */
@@ -1328,6 +1457,8 @@ function demoApi(action, p){
     if(action==="adminAttFix"){ const x = S.demoAtt.shifts.find(v => v.id===p.shiftId); if(x){ x.outIso = p.outIso; x.fixed = true; } return res({ ok:true }); }
     if(action==="adminBookings") return res({ ok:true, role:(S.sess&&S.sess.role)||"owner", bookings:S.demo.map((r,i) => Object.assign({_row:i+2}, r)) });
     if(action==="adminCloseDay") return res({ ok:true });
+    if(action==="adminAnnounceGet") return res({ ok:true, announcement:S.demoAn||null });
+    if(action==="adminAnnounceSave"){ S.demoAn = Object.assign({}, p.announcement, { id:"demo1", updatedBy:"demo@example.com", updatedAt:new Date().toISOString() }); return res({ ok:true, announcement:S.demoAn }); }
     if(action==="adminUpdate"){ const r = S.demo.find(x => x.bookingid===p.bookingId); if(r) Object.assign(r, p.fields); return res({ ok:true }); }
     if(action==="adminCreate"){ const id = "MPA-"+p.booking.date.replace(/-/g,"")+"-"+Math.random().toString(36).slice(2,5).toUpperCase(); S.demo.push(Object.assign({}, p.booking, { bookingid:id, status:"Confirmed", source:"Admin" })); return res({ ok:true, bookingId:id }); }
     if(action==="adminCoupons"){ const rows = []; for(let i=1;i<=24;i++) rows.push(["MYPOD-"+(1000+i*37), ["Ceramic 20% off","PPF 10% off","Car Washing ₹299","Bike Washing ₹99"][i%4], "31 Dec 2026"]); return res({ ok:true, headers:["Code","Offer","Valid until"], rows }); }
