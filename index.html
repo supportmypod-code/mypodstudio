@@ -1946,6 +1946,47 @@ html[data-theme="light"] .v3p-club{box-shadow:0 10px 30px rgba(0,0,0,.12)}
 body.v3p-open .appbar{z-index:81}
 body.v3p-open .lpill,body.v3p-open .fabs{visibility:hidden}
 .v3m .lbl{font-size:7.5px!important;font-weight:600!important;letter-spacing:.02em!important}
+/* UPI pay sheet */
+.v3ps{position:fixed;inset:0;z-index:125;display:flex;align-items:flex-end;justify-content:center;background:rgba(4,5,6,.62);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);opacity:0;transition:opacity .25s}
+.v3ps.in{opacity:1}
+.v3ps-card{width:min(440px,100%);max-height:100%;overflow-y:auto;padding:28px 20px calc(18px + env(safe-area-inset-bottom,0px));border-radius:26px 26px 0 0;background:var(--panel);border:1px solid var(--line2);border-bottom:0;text-align:center;transform:translateY(40px);transition:transform .35s cubic-bezier(.2,.9,.2,1)}
+.v3ps.in .v3ps-card{transform:none}
+@media(min-width:600px){.v3ps{align-items:center}.v3ps-card{border-radius:26px;border-bottom:1px solid var(--line2)}}
+.v3ps-top{position:relative;width:76px;height:76px;margin:0 auto 14px}
+.v3ps-spin{position:absolute;inset:0;animation:v3psRot 1.1s steps(12) infinite}
+.v3ps-spin i{position:absolute;left:50%;top:0;width:7px;height:21px;margin-left:-3.5px;border-radius:4px;background:var(--y);transform-origin:50% 38px;transform:rotate(calc(var(--i) * 30deg));opacity:calc(1 - var(--i) * .07)}
+@keyframes v3psRot{to{transform:rotate(360deg)}}
+.v3ps-late{position:absolute;inset:0;display:none;place-items:center;border-radius:50%;background:rgba(255,213,27,.14);color:var(--y)}
+.v3ps-late svg{width:38px;height:38px}
+.v3ps[data-ph="late"] .v3ps-spin{display:none}.v3ps[data-ph="late"] .v3ps-late{display:grid}
+.v3ps h3{margin:0;font:800 23px/1.2 var(--body);letter-spacing:-.02em;color:var(--text)}
+.v3ps-sub{margin:6px auto 0;max-width:34ch;color:var(--muted);font-size:14.5px;line-height:1.45}
+.v3ps-amt{margin:12px 0 4px;font:900 30px var(--body);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.v3ps-time{margin:6px auto 18px;max-width:260px}
+.v3ps-bar{height:5px;border-radius:5px;background:var(--fill2,rgba(255,255,255,.08));overflow:hidden}
+.v3ps-bar b{display:block;height:100%;background:var(--y);transform-origin:0 50%;transition:transform 1s linear}
+.v3ps-time span{display:block;margin-top:6px;font-size:13px;color:var(--muted)}
+.v3ps-time em{font-style:normal;font-weight:800;color:var(--text);font-variant-numeric:tabular-nums}
+.v3ps[data-ph="late"] .v3ps-time,.v3ps[data-ph="confirm"] .v3ps-time{display:none}
+.v3ps-utr{text-align:left;margin-bottom:14px}
+.v3ps-utr label{display:block;font-weight:700;font-size:14px;margin-bottom:7px}
+.v3ps-in{display:flex;gap:8px}
+.v3ps-in input{flex:1;min-width:0;height:52px;padding:0 14px;border-radius:14px;border:1.5px solid var(--line2);background:var(--panel2);color:var(--text);font:700 19px var(--body);letter-spacing:.12em;font-variant-numeric:tabular-nums;transition:border-color .2s,box-shadow .2s}
+.v3ps-in input::placeholder{font-size:13.5px;font-weight:500;letter-spacing:0;color:var(--muted)}
+.v3ps-in input:focus{outline:none;border-color:var(--y);box-shadow:0 0 0 4px rgba(255,213,27,.15)}
+.v3ps.v3ps-valid .v3ps-in input{border-color:var(--green);box-shadow:0 0 0 4px rgba(48,209,88,.14)}
+.v3ps-paste{flex:none;height:52px;padding:0 16px;border-radius:14px;border:1px solid var(--line2);background:var(--panel2);color:var(--text);font-family:inherit;font-weight:700;font-size:14px;cursor:pointer}
+.v3ps-utr small{display:block;margin-top:7px;color:var(--muted);font-size:12.5px;line-height:1.4}
+.v3ps-err{margin:8px 0 0;color:#ff6b61;font-size:13.5px;font-weight:600}.v3ps-err:empty{display:none}
+.v3ps-go{width:100%;height:54px;border:0;border-radius:15px;background:var(--y);color:#07080a;font-family:inherit;font-weight:800;font-size:16px;cursor:pointer;transition:opacity .2s,transform .15s}
+.v3ps-go:disabled{opacity:.4;cursor:not-allowed}.v3ps-go:not(:disabled):active{transform:scale(.98)}
+.v3ps-alt{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-top:14px}
+.v3ps-alt a,.v3ps-alt button{background:none;border:0;padding:4px 2px;color:var(--y);font-family:inherit;font-weight:700;font-size:14px;text-decoration:none;cursor:pointer}
+html[data-theme="light"] .v3ps-alt a,html[data-theme="light"] .v3ps-alt button{color:#8a6d00}
+.v3ps-x{margin-top:8px;background:none;border:0;color:var(--muted);font-family:inherit;font-size:14px;padding:8px;cursor:pointer}
+.v3ps[data-ph="confirm"] .v3ps-utr,.v3ps[data-ph="confirm"] .v3ps-go,.v3ps[data-ph="confirm"] .v3ps-alt,.v3ps[data-ph="confirm"] .v3ps-x{display:none}
+.v3ps[data-ph="wait"] .v3ps-cash{display:none}
+@media(prefers-reduced-motion:reduce){.v3ps-spin{animation-duration:3s}}
 
 </style>
 </head><body>
@@ -4376,6 +4417,101 @@ document.querySelectorAll(".themebtn").forEach(function(b){b.addEventListener("c
       anim(d, true);
     });
   });
+})();
+
+/* UPI pay sheet: after tapping a UPI app, a "waiting for payment" spinner with a 2-minute timer, then paste the UTR and confirm */
+;(function(){
+  var LIMIT = 120, el = null, timer = null, end = 0, link = '', app = '', phase = 'wait', watch = null;
+  var $id = function(i){ return document.getElementById(i); };
+  function spinner(){ var s = ''; for (var i = 0; i < 12; i++) s += '<i style="--i:' + i + '"></i>'; return '<div class="v3ps-spin" aria-hidden="true">' + s + '</div>'; }
+  function build(){
+    el = document.createElement('div'); el.className = 'v3ps'; el.hidden = true;
+    el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-labelledby', 'v3psT');
+    el.innerHTML = '<div class="v3ps-card">' +
+      '<div class="v3ps-top">' + spinner() + '<div class="v3ps-late" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></svg></div></div>' +
+      '<h3 id="v3psT"></h3><p class="v3ps-sub" aria-live="polite"></p>' +
+      '<div class="v3ps-amt"></div>' +
+      '<div class="v3ps-time"><div class="v3ps-bar"><b></b></div><span><em></em> left to pay</span></div>' +
+      '<div class="v3ps-utr"><label for="v3psRef">Paid? Enter the 12-digit UTR</label>' +
+        '<div class="v3ps-in"><input id="v3psRef" inputmode="numeric" maxlength="12" autocomplete="off" placeholder="UPI Ref No. from the receipt"><button type="button" class="v3ps-paste">Paste</button></div>' +
+        '<small>Open the payment receipt in your UPI app. It is called UPI Ref No., UTR or transaction ID.</small><p class="v3ps-err" role="alert"></p></div>' +
+      '<button type="button" class="v3ps-go" disabled>Confirm booking</button>' +
+      '<div class="v3ps-alt"><a class="v3ps-again" href="#">Open the app again</a><button type="button" class="v3ps-cash">Pay cash after service</button></div>' +
+      '<button type="button" class="v3ps-x">Cancel</button></div>';
+    document.body.appendChild(el);
+    var inp = el.querySelector('#v3psRef'), go = el.querySelector('.v3ps-go');
+    inp.addEventListener('input', function(){ inp.value = inp.value.replace(/\D/g, '').slice(0, 12); go.disabled = inp.value.length !== 12; el.classList.toggle('v3ps-valid', inp.value.length === 12); err(''); });
+    inp.addEventListener('keydown', function(e){ if (e.key === 'Enter' && !go.disabled) confirm(); });
+    el.querySelector('.v3ps-paste').addEventListener('click', function(){
+      if (!navigator.clipboard || !navigator.clipboard.readText) { inp.focus(); return err('Long-press the box and choose Paste.'); }
+      navigator.clipboard.readText().then(function(t){
+        var m = /(^|\D)(\d{12})(?!\d)/.exec(String(t || '').replace(/\s/g, ''));
+        if (m) { inp.value = m[2]; inp.dispatchEvent(new Event('input')); } else { inp.focus(); err('No 12-digit UTR found in what you copied.'); }
+      }, function(){ inp.focus(); err('Long-press the box and choose Paste.'); });
+    });
+    go.addEventListener('click', confirm);
+    el.querySelector('.v3ps-again').addEventListener('click', function(e){ e.preventDefault(); if (link) location.href = link; start(); });
+    el.querySelector('.v3ps-cash').addEventListener('click', function(){ var r = document.querySelector('input[name="payMethod"][value="cash"]'); close(); if (r) { r.click(); r.dispatchEvent(new Event('change', {bubbles:true})); } });
+    el.querySelector('.v3ps-x').addEventListener('click', close);
+    document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && el && !el.hidden && phase !== 'confirm') close(); });
+    document.addEventListener('visibilitychange', function(){ if (!document.hidden && el && !el.hidden && phase !== 'confirm') { tick(); setTimeout(function(){ try { inp.focus({preventScroll:true}); } catch(_){} }, 300); } });
+  }
+  function err(t){ var p = el.querySelector('.v3ps-err'); p.textContent = t || ''; }
+  function set(ph){
+    phase = ph; el.dataset.ph = ph;
+    var T = el.querySelector('h3'), S = el.querySelector('.v3ps-sub');
+    if (ph === 'wait'){ T.textContent = 'Waiting for payment…'; S.textContent = 'Finish paying in ' + app + ', then come back here and enter the UTR.'; }
+    else if (ph === 'late'){ T.textContent = 'Taking longer than usual?'; S.textContent = 'If the money left your account, enter the UTR below. If not, open the app again or pay cash after the service.'; }
+    else { T.textContent = 'Confirming your booking…'; S.textContent = 'Please wait, don’t close this page.'; }
+  }
+  function tick(){
+    var left = Math.max(0, Math.round((end - Date.now()) / 1000));
+    el.querySelector('.v3ps-time em').textContent = Math.floor(left / 60) + ':' + String(left % 60).padStart(2, '0');
+    el.querySelector('.v3ps-bar b').style.transform = 'scaleX(' + (left / LIMIT) + ')';
+    if (left <= 0 && phase === 'wait') { clearInterval(timer); set('late'); }
+  }
+  function start(){ end = Date.now() + LIMIT * 1000; clearInterval(timer); timer = setInterval(tick, 1000); set('wait'); tick(); }
+  function open(a){
+    if (!el) build();
+    link = a.getAttribute('href') || ''; app = ((a.lastChild && a.lastChild.nodeType === 3 ? a.lastChild.textContent : a.textContent) || '').trim() || 'your UPI app';
+    if (window.v3ThankYou && !window.v3ThankYou._ps){ var ty = window.v3ThankYou; window.v3ThankYou = function(){ close(); return ty.apply(this, arguments); }; window.v3ThankYou._ps = 1; }
+    if (/^other/i.test(app)) app = 'your UPI app';
+    el.querySelector('.v3ps-again').textContent = 'Open ' + app + ' again';
+    var amt = document.querySelector('#upiPanel .payamt'); el.querySelector('.v3ps-amt').textContent = amt ? amt.textContent : '';
+    var cur = $id('payRef'), inp = el.querySelector('#v3psRef'); inp.value = cur && /^\d{12}$/.test(cur.value) ? cur.value : ''; inp.dispatchEvent(new Event('input'));
+    err(''); el.hidden = false; document.body.style.overflow = 'hidden';
+    requestAnimationFrame(function(){ el.classList.add('in'); });
+    start();
+  }
+  function close(){
+    if (!el || el.hidden) return;
+    clearInterval(timer); clearInterval(watch); el.classList.remove('in'); document.body.style.overflow = '';
+    setTimeout(function(){ el.hidden = true; }, 250);
+  }
+  function confirm(){
+    var v = el.querySelector('#v3psRef').value, ref = $id('payRef'), btn = $id('bookBtn');
+    if (!/^\d{12}$/.test(v) || !ref || !btn) return;
+    ref.value = v; ref.dispatchEvent(new Event('input', {bubbles:true}));
+    var before = phase; clearInterval(timer); set('confirm'); err('');
+    var msg = $id('msg'); if (msg) msg.textContent = '';
+    var t0 = Date.now(), seenBusy = false;
+    btn.click();
+    clearInterval(watch);
+    watch = setInterval(function(){
+      if (btn.disabled) { seenBusy = true; return; }
+      if (!seenBusy && Date.now() - t0 < 600) return;
+      clearInterval(watch);
+      var m = msg && msg.textContent.trim();
+      if (typeof state !== 'undefined' && state.step !== 7) { close(); var bk = $id('booking'); if (bk) bk.scrollIntoView({behavior:'smooth', block:'start'}); return; }   // sent back to an earlier step to fix something
+      var fe = document.activeElement;
+      if (m && fe && fe !== document.body && !el.contains(fe) && /INPUT|SELECT|TEXTAREA/.test(fe.tagName)) { close(); setTimeout(function(){ try { fe.focus(); fe.scrollIntoView({block:'center'}); } catch(_){} }, 280); if (typeof toast === 'function') toast(m + ' Your UTR is saved.'); return; }   // a detail on the form needs fixing
+      if (m) { set(before === 'late' ? 'late' : 'wait'); if (before === 'wait') { timer = setInterval(tick, 1000); tick(); } err(m); }
+      else close();                      // booked: the thank-you popup takes over
+    }, 150);
+  }
+  /* open the sheet when a UPI app is tapped (the link itself still opens the app) */
+  document.addEventListener('click', function(e){ var a = e.target.closest && e.target.closest('#upiPanel .upiapp'); if (a) open(a); });
+  window.v3PaySheet = { open:open, close:close };
 })();
 
 /* MyPod v3: thank-you popup -> live tracking (3D scene + car quiz) and the cancellation notice */
