@@ -2045,6 +2045,159 @@ html[data-theme="light"] .v3ps-alt a,html[data-theme="light"] .v3ps-alt button{c
 .v3v-list .v3v-i{color:var(--y);margin-top:1px}
 html[data-theme="light"] .v3v-amts button.on{background:rgba(255,213,27,.3)}
 @media(max-width:520px){.v3vs-c b,.v3vs-c small{grid-column:2}.v3vs-ic{grid-column:1;grid-row:1/3}}
+/* install guide */
+#installModal{z-index:135}
+.isheet{max-height:calc(100dvh - 24px)}
+.v3g-top:empty{display:none}
+.v3g-warn{display:grid;gap:6px;margin:0 0 14px;padding:13px 14px;border-radius:14px;background:rgba(255,159,10,.12);border:1px solid rgba(255,159,10,.45)}
+.v3g-warn b{font-size:15px;color:var(--text)}.v3g-warn span{font-size:13.5px;color:var(--muted);line-height:1.45}
+.v3g-warn button{justify-self:start;display:inline-flex;align-items:center;gap:7px;height:38px;padding:0 14px;border-radius:11px;border:0;background:var(--y);color:#07080a;font:800 14px var(--body);cursor:pointer}
+.v3g-warn svg,.v3g-quick svg{width:18px;height:18px}
+.v3g-quick{display:grid;grid-template-columns:auto 1fr;align-items:center;column-gap:10px;width:100%;padding:14px 16px;border:0;border-radius:16px;background:var(--y);color:#07080a;text-align:left;font:800 17px var(--body);cursor:pointer}
+.v3g-quick svg{grid-row:1/3;width:24px;height:24px}.v3g-quick small{font-size:12.5px;font-weight:600;opacity:.75}
+.v3g-or{margin:10px 0 14px;text-align:center;color:var(--muted);font-size:12.5px}
+.v3g-chips{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin:0 0 14px}
+.v3g-chips span{font-size:13px;color:var(--muted);margin-right:2px}
+.v3g-chips button{height:34px;padding:0 13px;border-radius:999px;border:1px solid var(--line2);background:var(--panel2);color:var(--text);font:700 13px var(--body);cursor:pointer}
+.v3g-chips button[aria-pressed="true"]{background:var(--y);color:#07080a;border-color:var(--y)}
+.v3g-steps{list-style:none;margin:0;padding:0;display:grid;gap:18px}
+.v3g-steps li{display:grid;gap:10px}
+.v3g-txt{display:flex;gap:12px;align-items:flex-start}
+.v3g-n{flex:none;display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--y);color:#07080a;font:800 13px var(--body);font-style:normal}
+.v3g-txt b{display:block;font-size:15.5px;line-height:1.3;color:var(--text)}
+.v3g-txt span{display:block;margin-top:2px;color:var(--muted);font-size:13.5px;line-height:1.45}
+.v3g-alt{margin:2px 0 0 40px;font-size:12.5px;color:var(--muted);line-height:1.45}
+/* phone pictures */
+.v3g-ph{--b:#2a2d33;position:relative;margin-left:40px;max-width:300px;height:128px;border-radius:18px;background:#f2f3f5;border:5px solid #1a1c20;overflow:hidden;color:#1a1c20;font:600 11.5px var(--body)}
+.v3g-ph.wide{max-width:340px;height:110px;border-radius:12px}
+.v3g-ph svg{width:16px;height:16px;flex:none}
+.v3g-page{position:absolute;left:12px;right:12px;top:14px;display:grid;gap:7px}
+.v3g-page b{height:9px;border-radius:5px;background:#dcdfe4}.v3g-page b.s{width:60%}
+.v3g-ctop+.v3g-page,.v3g-dbar+.v3g-page{top:52px}
+.v3g-ibar{position:absolute;left:8px;right:8px;bottom:8px;display:flex;align-items:center;gap:6px}
+.v3g-btn{position:relative;display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.v3g-pill{flex:1;display:flex;align-items:center;gap:6px;height:36px;padding:0 4px;border-radius:999px;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.v3g-pill .v3g-btn{box-shadow:none;background:transparent;width:28px;height:28px}
+.v3g-pill em{font-style:normal;color:#555;font-weight:600}
+.v3g-obar{position:absolute;left:0;right:0;bottom:0;height:40px;display:flex;justify-content:space-around;align-items:center;background:#fff;border-top:1px solid #e3e5e8}
+.v3g-obar>span{position:relative;display:grid;place-items:center;width:32px;height:32px;border-radius:9px}
+.v3g-pop{position:absolute;left:12px;bottom:50px;width:170px;border-radius:14px;background:#fff;box-shadow:0 6px 20px rgba(0,0,0,.18);overflow:hidden}
+.v3g-pop span,.v3g-amenu span,.v3g-sheet>span{position:relative;display:flex;align-items:center;gap:9px;padding:8px 12px;border-bottom:1px solid #eef0f2}
+.v3g-sheet{position:absolute;left:0;right:0;bottom:0;top:12px;border-radius:14px 14px 0 0;background:#fff;box-shadow:0 -4px 16px rgba(0,0,0,.1);overflow:hidden}
+.v3g-app{display:flex;align-items:center;gap:9px;padding:9px 12px;border-bottom:1px solid #eef0f2}
+.v3g-app img{width:30px;height:30px;border-radius:8px;background:#ffd51b}
+.v3g-app b{display:block;font-size:12px}.v3g-app small{display:block;color:#888;font-size:10.5px}
+.v3g-dlg{position:absolute;inset:8px;border-radius:12px;background:#fff;overflow:hidden}
+.v3g-dh{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-bottom:1px solid #eef0f2;font-size:11px}
+.v3g-dh span{color:#0a7aff}.v3g-dh .add{position:relative;font-weight:800;padding:3px 6px;border-radius:7px}
+.v3g-tg{display:flex;justify-content:space-between;align-items:center;padding:7px 12px}
+.v3g-tg i{width:32px;height:19px;border-radius:12px;background:#34c759;position:relative}.v3g-tg i::after{content:"";position:absolute;right:2px;top:2px;width:15px;height:15px;border-radius:50%;background:#fff}
+.v3g-hs{background:linear-gradient(160deg,#3a4b7a,#7a4a6d)}
+.v3g-grid{position:absolute;inset:12px 14px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px 10px;align-content:start}
+.v3g-grid i{height:36px;border-radius:10px;background:rgba(255,255,255,.28)}
+.v3g-grid span{position:relative;display:grid;justify-items:center;gap:3px}
+.v3g-grid img{width:36px;height:36px;border-radius:10px;background:#ffd51b}.v3g-grid small{color:#fff;font-size:10px}
+.v3g-ctop,.v3g-dbar{position:absolute;left:0;right:0;top:0;height:42px;display:flex;align-items:center;gap:8px;padding:0 10px;background:#fff;border-bottom:1px solid #e3e5e8}
+.v3g-ctop em,.v3g-dbar em{flex:1;font-style:normal;height:28px;line-height:28px;padding:0 10px;border-radius:999px;background:#eef0f3;color:#555}
+.v3g-ctop span,.v3g-dbar span{position:relative;display:grid;place-items:center;width:30px;height:30px;border-radius:50%}
+.v3g-amenu{position:absolute;right:8px;top:36px;width:180px;border-radius:12px;background:#fff;box-shadow:0 6px 20px rgba(0,0,0,.18);overflow:hidden}
+.v3g-amenu.low{top:auto;bottom:46px}.v3g-ph .v3g-amenu.low:last-child{bottom:14px}
+.v3g-adlg{position:absolute;left:14px;right:14px;top:16px;border-radius:14px;background:#fff;box-shadow:0 6px 20px rgba(0,0,0,.18);padding:10px 4px 8px}
+.v3g-adlg>b{display:block;padding:0 10px 2px;font-size:12.5px}.v3g-adlg .v3g-app{border:0}
+.v3g-abtn{display:flex;justify-content:flex-end;gap:16px;padding:0 12px;color:#1a73e8;font-weight:800}
+.v3g-abtn span{position:relative;padding:4px 6px;border-radius:7px}
+.v3g-ph .hl{background:#fff3b0;box-shadow:inset 0 0 0 2px #e6b800;z-index:1}
+.v3g-btn.hl,.v3g-obar .hl,.v3g-ctop .hl,.v3g-dbar .hl{border-radius:50%}
+.v3g-tap{position:absolute;right:-4px;bottom:-4px;width:18px;height:18px;border-radius:50%;background:rgba(230,184,0,.35);border:2px solid #e6b800;pointer-events:none;animation:v3gTap 1.6s ease-out infinite}
+.v3g-pop .v3g-tap,.v3g-amenu .v3g-tap,.v3g-sheet .v3g-tap{right:10px;bottom:auto;top:50%;margin-top:-9px}
+@keyframes v3gTap{0%{transform:scale(.6);opacity:1}70%{transform:scale(1.5);opacity:0}100%{opacity:0}}
+/* footer */
+.v3g-foot{margin-top:20px;display:grid;gap:10px}
+.v3g-perk{display:flex;gap:12px;align-items:center;padding:12px;border-radius:14px;background:rgba(255,213,27,.1);border:1px solid rgba(255,213,27,.35);font-size:13px;color:var(--muted);line-height:1.45}
+.v3g-perk img{width:40px;height:40px;border-radius:11px;flex:none}.v3g-perk b{display:block;color:var(--text);font-size:14px}
+.v3g-help{display:flex;align-items:center;justify-content:center;gap:8px;height:46px;border-radius:13px;border:1px solid var(--line2);background:var(--panel2);color:var(--text);font-weight:700;font-size:14px;text-decoration:none}
+.v3g-help svg{width:18px;height:18px;color:#25d366}
+@media(max-width:380px){.v3g-ph,.v3g-alt{margin-left:0}}
+@media(prefers-reduced-motion:reduce){.v3g-tap{animation:none}}
+body:has(#installModal:not([hidden])) .nbar,body:has(.v3v:not([hidden])) .nbar,body:has(.v3ps:not([hidden])) .nbar,body:has(.v3p:not([hidden])) .nbar{display:none}
+.v3g-ph{height:162px}.v3g-ph.wide{height:110px}
+.v3g-pop span,.v3g-amenu span,.v3g-sheet>span{padding:7px 12px}
+.v3g-sheet{top:8px}.v3g-app{padding:7px 12px}
+.v3g-dlg{inset:10px 8px}
+.v3g-grid{inset:14px 14px;gap:14px 12px}
+/* announcement card */
+.v3an-slot{padding-top:14px}
+.v3an{--c:#ffd51b;--ink:#07080a;position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(150px,38%);align-items:center;gap:14px;overflow:hidden;padding:22px 22px 22px 24px;border-radius:26px;
+  background:radial-gradient(120% 140% at 100% 0%,color-mix(in srgb,var(--c) 30%,transparent),transparent 60%),linear-gradient(160deg,color-mix(in srgb,var(--c) 14%,var(--panel)),var(--panel));
+  border:1px solid color-mix(in srgb,var(--c) 45%,transparent);opacity:0;transform:translateY(-8px);transition:opacity .45s,transform .45s cubic-bezier(.2,.9,.2,1)}
+.v3an.in{opacity:1;transform:none}
+.v3an[data-theme="red"]{--c:#ef3b45;--ink:#fff}.v3an[data-theme="orange"]{--c:#ff7a1a;--ink:#fff}.v3an[data-theme="purple"]{--c:#8b4dff;--ink:#fff}
+.v3an[data-theme="green"]{--c:#1fae5b;--ink:#fff}.v3an[data-theme="blue"]{--c:#2f6bff;--ink:#fff}
+.v3an-copy{min-width:0}
+.v3an .v3an-copy h2{margin:0;font:900 clamp(26px,4.4vw,44px)/1.04 var(--body);letter-spacing:-.035em;color:var(--text);text-wrap:balance}
+.v3an-copy p{margin:10px 0 0;color:var(--muted);font-size:clamp(14px,1.6vw,17px);line-height:1.45;max-width:46ch}
+.v3an-when{display:inline-flex;align-items:center;gap:8px;margin-top:12px;font-size:14px;font-weight:700;color:var(--text)}
+.v3an-when i{width:8px;height:8px;border-radius:50%;background:var(--c);box-shadow:0 0 0 0 color-mix(in srgb,var(--c) 60%,transparent);animation:v3anPulse 1.8s infinite}
+.v3an-when b{font-variant-numeric:tabular-nums}
+@keyframes v3anPulse{70%{box-shadow:0 0 0 8px transparent}100%{box-shadow:0 0 0 0 transparent}}
+.v3an-acts{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.v3an-code{display:grid;grid-template-columns:auto auto;align-items:center;column-gap:10px;padding:7px 8px 7px 14px;border-radius:14px;border:1.5px dashed var(--c);background:color-mix(in srgb,var(--c) 10%,transparent);color:var(--text);font-family:inherit;cursor:pointer;text-align:left}
+.v3an-code small{grid-column:1;font-size:11px;color:var(--muted);font-weight:600}.v3an-code b{grid-column:1;font-size:17px;font-weight:900;letter-spacing:.06em}
+.v3an-code em{grid-column:2;grid-row:1/3;font-style:normal;font-size:12.5px;font-weight:800;padding:6px 10px;border-radius:9px;background:var(--c);color:var(--ink)}
+.v3an-go{display:inline-flex;align-items:center;height:48px;padding:0 20px;border-radius:14px;border:0;background:var(--c);color:var(--ink);font:800 15px var(--body);text-decoration:none;cursor:pointer;transition:transform .15s}
+.v3an-go:active,.v3an-code:active{transform:scale(.97)}
+.v3an-x{position:absolute;top:10px;right:10px;z-index:3;width:32px;height:32px;border-radius:10px;border:1px solid var(--line2);background:color-mix(in srgb,var(--panel) 80%,transparent);color:var(--muted);display:grid;place-items:center;cursor:pointer}
+.v3an-x svg{width:15px;height:15px}
+/* the hanging sign */
+.v3an-hang{position:relative;justify-self:center;width:100%;max-width:260px;padding-top:8px;transform-origin:50% 8px;animation:v3anSwing 4.2s ease-in-out infinite}
+@keyframes v3anSwing{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
+.v3an-nail{position:absolute;left:50%;top:0;z-index:2;width:16px;height:16px;margin-left:-8px;border-radius:50%;background:var(--panel);border:4px solid var(--text)}
+.v3an-str{display:block;width:84%;height:44px;margin:0 auto -4px}
+.v3an-str path{fill:none;stroke:var(--muted);stroke-width:2.4;vector-effect:non-scaling-stroke}
+.v3an-sign{position:relative;display:grid;justify-items:center;gap:2px;padding:12px 10px 13px;border-radius:14px;background:var(--c);color:var(--ink);text-align:center;
+  box-shadow:0 0 0 4px color-mix(in srgb,var(--c) 35%,transparent),0 14px 30px color-mix(in srgb,var(--c) 30%,transparent)}
+.v3an-sign::before{content:"";position:absolute;inset:5px;border-radius:10px;border:1.5px solid color-mix(in srgb,var(--ink) 35%,transparent);pointer-events:none}
+.v3an-sign small{font-size:clamp(12px,1.6vw,16px);font-weight:700;opacity:.9}
+.v3an-sign b{font:900 clamp(20px,3.2vw,34px)/1 var(--body);letter-spacing:.01em;text-transform:uppercase;transform:scaleY(1.12)}
+@media(max-width:560px){.v3an{grid-template-columns:minmax(0,1fr) 42%;gap:8px;padding:18px 12px 18px 16px;border-radius:22px}.v3an .v3an-copy h2{font-size:25px}.v3an-copy p{font-size:13.5px}
+  .v3an-acts{grid-column:1/-1}.v3an-copy{display:contents}.v3an-copy>h2,.v3an-copy>p,.v3an-copy>.v3an-when{grid-column:1}.v3an-hang{grid-column:2;grid-row:1/4}.v3an-sign{padding:9px 6px 10px}.v3an-x{top:6px;right:6px;width:28px;height:28px}}
+@media(prefers-reduced-motion:reduce){.v3an-hang,.v3an-when i{animation:none}}
+/* announcement card sits under the hero headline: compact size */
+.hero-copy .v3an-slot{padding:0;margin:20px 0 6px;max-width:620px}
+.hero-copy .v3an{grid-template-columns:minmax(0,1fr) minmax(120px,34%);padding:16px 14px 16px 18px;border-radius:22px;gap:10px}
+.hero-copy .v3an .v3an-copy h2{font-size:clamp(21px,2.4vw,27px);line-height:1.1}
+.hero-copy .v3an-copy p{font-size:14px;margin-top:6px}
+.hero-copy .v3an-when{margin-top:8px;font-size:13px}
+.hero-copy .v3an-acts{margin-top:12px;gap:8px}
+.hero-copy .v3an-go{height:42px;padding:0 16px;font-size:14px}
+.hero-copy .v3an-code{padding:5px 6px 5px 12px}.hero-copy .v3an-code b{font-size:15px}
+.hero-copy .v3an-hang{max-width:190px}.hero-copy .v3an-str{height:34px}
+.hero-copy .v3an-sign{padding:9px 6px 10px}.hero-copy .v3an-sign small{font-size:12px}.hero-copy .v3an-sign b{font-size:clamp(17px,2.2vw,24px)}
+.hero-copy .v3an-x{top:8px;right:8px;width:28px;height:28px}
+@media(max-width:560px){.hero-copy .v3an-slot{margin:16px 0 4px}.hero-copy .v3an{grid-template-columns:minmax(0,1fr) 40%}.hero-copy .v3an .v3an-copy h2{font-size:21px}}
+.hero-copy .v3an-slot{margin:20px 0 22px}@media(max-width:560px){.hero-copy .v3an-slot{margin:16px 0 18px}}
+/* hero intro paragraph removed (owner request) */
+#heroCopy{display:none!important}
+.hero-copy .v3an-slot{margin:18px 0 20px}
+/* compact card on phones */
+@media(max-width:560px){
+  .hero-copy .v3an-slot{margin:14px 0 16px}
+  .hero-copy .v3an{grid-template-columns:minmax(0,1fr) 34%;padding:13px 10px 13px 14px;border-radius:18px;gap:6px}
+  .hero-copy .v3an .v3an-copy h2{font-size:18px;line-height:1.15;padding-right:22px}
+  .hero-copy .v3an-copy p{font-size:12.5px;margin-top:4px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .hero-copy .v3an-when{margin-top:6px;font-size:12px;gap:6px}.hero-copy .v3an-when i{width:7px;height:7px}
+  .hero-copy .v3an-acts{margin-top:10px;gap:6px}
+  .hero-copy .v3an-go{height:36px;padding:0 12px;font-size:13px;border-radius:11px}
+  .hero-copy .v3an-code{padding:3px 4px 3px 9px;border-radius:11px;column-gap:6px}.hero-copy .v3an-code small{font-size:9.5px}.hero-copy .v3an-code b{font-size:13px}
+  .hero-copy .v3an-code em{font-size:11px;padding:4px 7px}
+  .hero-copy .v3an-hang{max-width:120px;padding-top:4px}.hero-copy .v3an-nail{width:12px;height:12px;margin-left:-6px;border-width:3px}
+  .hero-copy .v3an-str{height:24px}
+  .hero-copy .v3an-sign{padding:6px 4px 7px;border-radius:10px;box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 35%,transparent),0 8px 18px color-mix(in srgb,var(--c) 28%,transparent)}
+  .hero-copy .v3an-sign::before{inset:3px;border-radius:7px}
+  .hero-copy .v3an-sign small{font-size:10px}.hero-copy .v3an-sign b{font-size:16px}
+  .hero-copy .v3an-x{top:6px;right:6px;width:24px;height:24px;border-radius:8px}.hero-copy .v3an-x svg{width:12px;height:12px}
+}
+.v3an-code{cursor:default}.v3an-code b{letter-spacing:.06em}
 
 </style>
 </head><body>
@@ -2061,7 +2214,7 @@ html[data-theme="light"] .v3v-amts button.on{background:rgba(255,213,27,.3)}
 </div><button type="button" class="themebtn tb-head" aria-label="Switch between dark and light theme"><svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 13A9 9 0 1 1 11 3a7 7 0 0 0 10 10z"/></svg></button><button class="acctbtn" id="hdrAcct" type="button" aria-label="Sign in or view my bookings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4.2 4.2-6 8-6s7 1.8 8 6"/></svg><span id="hdrAcctT">Sign in</span><b class="dot" id="hdrDot" hidden></b></button><a class="btn" href="#booking">Book now</a><button class="hamb" type="button" aria-label="Menu" aria-expanded="false" onclick="var n=document.getElementById('nav');this.setAttribute('aria-expanded',n.classList.toggle('open'))">☰</button></div></header>
 <main><section class="hero" id="home"><div class="wrap grid"><div class="hero-copy">
 <span class="status"><i aria-hidden="true"></i><span id="nextSlot">Booking open · Newtown, Kolkata</span></span>
-<h1>Your ride deserves<br><span class="y">a little love.</span></h1>
+<h1>Your ride deserves<br><span class="y">a little love.</span></h1><div id="v3an" class="v3an-slot" hidden></div>
 <p class="copy" id="heroCopy">From the daily office run to the weekend family drive, we bring back that just-bought shine. We come to your doorstep in Newtown, or welcome you at MyPod Detailing Studio. Pick a live slot and get instant confirmation.</p>
 <div class="cta-row"><a class="btn" href="#booking">Book now</a><a class="btn alt" href="#services">View pricing</a></div>
 <div class="specs"><div><small>Your time</small><b>See open slots before you book</b></div><div><small>Instant</small><b>Booking ID and email, right away</b></div><div><small>No stress</small><b>Check or cancel online anytime</b></div></div>
@@ -5169,6 +5322,209 @@ document.querySelectorAll(".themebtn").forEach(function(b){b.addEventListener("c
   function close(){ if (!el || el.hidden) return; el.classList.remove('in'); var pr = document.querySelector('.v3p'); if (!pr || pr.hidden) document.body.style.overflow = ''; setTimeout(function(){ el.hidden = true; }, 260); }
   window.v3Veh = { open:open, close:close };
   document.addEventListener('click', function(e){ var t = e.target.closest && e.target.closest('[data-veh]'); if (t) { e.preventDefault(); open(t.dataset.veh); } });
+})();
+
+/* ---------- Install guide: picture-by-picture steps for iPhone (Safari / Chrome) and Android (Chrome / Samsung Internet) ---------- */
+(function(){
+  var modal = document.getElementById('installModal'); if (!modal) return;
+  var sheet = modal.querySelector('.isheet'), bip = null;
+  addEventListener('beforeinstallprompt', function(e){ bip = e; paintQuick(); });
+  addEventListener('appinstalled', function(){ bip = null; paintQuick(); });
+  var ua = navigator.userAgent;
+  var isIOS = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  var inApp = /FBAN|FBAV|FB_IAB|Instagram|Line\/|Snapchat|LinkedInApp|GSA\//.test(ua) || (/Android/.test(ua) && /; wv\)/.test(ua));
+  var iosBrowser = /CriOS/.test(ua) ? 'chrome' : 'safari';
+  var andBrowser = /SamsungBrowser/.test(ua) ? 'samsung' : 'chrome';
+  var SV = function(p, c){ return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"' + (c ? ' class="' + c + '"' : '') + '>' + p + '</svg>'; };
+  var ICO = {
+    dots:SV('<circle cx="5" cy="12" r="1.3" fill="currentColor"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/><circle cx="19" cy="12" r="1.3" fill="currentColor"/>'),
+    vdots:SV('<circle cx="12" cy="5" r="1.3" fill="currentColor"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/><circle cx="12" cy="19" r="1.3" fill="currentColor"/>'),
+    share:SV('<path d="M12 3v12"/><path d="m8 7 4-4 4 4"/><path d="M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/>'),
+    plus:SV('<rect x="4" y="4" width="16" height="16" rx="4"/><path d="M12 8v8M8 12h8"/>'),
+    back:SV('<path d="m15 18-6-6 6-6"/>'), tabs:SV('<rect x="7" y="7" width="13" height="13" rx="3"/><path d="M4 16V6a2 2 0 0 1 2-2h10"/>'),
+    menu:SV('<path d="M4 7h16M4 12h16M4 17h16"/>'), copy:SV('<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h8"/>'),
+    book:SV('<path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/>'), star:SV('<path d="m12 4 2.4 5 5.4.6-4 3.7 1.1 5.3L12 16l-4.9 2.6 1.1-5.3-4-3.7 5.4-.6z"/>'),
+    install:SV('<rect x="3" y="4" width="18" height="13" rx="2"/><path d="M12 8v6M9 11l3 3 3-3M8 21h8"/>'),
+    chat:SV('<path d="M4 20l1.4-4A8 8 0 1 1 8 19z"/>'), check:SV('<path d="m5 12 5 5 9-10"/>'), down:SV('<path d="M12 4v12M7 11l5 5 5-5M5 20h14"/>')
+  };
+  var MARK = (function(){ var i = document.querySelector('.v3-ab-ic img'); return i ? i.src : 'icons/icon-192.png'; })();
+  var tap = '<i class="v3g-tap" aria-hidden="true"></i>';
+
+  /* tiny pictures of each screen, with a pulsing ring on the thing to tap */
+  var PIC = {
+    iosBar: '<div class="v3g-ph"><div class="v3g-page"><b></b><b></b><b class="s"></b></div><div class="v3g-ibar"><span class="v3g-btn">' + ICO.back + '</span><span class="v3g-pill"><span class="v3g-btn hl">' + ICO.dots + tap + '</span><em>mypodstudio.in</em></span><span class="v3g-btn">' + ICO.tabs + '</span></div></div>',
+    iosMenu: '<div class="v3g-ph"><div class="v3g-pop"><span>' + ICO.book + 'Add Bookmark</span><span class="hl">' + ICO.share + 'Share' + tap + '</span><span>' + ICO.star + 'Add to Favourites</span></div><div class="v3g-ibar"><span class="v3g-btn">' + ICO.back + '</span><span class="v3g-pill"><span class="v3g-btn">' + ICO.dots + '</span><em>mypodstudio.in</em></span><span class="v3g-btn">' + ICO.tabs + '</span></div></div>',
+    iosOld: '<div class="v3g-ph"><div class="v3g-page"><b></b><b></b><b class="s"></b></div><div class="v3g-obar"><span>' + ICO.back + '</span><span class="hl">' + ICO.share + tap + '</span><span>' + ICO.book + '</span><span>' + ICO.tabs + '</span></div></div>',
+    iosSheet: '<div class="v3g-ph"><div class="v3g-sheet"><div class="v3g-app"><img src="' + MARK + '" alt=""><span><b>MyPod Detailing Studio</b><small>mypodstudio.in</small></span></div><span>' + ICO.copy + 'Copy</span><span>' + ICO.book + 'Add to Reading List</span><span class="hl">' + ICO.plus + 'Add to Home Screen' + tap + '</span></div></div>',
+    iosAdd: '<div class="v3g-ph"><div class="v3g-dlg"><div class="v3g-dh"><span>Cancel</span><b>Add to Home Screen</b><span class="hl add">Add' + tap + '</span></div><div class="v3g-app"><img src="' + MARK + '" alt=""><span><b>MyPod</b><small>mypodstudio.in</small></span></div><div class="v3g-tg"><span>Open as Web App</span><i class="on"></i></div></div></div>',
+    home: '<div class="v3g-ph v3g-hs"><div class="v3g-grid"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><span class="hl"><img src="' + MARK + '" alt="">' + tap + '<small>MyPod</small></span></div></div>',
+    criosBar: '<div class="v3g-ph"><div class="v3g-ctop"><em>mypodstudio.in</em><span class="hl">' + ICO.share + tap + '</span></div><div class="v3g-page"><b></b><b></b><b class="s"></b></div></div>',
+    andBar: '<div class="v3g-ph"><div class="v3g-ctop"><em>mypodstudio.in</em><span>' + ICO.tabs + '</span><span class="hl">' + ICO.vdots + tap + '</span></div><div class="v3g-page"><b></b><b></b><b class="s"></b></div></div>',
+    andMenu: '<div class="v3g-ph"><div class="v3g-ctop"><em>mypodstudio.in</em><span>' + ICO.tabs + '</span><span>' + ICO.vdots + '</span></div><div class="v3g-amenu"><span>' + ICO.star + 'Bookmarks</span><span>' + ICO.share + 'Share…</span><span class="hl">' + ICO.install + 'Add to Home screen' + tap + '</span></div></div>',
+    andOk: '<div class="v3g-ph"><div class="v3g-adlg"><b>Install app</b><div class="v3g-app"><img src="' + MARK + '" alt=""><span><b>MyPod</b><small>mypodstudio.in</small></span></div><div class="v3g-abtn"><span>Cancel</span><span class="hl">Install' + tap + '</span></div></div></div>',
+    samBar: '<div class="v3g-ph"><div class="v3g-page"><b></b><b></b><b class="s"></b></div><div class="v3g-obar"><span>' + ICO.back + '</span><span>' + ICO.book + '</span><span>' + ICO.tabs + '</span><span class="hl">' + ICO.menu + tap + '</span></div></div>',
+    samMenu: '<div class="v3g-ph"><div class="v3g-amenu low"><span>' + ICO.book + 'Bookmarks</span><span class="hl">' + ICO.plus + 'Add page to' + tap + '</span><span>' + ICO.share + 'Share</span></div><div class="v3g-obar"><span>' + ICO.back + '</span><span>' + ICO.book + '</span><span>' + ICO.tabs + '</span><span>' + ICO.menu + '</span></div></div>',
+    samTo: '<div class="v3g-ph"><div class="v3g-amenu low"><span>' + ICO.star + 'Bookmarks</span><span>' + ICO.book + 'Quick access</span><span class="hl">' + ICO.plus + 'Home screen' + tap + '</span></div></div>',
+    deskBar: '<div class="v3g-ph wide"><div class="v3g-dbar"><em>mypodstudio.in</em><span class="hl">' + ICO.install + tap + '</span><span>' + ICO.vdots + '</span></div><div class="v3g-page"><b></b><b></b><b class="s"></b></div></div>'
+  };
+  var GUIDES = {
+    safari: { label:'Safari', steps:[
+      ['Tap the ⋯ button', 'It is in the address bar at the bottom of the screen.', PIC.iosBar, 'Older iPhone? You may see the Share button (a square with an arrow) instead. Tap it and skip to step 3.', PIC.iosOld],
+      ['Tap “Share”', 'A small menu opens. Share is in it.', PIC.iosMenu],
+      ['Scroll down and tap “Add to Home Screen”', 'Swipe up on the list if you do not see it at first.', PIC.iosSheet],
+      ['Keep “Open as Web App” on, then tap “Add”', '“Add” is at the top right.', PIC.iosAdd],
+      ['Open MyPod from your home screen', 'It opens full screen, just like an app.', PIC.home]
+    ]},
+    chrome_ios: { label:'Chrome', steps:[
+      ['Tap the Share button', 'In Chrome on iPhone it is at the top right, next to the address bar.', PIC.criosBar],
+      ['Scroll down and tap “Add to Home Screen”', 'Swipe up on the list if you do not see it at first.', PIC.iosSheet],
+      ['Tap “Add”', 'It is at the top right.', PIC.iosAdd],
+      ['Open MyPod from your home screen', 'Tip: if you cannot find the option, open mypodstudio.in in Safari instead.', PIC.home]
+    ]},
+    chrome: { label:'Chrome', steps:[
+      ['Tap the ⋮ menu', 'The three dots at the top right of Chrome.', PIC.andBar],
+      ['Tap “Add to Home screen”', 'Some phones say “Install app” instead. Either one is right.', PIC.andMenu],
+      ['Tap “Install”', 'If Chrome asks again, tap Add or Install.', PIC.andOk],
+      ['Open MyPod from your home screen', 'You will also find it with your other apps.', PIC.home]
+    ]},
+    samsung: { label:'Samsung Internet', steps:[
+      ['Tap the ≡ menu', 'The three lines at the bottom right of the screen.', PIC.samBar],
+      ['Tap “Add page to”', 'Swipe the menu up if you do not see it.', PIC.samMenu],
+      ['Tap “Home screen”, then “Add”', '', PIC.samTo],
+      ['Open MyPod from your home screen', '', PIC.home]
+    ]},
+    desktop: { label:'Computer', steps:[
+      ['Click the install icon', 'In Chrome or Edge it is at the right end of the address bar.', PIC.deskBar],
+      ['Click “Install”', 'No icon? Open the ⋮ menu, then Cast, save and share, then Install page as app.']
+    ]}
+  };
+  function guideHtml(k){
+    var g = GUIDES[k];
+    return '<ol class="v3g-steps">' + g.steps.map(function(s, i){
+      return '<li><div class="v3g-txt"><i class="v3g-n">' + (i + 1) + '</i><div><b>' + s[0] + '</b>' + (s[1] ? '<span>' + s[1] + '</span>' : '') + '</div></div>' + (s[2] || '') +
+        (s[3] ? '<p class="v3g-alt">' + s[3] + '</p>' + (s[4] || '') : '') + '</li>';
+    }).join('') + '</ol>';
+  }
+  function chips(name, list, cur){
+    return '<div class="v3g-chips" role="group" aria-label="Which browser are you using?"><span>Your browser:</span>' + list.map(function(k){
+      return '<button type="button" data-g="' + k + '" aria-pressed="' + (k === cur) + '">' + GUIDES[k].label + '</button>'; }).join('') + '</div>';
+  }
+  function panel(tab){ return modal.querySelector('.ipanel[data-tab="' + tab + '"]'); }
+  function fill(tab, cur){
+    var p = panel(tab); if (!p) return;
+    var list = tab === 'ios' ? ['safari', 'chrome_ios'] : tab === 'android' ? ['chrome', 'samsung'] : ['desktop'];
+    p.innerHTML = (list.length > 1 ? chips(tab, list, cur) : '') + '<div class="v3g-body">' + guideHtml(cur) + '</div>';
+  }
+  var help = document.createElement('div'); help.className = 'v3g-top';
+  var foot = document.createElement('div'); foot.className = 'v3g-foot';
+  function paintQuick(){
+    var h = '';
+    if (inApp) h += '<div class="v3g-warn"><b>Open this page in ' + (isIOS ? 'Safari' : 'Chrome') + ' first</b><span>You are inside another app’s browser (like Instagram or Facebook), which cannot add apps. Tap ' + (isIOS ? '⋯ or the compass icon and choose “Open in Safari”' : '⋮ and choose “Open in Chrome”') + ', or copy the link and paste it in ' + (isIOS ? 'Safari' : 'Chrome') + '.</span><button type="button" data-g-act="copy">' + ICO.copy + 'Copy link</button></div>';
+    if (bip) h += '<button type="button" class="v3g-quick" data-g-act="install">' + ICO.down + 'Install MyPod now<small>One tap, no steps needed</small></button><p class="v3g-or">or follow the steps below</p>';
+    help.innerHTML = h;
+  }
+  function build(){
+    var tabs = modal.querySelector('.itabs');
+    var desk = tabs && tabs.querySelector('[data-tab="desktop"]'); if (desk) desk.textContent = 'Computer';
+    if (tabs) tabs.parentNode.insertBefore(help, tabs);
+    var note = modal.querySelector('.inote');
+    foot.innerHTML = '<div class="v3g-perk"><img src="' + MARK + '" alt=""><span><b>Then open MyPod from your home screen</b>Your first booking in the app is 50% off with WELCOME50. It is applied for you.</span></div>' +
+      '<a class="v3g-help" href="https://wa.me/919886950617?text=' + encodeURIComponent('Hi MyPod, please help me add the MyPod app to my phone.') + '" target="_blank" rel="noopener">' + ICO.chat + 'Stuck? WhatsApp us and we will help</a>';
+    if (note) note.replaceWith(foot); else sheet.appendChild(foot);
+    fill('ios', iosBrowser); fill('android', andBrowser); fill('desktop', 'desktop');
+    paintQuick();
+    modal.addEventListener('click', function(e){
+      var c = e.target.closest('[data-g]');
+      if (c) { var p = c.closest('.ipanel'); fill(p.dataset.tab, c.dataset.g); return; }
+      var a = e.target.closest('[data-g-act]'); if (!a) return;
+      if (a.dataset.gAct === 'copy') {
+        var url = location.origin && location.origin !== 'null' ? location.origin + '/' : location.href;
+        (navigator.clipboard && navigator.clipboard.writeText ? navigator.clipboard.writeText(url) : Promise.reject()).then(function(){ if (typeof toast === 'function') toast('Link copied. Paste it in ' + (isIOS ? 'Safari' : 'Chrome') + '.'); }, function(){ if (typeof toast === 'function') toast('Open ' + url + ' in ' + (isIOS ? 'Safari' : 'Chrome') + '.'); });
+      }
+      if (a.dataset.gAct === 'install' && bip) { var d = bip; bip = null; d.prompt(); d.userChoice.then(function(){ paintQuick(); }, function(){ paintQuick(); }); }
+    });
+  }
+  build();
+  var ii = modal.querySelector('.iicon'); if (ii) { ii.addEventListener('error', function(){ ii.src = MARK; }); if (ii.complete && !ii.naturalWidth) ii.src = MARK; }
+  /* show the install guide from anywhere: data-install attribute or window.v3InstallGuide() */
+  window.v3InstallGuide = function(){ var f = document.getElementById('fabInstall'); if (bip && f) return f.click(); modal.hidden = false; document.body.style.overflow = 'hidden';
+    var t = isIOS ? 'ios' : /Android/.test(ua) ? 'android' : 'desktop'; var b = modal.querySelector('.itab[data-tab="' + t + '"]'); if (b) b.click(); };
+})();
+
+/* ---------- Announcement card (set from the admin app): "We will be back shortly", Black Friday, Pooja special ---------- */
+(function(){
+  var slot = document.getElementById('v3an'); if (!slot) return;
+  var KEY = 'mypod_announce', HIDE = 'mypod_announce_hidden', cur = null, tick = null;
+  var esc = function(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); };
+  var J = function(k){ try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch(e){ return null; } };
+  var put = function(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} };
+  function live(a){ if (!a || !a.title) return false; var n = Date.now(); return !(a.start && n < Date.parse(a.start)) && !(a.end && n >= Date.parse(a.end)); }
+  function whenText(ms){
+    var d = new Date(ms), now = new Date(), t = d.toLocaleTimeString('en-IN', {hour:'numeric', minute:'2-digit', hour12:true, timeZone:'Asia/Kolkata'}).replace(/\s?([ap])m/i, function(_, x){ return ' ' + x.toUpperCase() + 'M'; });
+    var key = function(x){ return x.toLocaleDateString('en-CA', {timeZone:'Asia/Kolkata'}); };
+    var tm = new Date(now.getTime() + 864e5);
+    if (key(d) === key(now)) return t + ' today';
+    if (key(d) === key(tm)) return t + ' tomorrow';
+    return t + ', ' + d.toLocaleDateString('en-IN', {weekday:'short', day:'numeric', month:'short', timeZone:'Asia/Kolkata'});
+  }
+  function left(ms){
+    var m = Math.max(0, Math.ceil((ms - Date.now()) / 60000));
+    if (m < 60) return m + ' min';
+    var h = Math.floor(m / 60); if (h < 24) return h + 'h ' + String(m % 60).padStart(2, '0') + 'm';
+    var d = Math.floor(h / 24); return d + (d === 1 ? ' day ' : ' days ') + (h % 24) + 'h';
+  }
+  function meta(a){
+    if (!a.end) return '';
+    var e = Date.parse(a.end);
+    if (a.kind === 'closed') return '<span class="v3an-when"><i></i>Back at ' + esc(whenText(e)) + '</span>';
+    return '<span class="v3an-when"><i></i>Ends in <b data-left>' + left(e) + '</b></span>';
+  }
+  function html(a){
+    var sub = a.text || (a.kind === 'closed' ? (a.pause ? 'You can still book a slot for after we reopen.' : 'You can still book a slot for later.') : '');
+    var code = a.code ? '<span class="v3an-code"><small>Use code</small><b>' + esc(a.code) + '</b></span>' : '';
+    var cta = '';   // display only: no buttons on the card
+    return '<section class="v3an" data-theme="' + esc(a.theme || 'yellow') + '" data-kind="' + esc(a.kind) + '" aria-label="Announcement">' +
+      '<div class="v3an-copy"><h2>' + esc(a.title) + '</h2>' + (sub ? '<p>' + esc(sub) + '</p>' : '') + meta(a) +
+        (code || cta ? '<div class="v3an-acts">' + code + cta + '</div>' : '') + '</div>' +
+      (a.sign1 || a.sign2 ? '<div class="v3an-hang" aria-hidden="true"><i class="v3an-nail"></i><svg class="v3an-str" viewBox="0 0 200 60" preserveAspectRatio="none"><path d="M100 4 L18 58 M100 4 L182 58"/></svg>' +
+        '<div class="v3an-sign"><small>' + esc(a.sign1 || '') + '</small><b>' + esc(a.sign2 || '') + '</b></div></div>' : '') +
+      '</section>';
+  }
+  function show(a){
+    clearInterval(tick); cur = a;
+    var hidden = J(HIDE);
+    if (!live(a)) { slot.hidden = true; slot.innerHTML = ''; return; }
+    slot.innerHTML = html(a); slot.hidden = false;
+    requestAnimationFrame(function(){ var s = slot.querySelector('.v3an'); if (s) s.classList.add('in'); });
+    if (a.end) tick = setInterval(function(){
+      if (!live(a)) return show(a);
+      var l = slot.querySelector('[data-left]'); if (l) l.textContent = left(Date.parse(a.end));
+    }, 30000);
+  }
+  slot.addEventListener('click', function(e){
+    var b = e.target.closest('[data-an]'); if (!b || !cur) return;
+    var k = b.dataset.an;
+    if (k === 'hide') { put(HIDE, cur.id); var s = slot.querySelector('.v3an'); if (s) s.classList.remove('in'); setTimeout(function(){ slot.hidden = true; }, 300); }
+    else if (k === 'copy') {
+      var done = function(ok){ if (typeof toast === 'function') toast(ok ? 'Code ' + cur.code + ' copied' : 'Your code is ' + cur.code); };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(cur.code).then(function(){ done(true); }, function(){ done(false); }); else done(false);
+    }
+    else if (k === 'book') {
+      var c = document.getElementById('couponCode');
+      if (c && cur.code && !c.value) { c.value = cur.code; c.dispatchEvent(new Event('input', {bubbles:true})); }
+      var t = document.getElementById('booking'); if (t) t.scrollIntoView({behavior:'smooth', block:'start'});
+      if (cur.code && typeof toast === 'function') toast('Code ' + cur.code + ' is added to your booking.');
+    }
+  });
+  /* show the last one we saw straight away, then check the server */
+  var cached = J(KEY); if (cached && cached.a) show(cached.a);
+  function refresh(){
+    if (typeof api !== 'function') return;
+    api('getAnnouncement', {}).then(function(r){ var a = r && r.announcement; put(KEY, {a:a || null, at:Date.now()}); if (a) show(a); else { cur = null; slot.hidden = true; slot.innerHTML = ''; } }, function(){});
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', refresh); else refresh();
+  document.addEventListener('visibilitychange', function(){ if (!document.hidden) refresh(); });
+  window.v3Announce = { show:show, refresh:refresh };
 })();
 
 </script></body></html>
