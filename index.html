@@ -1987,6 +1987,64 @@ html[data-theme="light"] .v3ps-alt a,html[data-theme="light"] .v3ps-alt button{c
 .v3ps[data-ph="confirm"] .v3ps-utr,.v3ps[data-ph="confirm"] .v3ps-go,.v3ps[data-ph="confirm"] .v3ps-alt,.v3ps[data-ph="confirm"] .v3ps-x{display:none}
 .v3ps[data-ph="wait"] .v3ps-cash{display:none}
 @media(prefers-reduced-motion:reduce){.v3ps-spin{animation-duration:3s}}
+/* vehicle services: home section */
+.v3vs-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:8px}
+.v3vs-c{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:4px;min-height:150px;padding:18px;border-radius:20px;border:1px solid var(--line2);background:var(--panel);color:var(--text);text-align:left;font-family:inherit;cursor:pointer;transition:border-color .2s,transform .15s}
+.v3vs-c:hover{border-color:rgba(255,213,27,.55)}.v3vs-c:active{transform:scale(.98)}
+.v3vs-c:focus-visible{outline:2px solid var(--y);outline-offset:2px}
+.v3vs-ic{display:grid;place-items:center;width:44px;height:44px;border-radius:13px;background:var(--y);color:#07080a;margin-bottom:auto}
+.v3vs-ic svg{width:23px;height:23px}
+.v3vs-c b{margin-top:16px;font-size:17px;font-weight:700;letter-spacing:-.01em}
+.v3vs-c small{color:var(--muted);font-size:13.5px;line-height:1.4}
+.v3vs-desk{background:linear-gradient(160deg,rgba(255,213,27,.13),var(--panel) 75%);border-color:rgba(255,213,27,.4)}
+.v3vs-desk .v3vs-ic{background:#07080a;color:var(--y);border:1px solid var(--y)}
+@media(max-width:900px){.v3vs-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){.v3vs-grid{grid-template-columns:1fr;gap:9px}.v3vs-c{flex-direction:row;align-items:center;flex-wrap:wrap;min-height:0;padding:13px 14px;column-gap:12px}.v3vs-ic{grid-row:span 2;margin:0}.v3vs-c{display:grid;grid-template-columns:44px 1fr;row-gap:1px}.v3vs-c b{margin:0;font-size:15.5px}.v3vs-c small{font-size:12.5px}}
+/* profile: four tiles */
+.v3p-tiles{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.v3p-tiles button{min-height:92px;padding:10px 4px;border-radius:16px}
+.v3p-tiles b{font-size:12px}
+/* vehicle services sheet */
+.v3v{position:fixed;inset:0;z-index:124;display:flex;align-items:flex-end;justify-content:center;background:rgba(4,5,6,.62);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);opacity:0;transition:opacity .25s}
+.v3v.in{opacity:1}
+.v3v-card{position:relative;width:min(460px,100%);max-height:94%;overflow-y:auto;overscroll-behavior:contain;padding:26px 20px calc(20px + env(safe-area-inset-bottom,0px));border-radius:26px 26px 0 0;background:var(--panel);border:1px solid var(--line2);border-bottom:0;transform:translateY(40px);transition:transform .35s cubic-bezier(.2,.9,.2,1)}
+.v3v.in .v3v-card{transform:none}
+@media(min-width:600px){.v3v{align-items:center}.v3v-card{border-radius:26px;border-bottom:1px solid var(--line2)}}
+.v3v-x{position:absolute;top:14px;right:14px;width:38px;height:38px;border-radius:12px;border:1px solid var(--line2);background:var(--panel2);color:var(--text);display:grid;place-items:center;cursor:pointer}
+.v3v-i{width:18px;height:18px;flex:none}
+.v3v h3{margin:0 44px 0 0;font:800 22px/1.2 var(--body);letter-spacing:-.02em;color:var(--text)}
+.v3v-sub{margin:6px 0 14px;color:var(--muted);font-size:14px;line-height:1.5}
+.v3v-l{display:block;margin:12px 0 7px;font-weight:700;font-size:14px}
+.v3v-plate{display:flex;align-items:center;height:56px;border-radius:14px;border:1.5px solid var(--line2);background:var(--panel2);overflow:hidden;transition:border-color .2s,box-shadow .2s}
+.v3v-plate:focus-within{border-color:var(--y);box-shadow:0 0 0 4px rgba(255,213,27,.15)}
+.v3v-okno .v3v-plate{border-color:rgba(48,209,88,.7)}
+.v3v-ind{align-self:stretch;display:grid;place-items:center;width:38px;background:#1f4fbf;color:#fff;font:800 10px var(--body);letter-spacing:.02em}
+.v3v-plate input{flex:1;min-width:0;height:100%;border:0;background:none;padding:0 14px;color:var(--text);font:800 21px var(--body);letter-spacing:.12em;text-transform:uppercase;outline:none}
+.v3v-plate input::placeholder{color:var(--muted);opacity:.55;font-weight:700}
+.v3v-err{margin:7px 0 0;color:#ff6b61;font-size:13.5px;font-weight:600}.v3v-err:empty{display:none}
+.v3v-go,.v3v-b2{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:52px;margin-top:14px;border-radius:15px;font-family:inherit;font-weight:800;font-size:15.5px;cursor:pointer;transition:transform .15s}
+.v3v-go{border:0;background:var(--y);color:#07080a}.v3v-b2{margin-top:9px;border:1px solid var(--line2);background:var(--panel2);color:var(--text);font-weight:700}
+.v3v-go:active,.v3v-b2:active{transform:scale(.98)}
+.v3v-sel{width:100%;height:50px;padding:0 12px;border-radius:14px;border:1.5px solid var(--line2);background:var(--panel2);color:var(--text);font:600 15px var(--body)}
+.v3v-amts{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px}
+.v3v-amts button,.v3v-amts input{height:44px;min-width:0;border-radius:12px;border:1.5px solid var(--line2);background:var(--panel2);color:var(--text);font:700 14px var(--body);text-align:center;cursor:pointer}
+.v3v-amts input{padding:0 6px;cursor:text}.v3v-amts input::placeholder{color:var(--muted);font-weight:600}
+.v3v-amts button.on{border-color:var(--y);background:rgba(255,213,27,.14);color:var(--text)}
+.v3v-upi{display:grid;grid-template-columns:1fr auto;align-items:center;gap:0 10px;margin-top:14px;padding:11px 12px;border-radius:13px;background:var(--panel2);border:1px dashed var(--line2)}
+.v3v-upi small{grid-column:1;color:var(--muted);font-size:12px}.v3v-upi b{grid-column:1;font-size:14px;overflow-wrap:anywhere}
+.v3v-upi button{grid-column:2;grid-row:1/3;height:36px;padding:0 12px;border-radius:10px;border:1px solid var(--line2);background:var(--panel);color:var(--text);font:700 13px var(--body);cursor:pointer}
+.v3v-qr{display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:14px}
+.v3v-qr canvas{width:200px;height:200px;border-radius:12px;background:#fff}.v3v-qr small{color:var(--muted);font-size:12.5px}
+.v3v-steps{margin:16px 0 0;padding:0;list-style:none;counter-reset:s;display:grid;gap:9px}
+.v3v-steps li{counter-increment:s;display:grid;grid-template-columns:22px 1fr;gap:9px;color:var(--muted);font-size:13px;line-height:1.45}
+.v3v-steps li::before{content:counter(s);display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--panel2);color:var(--y);font-weight:800;font-size:11.5px}
+.v3v-steps b{color:var(--text);font-weight:700}
+.v3v-note{margin:14px 0 0;font-size:12px;color:var(--muted)}
+.v3v-list{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:10px}
+.v3v-list li{display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.45}
+.v3v-list .v3v-i{color:var(--y);margin-top:1px}
+html[data-theme="light"] .v3v-amts button.on{background:rgba(255,213,27,.3)}
+@media(max-width:520px){.v3vs-c b,.v3vs-c small{grid-column:2}.v3vs-ic{grid-column:1;grid-row:1/3}}
 
 </style>
 </head><body>
@@ -2302,7 +2360,13 @@ s.addEventListener('pointerleave',function(){tx=0;ty=0;kick()});
 <section class="sec" id="services"><div class="wrap"><div class="sec-head"><span class="kicker">Services &amp; pricing</span><h2>Know the price <span class="y">before you book.</span></h2><p class="lead">Wash and detailing packages for cars and bikes. Choose your vehicle size to see the exact price, and tap any package to see everything included. Optional extras are available while booking. Explore: <a href="car-wash-newtown-kolkata.html">car wash</a>, <a href="bike-wash-newtown-kolkata.html">bike wash</a>, <a href="car-interior-deep-cleaning-kolkata.html">interior cleaning</a>, <a href="car-polish-paint-correction-kolkata.html">paint polish</a>.</p></div>
 <div class="cards" id="svcCards" aria-live="polite"></div></div></section>
 
-<section class="sec" id="how"><div class="wrap"><div class="sec-head"><span class="kicker">How it works</span><h2>Booked in <span class="y">about a minute.</span></h2></div>
+<section class="sec v3vs" id="vehicle-services"><div class="wrap"><div class="sec-head"><span class="kicker">Vehicle services</span><h2>More for your <span class="y">vehicle.</span></h2><p class="lead">Check and pay traffic challans and recharge your FASTag on the official sites. It takes about a minute, and the money goes straight to the government or your bank.</p></div>
+<div class="v3vs-grid">
+<button type="button" class="v3vs-c" data-veh="challan"><span class="v3vs-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><circle cx="11.5" cy="14" r="2.5"/><path d="m13.5 16 2 2"/></svg></span><b>Check challan</b><small>Fines on your vehicle number</small></button>
+<button type="button" class="v3vs-c" data-veh="challan"><span class="v3vs-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg></span><b>Pay challan</b><small>Parivahan or Kolkata Traffic Police</small></button>
+<button type="button" class="v3vs-c" data-veh="fastag"><span class="v3vs-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 21 9 3M19 21 15 3"/><path d="M12 5v2M12 11v2M12 17v2"/></svg></span><b>Recharge FASTag</b><small>From any UPI app, any bank</small></button>
+<button type="button" class="v3vs-c v3vs-desk" data-veh="desk"><span class="v3vs-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 16V11l2-5h10l2 5v5"/><path d="M3 16h18v3H3z"/></svg></span><b>Washing with us?</b><small>We help with challans and FASTag while we wash</small></button>
+</div></div></section><section class="sec" id="how"><div class="wrap"><div class="sec-head"><span class="kicker">How it works</span><h2>Booked in <span class="y">about a minute.</span></h2></div>
 <ol class="steps">
 <li><span class="n">STEP 01</span><h3>Choose your package</h3><p>Pick your car or bike, then the care you want. The price shows straight away.</p></li>
 <li><span class="n">STEP 02</span><h3>Pick a place and time</h3><p>Share your location for doorstep service, or choose the studio. Then select any open slot.</p></li>
@@ -4793,6 +4857,9 @@ document.querySelectorAll(".themebtn").forEach(function(b){b.addEventListener("c
     go:'<path d="m9 6 6 6-6 6"/>', tick:'<path d="m5 12 5 5 9-10"/>', dl:'<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>',
     redo:'<path d="M4 12a8 8 0 0 1 14-5.3L20 9"/><path d="M20 4v5h-5"/><path d="M20 12a8 8 0 0 1-14 5.3L4 15"/>',
     bike:'<circle cx="5.5" cy="16.5" r="3.5"/><circle cx="18.5" cy="16.5" r="3.5"/><path d="M5.5 16.5 9 9h5l4.5 7.5"/><path d="M8 6h3l1 3"/><path d="M15 6h2.5"/>',
+    road:'<path d="M5 21 9 3M19 21 15 3"/><path d="M12 5v2M12 11v2M12 17v2"/>',
+    file:'<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><circle cx="11.5" cy="14" r="2.5"/><path d="m13.5 16 2 2"/>',
+    store:'<path d="M4 10v10h16V10"/><path d="M3 10 5 4h14l2 6z"/><path d="M9 20v-5h6v5"/>',
     tag:'<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.3"/>'
   };
   var ic = function(k){ return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + I[k] + '</svg>'; };
@@ -4842,7 +4909,8 @@ document.querySelectorAll(".themebtn").forEach(function(b){b.addEventListener("c
     var tiles = '<div class="v3p-tiles">' +
       '<button type="button" data-a="bookings">' + ic('bag') + '<b>Your bookings</b>' + (d.unread ? '<i class="v3p-dot">' + d.unread + '</i>' : '') + '</button>' +
       '<button type="button" data-a="help">' + ic('help') + '<b>Help &amp; support</b></button>' +
-      '<button type="button" data-a="vehicles">' + ic('car') + '<b>Your vehicles</b></button></div>';
+      '<button type="button" data-a="vehicles">' + ic('car') + '<b>Your vehicles</b></button>' +
+      '<button type="button" data-a="vsvc">' + ic('road') + '<b>Vehicle services</b></button></div>';
 
     var offers = [];
     offers.push('<div class="v3p-off y"><small>' + (d.isApp ? 'Ready to use' : 'In the app') + '</small><b>50% off</b><p>First booking with WELCOME50</p><button type="button" data-a="' + (d.isApp ? 'book' : 'install') + '">' + (d.isApp ? 'Book now' : 'Get the app') + '</button></div>');
@@ -4879,6 +4947,13 @@ document.querySelectorAll(".themebtn").forEach(function(b){b.addEventListener("c
       '<a class="v3p-row" href="mailto:' + MAIL + '"><i>' + ic('mail') + '</i><span><b>Email support</b><small>' + MAIL + '</small></span><em>' + ic('go') + '</em></a>' +
       '</div>' + '<div class="v3p-list">' + row('faq', 'q', 'Read the FAQ', 'Payments, cancelling, doorstep visits') + '</div>');
   }
+  function vsvc(){
+    return sub('Vehicle services', '<p class="v3p-lead">Quick links to the official sites. The money goes to the government or your FASTag bank, never to MyPod.</p><div class="v3p-list">' +
+      '<button type="button" class="v3p-row" data-veh="challan"><i>' + ic('file') + '</i><span><b>Check challan</b><small>Fines on your vehicle number</small></span><em>' + ic('go') + '</em></button>' +
+      '<button type="button" class="v3p-row" data-veh="challan"><i>' + ic('tag') + '</i><span><b>Pay challan</b><small>Parivahan or Kolkata Traffic Police</small></span><em>' + ic('go') + '</em></button>' +
+      '<button type="button" class="v3p-row" data-veh="fastag"><i>' + ic('road') + '</i><span><b>Recharge FASTag</b><small>From any UPI app</small></span><em>' + ic('go') + '</em></button>' +
+      '<button type="button" class="v3p-row" data-veh="desk"><i>' + ic('store') + '</i><span><b>Help at the studio</b><small>We help while your vehicle is washed</small></span><em>' + ic('go') + '</em></button></div>');
+  }
   function vehicles(d){
     if (!d.sess) return sub('Your vehicles', '<div class="v3p-empty">' + ic('car') + '<b>Sign in to see your vehicles</b><p>We list every car and bike you have booked a wash for.</p><button type="button" class="v3p-signin" data-a="signin">Sign in with email</button></div>');
     if (!d.vehicles.length) return sub('Your vehicles', '<div class="v3p-empty">' + ic('car') + '<b>No vehicles yet</b><p>Your car or bike shows up here after your first booking.</p><button type="button" class="v3p-signin" data-a="book">Book a wash</button></div>');
@@ -4894,7 +4969,7 @@ document.querySelectorAll(".themebtn").forEach(function(b){b.addEventListener("c
   }
 
   function paint(){
-    var d = data(), html = view === 'help' ? help() : view === 'vehicles' ? vehicles(d) : view === 'address' ? address(d) : home(d);
+    var d = data(), html = view === 'vsvc' ? vsvc() : view === 'help' ? help() : view === 'vehicles' ? vehicles(d) : view === 'address' ? address(d) : home(d);
     var sc = el.querySelector('.v3p-sc'); sc.innerHTML = html; sc.scrollTop = 0;
     sc.classList.remove('v3p-in'); void sc.offsetWidth; sc.classList.add('v3p-in');
   }
@@ -4913,7 +4988,7 @@ document.querySelectorAll(".themebtn").forEach(function(b){b.addEventListener("c
     var a = b.dataset.a, d;
     try { haptic('select'); } catch(x){}
     if (a === 'close') close();
-    else if (a === 'home' || a === 'help' || a === 'vehicles' || a === 'address') go(a);
+    else if (a === 'home' || a === 'help' || a === 'vehicles' || a === 'address' || a === 'vsvc') go(a);
     else if (a === 'signin') { close(); acct.open(); }
     else if (a === 'bookings') { close(); acct.open(d = (data().unread ? 'alerts' : 'up')); }
     else if (a === 'alerts') { close(); acct.open('alerts'); }
@@ -4959,6 +5034,141 @@ document.querySelectorAll(".themebtn").forEach(function(b){b.addEventListener("c
     var d = (typeof acct !== 'undefined' && acct.info) ? acct.info() : null;
     if (d && d.sess) { e.stopImmediatePropagation(); e.preventDefault(); open(); }
   }, true);
+})();
+
+/* ---------- Vehicle services: challan check / pay (official portals) and FASTag recharge over UPI (NPCI NETC handles) ---------- */
+(function(){
+  var KEY_NO = 'mypod_vehicle_no', KEY_BANK = 'mypod_fastag_bank';
+  var PARIVAHAN = 'https://echallan.parivahan.gov.in/', KTP = 'https://www.kolkatatrafficpolice.gov.in/';
+  /* FASTag issuer UPI handles, from NPCI's "FASTag recharge through BHIM UPI" list: pay to netc.<VEHICLENO>@<handle> */
+  var BANKS = [['SBI','sbi'],['ICICI Bank','icici'],['HDFC Bank','hdfcbank'],['Axis Bank','axisbank'],['Paytm','paytm'],['Airtel Payments Bank','mairtel'],
+    ['Kotak Mahindra Bank','kotak'],['IDFC FIRST Bank','idfcnetc'],['IndusInd Bank','indus'],['Bank of Baroda','barodampay'],['Punjab National Bank','pnb'],
+    ['Union Bank','unionbank'],['Federal Bank','fbl'],['IDBI Bank','idbi'],['AU Small Finance Bank','aubank'],['Equitas','equitas'],['City Union Bank','cub'],
+    ['Karur Vysya Bank','kvb'],['South Indian Bank','sib'],['Bank of Maharashtra','mahb'],['J&K Bank','jkb']];
+  var AMTS = [200, 500, 1000, 2000];
+  var el = null, kind = '', amt = 500;
+  var get = function(k){ try { return localStorage.getItem(k) || ''; } catch(e){ return ''; } };
+  var put = function(k, v){ try { localStorage.setItem(k, v); } catch(e){} };
+  var esc = function(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); };
+  var clean = function(v){ return String(v || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 11); };
+  var valid = function(v){ return /^[A-Z]{2}\d{1,2}[A-Z]{0,3}\d{4}$/.test(v) || /^\d{2}BH\d{4}[A-Z]{1,2}$/.test(v); };
+  var pretty = function(v){
+    var m = /^([A-Z]{2})(\d{1,2})([A-Z]{0,3})(\d{4})$/.exec(v); if (m) return [m[1], m[2], m[3], m[4]].filter(Boolean).join(' ');
+    var b = /^(\d{2})(BH)(\d{4})([A-Z]{1,2})$/.exec(v); return b ? b.slice(1).join(' ') : v;
+  };
+  var say = function(t){ if (typeof toast === 'function') toast(t); };
+  var mobile = function(){ return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent); };
+  var P = { copy:'<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h8"/>', ext:'<path d="M14 4h6v6"/><path d="M20 4 11 13"/><path d="M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"/>',
+    upi:'<path d="M5 12h14"/><path d="m13 6 6 6-6 6"/>', x:'<path d="M6 6l12 12M18 6 6 18"/>', car:'<path d="M5 16V11l2-5h10l2 5v5"/><path d="M3 16h18v3H3z"/>',
+    shield:'<path d="M12 3 4 6v6c0 4.5 3.4 8.3 8 9 4.6-.7 8-4.5 8-9V6z"/><path d="m9 12 2 2 4-4"/>', cal:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/>' };
+  var I = function(n){ return '<svg class="v3v-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + P[n] + '</svg>'; };
+  function copy(t){
+    if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(t).then(function(){ return true; }, function(){ return fallback(); });
+    return Promise.resolve(fallback());
+    function fallback(){ try { var a = document.createElement('textarea'); a.value = t; a.style.position = 'fixed'; a.style.opacity = '0'; document.body.appendChild(a); a.select(); var ok = document.execCommand('copy'); a.remove(); return ok; } catch(e){ return false; } }
+  }
+
+  function plate(){
+    return '<label class="v3v-l" for="v3vNo">Vehicle number</label>' +
+      '<div class="v3v-plate"><span class="v3v-ind" aria-hidden="true">IND</span><input id="v3vNo" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="14" placeholder="WB 02 AB 1234" value="' + esc(pretty(clean(get(KEY_NO)))) + '"></div>' +
+      '<p class="v3v-err" role="alert"></p>';
+  }
+  function challanHtml(){
+    return '<h3 id="v3vT">Check and pay challans</h3><p class="v3v-sub">See fines on your vehicle and pay them on the official government sites.</p>' + plate() +
+      '<button type="button" class="v3v-go" data-a="parivahan">' + I('copy') + 'Copy number and open Parivahan</button>' +
+      '<button type="button" class="v3v-b2" data-a="ktp">' + I('ext') + 'Kolkata Traffic Police site</button>' +
+      '<ol class="v3v-steps"><li><span>On Parivahan, choose <b>Check online services</b>, then <b>Check challan status</b>.</span></li><li><span>Paste your vehicle number, type the captcha and tap <b>Get detail</b>.</span></li><li><span>Pay pending fines there with UPI, card or net banking. Kolkata Traffic Police also asks for the last 5 characters of your chassis number.</span></li></ol>' +
+      '<p class="v3v-note">These are official government sites. MyPod never collects challan money.</p>';
+  }
+  function fastagHtml(){
+    var bank = get(KEY_BANK);
+    return '<h3 id="v3vT">Recharge FASTag</h3><p class="v3v-sub">Pay straight into your FASTag from any UPI app. The money goes to your FASTag bank, not to MyPod.</p>' + plate() +
+      '<label class="v3v-l" for="v3vBank">FASTag bank</label><select id="v3vBank" class="v3v-sel"><option value="">Choose the bank on your FASTag sticker</option>' +
+        BANKS.map(function(b){ return '<option value="' + b[1] + '"' + (b[1] === bank ? ' selected' : '') + '>' + esc(b[0]) + '</option>'; }).join('') + '</select>' +
+      '<label class="v3v-l">Amount</label><div class="v3v-amts">' + AMTS.map(function(a){ return '<button type="button" data-amt="' + a + '"' + (a === amt ? ' class="on"' : '') + '>₹' + a.toLocaleString('en-IN') + '</button>'; }).join('') +
+        '<input id="v3vAmt" inputmode="numeric" maxlength="5" placeholder="Other" aria-label="Other amount"></div>' +
+      '<div class="v3v-upi" hidden><small>Paying to</small><b></b><button type="button" data-a="copyupi">Copy UPI ID</button></div>' +
+      '<button type="button" class="v3v-go" data-a="payfastag">' + I('upi') + '<span>Pay with UPI app</span></button>' +
+      '<div class="v3v-qr" hidden><canvas width="320" height="320" aria-label="UPI QR code for FASTag recharge"></canvas><small>Scan with any UPI app on your phone</small></div>' +
+      '<ol class="v3v-steps"><li><span>Your UPI app shows the name on the FASTag account. Check it matches your vehicle before you pay.</span></li><li><span>Not sure of the bank? It is printed on the FASTag sticker and in the SMS your bank sent.</span></li><li><span>If the app does not open, copy the UPI ID and use <b>Pay to UPI ID</b> in any UPI app.</span></li></ol>';
+  }
+  function deskHtml(){
+    return '<h3 id="v3vT">Help at the studio</h3><p class="v3v-sub">Washing with us? Tell our team at the counter. While your vehicle is being washed, we can help you check challans and recharge your FASTag on the official sites.</p>' +
+      '<ul class="v3v-list"><li>' + I('car') + 'Bring your vehicle number and the last 5 characters of the chassis number</li><li>' + I('upi') + 'You pay the fine or recharge yourself, from your own UPI app</li><li>' + I('shield') + 'We never ask for your UPI PIN or OTP</li></ul>' +
+      '<button type="button" class="v3v-go" data-a="book">' + I('cal') + 'Book a wash</button>';
+  }
+
+  function build(){
+    el = document.createElement('div'); el.className = 'v3v'; el.hidden = true;
+    el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-labelledby', 'v3vT');
+    el.innerHTML = '<div class="v3v-card"><button type="button" class="v3v-x" aria-label="Close">' + I('x') + '</button><div class="v3v-body"></div></div>';
+    document.body.appendChild(el);
+    el.addEventListener('click', function(e){ if (e.target === el) close(); act(e); });
+    el.addEventListener('input', onInput);
+    el.addEventListener('change', onInput);
+    document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && el && !el.hidden) close(); });
+  }
+  function no(){ var i = el.querySelector('#v3vNo'); return i ? clean(i.value) : ''; }
+  function err(t){ var p = el.querySelector('.v3v-err'); if (p) p.textContent = t || ''; }
+  function needNo(){
+    var v = no();
+    if (!v) { err('Enter your vehicle number.'); el.querySelector('#v3vNo').focus(); return ''; }
+    if (!valid(v)) { err('Check the number. It looks like WB 02 AB 1234.'); el.querySelector('#v3vNo').focus(); return ''; }
+    put(KEY_NO, v); return v;
+  }
+  function upiId(){ var v = no(), b = (el.querySelector('#v3vBank') || {}).value; return valid(v) && b ? 'netc.' + v + '@' + b : ''; }
+  function upiLink(){ return 'upi://pay?pa=' + upiId() + '&pn=' + encodeURIComponent('FASTag ' + no()) + '&am=' + Number(amt).toFixed(2) + '&cu=INR&tn=' + encodeURIComponent('FASTag recharge'); }
+  function paintFastag(){
+    if (kind !== 'fastag') return;
+    var id = upiId(), box = el.querySelector('.v3v-upi'), go = el.querySelector('[data-a="payfastag"] span');
+    box.hidden = !id; if (id) box.querySelector('b').textContent = id;
+    go.textContent = amt > 0 ? 'Pay ₹' + Number(amt).toLocaleString('en-IN') + ' with UPI app' : 'Pay with UPI app';
+    var qr = el.querySelector('.v3v-qr');
+    if (!mobile() && id && amt >= 100) { qr.hidden = false; try { drawUpiQr(qr.querySelector('canvas'), upiLink()); } catch(e){ qr.hidden = true; } }
+    else qr.hidden = true;
+  }
+  function onInput(e){
+    var t = e.target;
+    if (t.id === 'v3vNo') { var c = clean(t.value); if (e.type === 'change' || valid(c)) t.value = pretty(c); err(''); el.classList.toggle('v3v-okno', valid(c)); }
+    if (t.id === 'v3vBank' && t.value) put(KEY_BANK, t.value);
+    if (t.id === 'v3vAmt') { t.value = t.value.replace(/\D/g, '').slice(0, 5); var n = +t.value; if (n) { amt = n; el.querySelectorAll('.v3v-amts button').forEach(function(b){ b.classList.remove('on'); }); } }
+    paintFastag();
+  }
+  function act(e){
+    var b = e.target.closest && e.target.closest('[data-a],[data-amt],.v3v-x'); if (!b) return;
+    if (b.classList.contains('v3v-x')) return close();
+    if (b.dataset.amt) { amt = +b.dataset.amt; el.querySelectorAll('.v3v-amts button').forEach(function(x){ x.classList.toggle('on', x === b); }); var o = el.querySelector('#v3vAmt'); if (o) o.value = ''; paintFastag(); return; }
+    var a = b.dataset.a, v;
+    try { if (typeof haptic === 'function') haptic('select'); } catch(_){}
+    if (a === 'parivahan' || a === 'ktp') {
+      if (!(v = needNo())) return;
+      var url = a === 'ktp' ? KTP : PARIVAHAN;
+      var w = window.open(url, '_blank', 'noopener');      // open first, inside the tap, so it is not blocked
+      copy(pretty(v).replace(/\s/g, '')).then(function(ok){ say(ok ? 'Vehicle number copied. Paste it on the site.' : 'Your vehicle number is ' + pretty(v) + '.'); });
+      if (!w) location.href = url;
+    }
+    else if (a === 'payfastag') {
+      if (!needNo()) return;
+      if (!el.querySelector('#v3vBank').value) { err('Choose your FASTag bank.'); el.querySelector('#v3vBank').focus(); return; }
+      if (!(amt >= 100)) { err('Enter an amount of ₹100 or more.'); el.querySelector('#v3vAmt').focus(); return; }
+      if (mobile()) location.href = upiLink(); else { paintFastag(); say('Scan the QR code with any UPI app on your phone.'); }
+    }
+    else if (a === 'copyupi') { var id = upiId(); if (id) copy(id).then(function(ok){ say(ok ? 'UPI ID copied' : id); }); }
+    else if (a === 'book') { close(); setTimeout(function(){ var t = document.getElementById('booking'); if (t) t.scrollIntoView({behavior:'smooth', block:'start'}); }, 60); }
+  }
+  function open(k){
+    if (!el) build();
+    kind = k; el.dataset.k = k;
+    el.querySelector('.v3v-body').innerHTML = k === 'fastag' ? fastagHtml() : k === 'desk' ? deskHtml() : challanHtml();
+    el.classList.toggle('v3v-okno', valid(clean(get(KEY_NO))));
+    el.hidden = false; document.body.style.overflow = 'hidden';
+    requestAnimationFrame(function(){ el.classList.add('in'); });
+    paintFastag();
+    setTimeout(function(){ var i = el.querySelector('#v3vNo'); if (i && !i.value) try { i.focus({preventScroll:true}); } catch(_){} }, 320);
+  }
+  function close(){ if (!el || el.hidden) return; el.classList.remove('in'); var pr = document.querySelector('.v3p'); if (!pr || pr.hidden) document.body.style.overflow = ''; setTimeout(function(){ el.hidden = true; }, 260); }
+  window.v3Veh = { open:open, close:close };
+  document.addEventListener('click', function(e){ var t = e.target.closest && e.target.closest('[data-veh]'); if (t) { e.preventDefault(); open(t.dataset.veh); } });
 })();
 
 </script></body></html>
