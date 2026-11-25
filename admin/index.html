@@ -330,6 +330,9 @@ h1,h2,h3{font-family:var(--disp);letter-spacing:-.025em}
 .kpis{margin-bottom:14px}
 .al-warn,.al-ok{margin-bottom:12px}
 .duty{margin-bottom:12px}
+.rchips{display:flex;flex-wrap:wrap;gap:8px}
+.rchips .fchip{flex:none;white-space:normal;text-align:left}
+.btn.pri.bad2{background:var(--bad);border-color:var(--bad);color:#fff;box-shadow:0 8px 22px -10px rgba(255,90,78,.8)}
 
 </style>
 </head>
@@ -400,7 +403,7 @@ function toast(msg, bad){ const t=$("#toast"); t.textContent=msg; t.className="s
 const A = { id:["bookingid","id"], name:["customername","name","customer"], phone:["customerphone","phone","mobile"], email:["customeremail","email"], mode:["servicemode","mode"],
   address:["address"], landmark:["landmark"], map:["maplink"], veh:["vehicletype"], size:["vehiclesize"], plate:["vehiclenumber","plate"], svc:["servicename","service"], addons:["addons"],
   coupon:["couponcode","coupon"], disc:["discount","discountinr"], price:["price","total","totalprice","amount","totalinr","finalprice","totalamount","grandtotal","netprice","bookingamount","payable"], date:["date","bookingdate"], time:["time","slot","timeslot"], dur:["durationmins","durationmin"],
-  created:["createdat","timestamp","createdon","bookedat"], src:["source"], pm:["paymentmethod"], ps:["paymentstatus"], status:["status"], note:["adminnote","notes","note"], ref:["paymentref","utr"] };
+  created:["createdat","timestamp","createdon","bookedat"], src:["source"], pm:["paymentmethod"], ps:["paymentstatus"], status:["status"], note:["adminnote","notes","note"], ref:["paymentref","utr"], creason:["cancelreason"] };
 function normB(r){
   const o = { _row:r._row };
   for(const k in A){ for(const a of A[k]){ if(r[a]!==undefined && r[a]!==null && r[a]!==""){ o[k]=r[a]; break; } } }
@@ -508,7 +511,7 @@ async function loadData(o){
 
 async function patch(id, fields, extra){
   const b = S.bookings.find(x => x.id===id); if(!b) return;
-  const MAP = { status:"status", ps:"paymentstatus", pm:"paymentmethod", note:"adminnote", ref:"paymentref" };
+  const MAP = { status:"status", ps:"paymentstatus", pm:"paymentmethod", note:"adminnote", ref:"paymentref", creason:"cancelreason" };
   const old = {}, wire = {};
   for(const k in fields){ old[k] = b[k]; b[k] = fields[k]; wire[MAP[k]] = fields[k]; }
   render();
@@ -567,6 +570,7 @@ function ticket(b, showDate){
     kv("Vehicle", esc([b.veh,b.size,b.plate].filter(Boolean).join(" · ")));
     kv("Add-ons", esc(b.addons)); kv("Coupon", esc(b.coupon), true);
     kv("Discount", num(b.disc) ? inr(b.disc) : "");
+    if(b.status==="Cancelled") kv("Cancel reason", b.creason ? esc(b.creason) : '<span class="flag">No reason saved</span>');
     kv("Payment", esc([b.ps||"Unpaid", b.pm].filter(Boolean).join(" · ")));
     kv("UTR / ref", b.ref ? esc(b.ref)+' <button class="cpy" data-act="copy" data-v="'+esc(b.ref)+'">Copy</button>' : "", true); kv("Booking ID", esc(b.id), true);
     h += '<div class="tk-more"><dl class="kv">'+rows.join("")+'</dl>'+
@@ -944,6 +948,23 @@ async function submitClose(e){
   catch(err){ toast(err.message, true); }
 }
 
+/* ---- cancel with a reason (the customer sees it on the website and in the email) ---- */
+const CANCEL_REASONS = ["Heavy rain, we cannot wash today","Crew not available at this time","Customer asked us to cancel","Duplicate booking","Address is outside our service area","Vehicle not available at the address"];
+function openCancel(id){
+  const b = S.bookings.find(x => x.id===id); if(!b) return;
+  $("#modal").innerHTML = '<div class="scrim" data-act="closeScrim"><form class="sheet" id="cancf" data-id="'+esc(id)+'" autocomplete="off"><h2>Cancel booking</h2>'+
+    '<p class="muted" style="margin-top:-6px">'+esc(b.name)+' · '+esc(b.svc)+' · '+esc(dLabel(b.date))+' '+esc(b.time)+'. The customer sees this reason on the website and in the cancellation email.</p>'+
+    '<div class="rchips">'+CANCEL_REASONS.map(r => '<button type="button" class="fchip" data-act="creason" data-v="'+esc(r)+'">'+esc(r)+'</button>').join("")+'</div>'+
+    '<label class="lb" for="cr_t" style="margin-top:12px">Reason for the customer</label><textarea class="field" id="cr_t" maxlength="300" required minlength="3" placeholder="For example: Heavy rain, we cannot wash today. Please pick another slot."></textarea>'+
+    '<div class="row" style="margin-top:16px"><button type="button" class="btn sp" data-act="close">Keep booking</button><button class="btn pri sp bad2" type="submit">Cancel booking</button></div></form></div>';
+  $("#cr_t").focus();
+}
+function submitCancel(e){
+  e.preventDefault(); const id = e.target.dataset.id, r = $("#cr_t").value.trim();
+  if(r.length < 3){ toast("Add a reason for the customer.", true); $("#cr_t").focus(); return; }
+  $("#modal").innerHTML = ""; patch(id, { status:"Cancelled", creason:r });
+}
+
 /* ---- add booking sheet ---- */
 const SVC = ["Basic Wash","Express Plus","Detail Boost","Interior Gold (Deep Cleaning)","Exterior Gold (Polish)","Ultimate Revival Detail","Exterior Wash","Interior Cleaning","Premium Detailing","Full Detailing","Ceramic Coating","Paint Protection Film (PPF)","Bike Wash"];
 function openAdd(){
@@ -1196,7 +1217,7 @@ document.addEventListener("click", e => {
   else if(a==="refresh"){ loadData(); if(S.tab==="coupons") loadCoupons(); }
   else if(a==="day"){ const n = +t.dataset.n; S.day = n===0 ? today() : addDays(S.day,n); S.open = null; render(); }
   else if(a==="toggle"){ S.open = S.open===id ? null : id; render(); }
-  else if(a==="status"){ if(t.dataset.confirm && !confirm(t.dataset.confirm)) return; const b = S.bookings.find(x => x.id===id), v = t.dataset.v, extra = {};
+  else if(a==="status"){ if(t.dataset.v==="Cancelled"){ openCancel(id); return; } if(t.dataset.confirm && !confirm(t.dataset.confirm)) return; const b = S.bookings.find(x => x.id===id), v = t.dataset.v, extra = {};
     if(v==="Completed" && b && !isPaid(b)){ if(isMgr()){ toast("Mark it paid first (cash, UPI or card), then complete.", true); return; } if(!confirm("This booking is not paid. Complete it anyway? This will be logged.")) return; extra.unpaidOk = true; }
     patch(id, { status:v }, extra); }
   else if(a==="pay"){ const m = t.dataset.v; if(m==="UPI") openRef(id, m); else patch(id, { ps:"Paid", pm:m }); }
@@ -1212,6 +1233,7 @@ document.addEventListener("click", e => {
   else if(a==="payedit"){ openPay(id); }
   else if(a==="csv"){ exportCsv(t.dataset.v); }
   else if(a==="add"){ openAdd(); }
+  else if(a==="creason"){ const f = $("#cr_t"); if(f){ f.value = t.dataset.v; f.focus(); } document.querySelectorAll('[data-act="creason"]').forEach(x => x.setAttribute("aria-pressed", String(x===t))); }
   else if(a==="verifylist"){ S.tab = "bookings"; S.fStatus = "Verify"; S.q = ""; S.limit = 60; render(); window.scrollTo(0,0); }
   else if(a==="vpaid"){ patch(id, { ps:"Paid", pm:"UPI" }); }
   else if(a==="vnot"){ if(t.dataset.confirm && !confirm(t.dataset.confirm)) return; patch(id, { ps:"Not received" }); }
@@ -1235,7 +1257,7 @@ document.addEventListener("change", e => { if(e.target.id==="fmode"){ S.fMode = 
 document.addEventListener("focusout", e => {
   const t = e.target; if(t.dataset && t.dataset.act==="note"){ const b = S.bookings.find(x => x.id===t.dataset.id); if(b && b.note!==t.value) patch(b.id, { note:t.value }); }
 });
-document.addEventListener("submit", e => { if(e.target.id==="loginf") submitLogin(e); else if(e.target.id==="pwf") submitPw(e); else if(e.target.id==="addf") submitAdd(e); else if(e.target.id==="payf") submitPay(e); else if(e.target.id==="fixf") submitFix(e); else if(e.target.id==="reff") submitRef(e); else if(e.target.id==="closef") submitClose(e); });
+document.addEventListener("submit", e => { if(e.target.id==="loginf") submitLogin(e); else if(e.target.id==="pwf") submitPw(e); else if(e.target.id==="addf") submitAdd(e); else if(e.target.id==="payf") submitPay(e); else if(e.target.id==="fixf") submitFix(e); else if(e.target.id==="reff") submitRef(e); else if(e.target.id==="closef") submitClose(e); else if(e.target.id==="cancf") submitCancel(e); });
 document.addEventListener("keydown", e => { if(e.key==="Escape"){ $("#modal").innerHTML = ""; S.lb = null; } });
 
 /* ============ theme / install / lifecycle ============ */
