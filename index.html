@@ -2379,6 +2379,7 @@ html[data-theme="light"] .booking .opt input:checked+span,html[data-theme="light
 .vsa-drive .vsa-gun,.vsa-desk .vsa-gun{transform-origin:-6px -38px}
 @keyframes vsaAim{0%,30%{transform:rotate(-12deg)}40%{transform:rotate(-2deg)}50%{transform:rotate(-16deg)}60%{transform:rotate(-4deg)}70%,100%{transform:rotate(-12deg)}}
 @keyframes vsaAim2{0%,100%{transform:rotate(-14deg)}50%{transform:rotate(-2deg)}}
+body:has(#locModal:not([hidden])) .nbar{display:none}
 
 </style>
 </head><body>
@@ -2450,7 +2451,7 @@ html[data-theme="light"] .booking .opt input:checked+span,html[data-theme="light
 <div class="locres"><span class="locpin"><svg class="pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21Z"/><circle cx="12" cy="9.5" r="2.5"/></svg></span><div class="t"><b id="locHead">Where should we meet you?</b><small id="locSub">Share your location and we’ll fill in the address for you.</small></div><button class="lbtn" type="button" id="locOpen">Use current location</button></div>
 <input class="field" id="addrArea" placeholder="Area / street (auto-filled)" autocomplete="off">
 <input class="field" id="address" placeholder="House / flat no., building, floor" autocomplete="address-line1">
-<input class="field" id="addrPin" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="postal-code" placeholder="PIN code (e.g. 700156)" aria-describedby="pinMsg">
+<input class="field" id="addrPin" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="postal-code" placeholder="PIN code (optional)" aria-describedby="pinMsg">
 <div class="small-note" id="pinMsg" role="status" aria-live="polite"></div>
 <input class="field" id="landmark" placeholder="Nearby landmark (optional)">
 </div>
@@ -3149,6 +3150,14 @@ function sugShow(list, credit){
 }
 async function sugFetch(q){
   const seq=++sugSeq;
+  if (LIVE && q.length>=4) {                 // v3.24: Google Maps results first (searched by our backend, no key in the page)
+    try{
+      const g=await api("placeSearch",{q});
+      if(seq!==sugSeq) return;
+      if(g&&g.ok&&g.results&&g.results.length){ sugShow(g.results.map(x=>({lat:x.lat,lng:x.lng,full:x.full,main:x.main,sub:(x.ok?"":"Outside doorstep area · ")+(x.sub||""),pin:x.pin||""})),"Results from Google Maps"); return; }
+    }catch(e){}
+    if(seq!==sugSeq) return;
+  }
   try{
     const r=await fetch("https://api.geoapify.com/v1/geocode/autocomplete?format=json&limit=5&lang=en&filter=countrycode:in&bias=proximity:88.42,22.62&text="+encodeURIComponent(q)+"&apiKey="+GEOAPIFY_KEY);
     const d=await r.json().catch(()=>({}));
@@ -3168,13 +3177,13 @@ async function sugFallback(q,seq){
 }
 function sugPick(pr){
   const lat=+pr.lat.toFixed(6), lng=+pr.lng.toFixed(6), ok=inArea(lat,lng); sugHide();
-  setLoc({lat,lng,ok,area:pr.full||pr.main,short:pr.main.slice(0,24)});
+  setLoc({lat,lng,ok,area:pr.full||pr.main,short:pr.main.slice(0,24),pin:pr.pin||""});
   $('locType').value=""; closeLoc();
   if(!ok) toast("That location is outside our doorstep area.");
 }
 document.addEventListener('DOMContentLoaded',()=>{
   const t=$('locType'); if(!t) return;
-  t.addEventListener('input',()=>{ clearTimeout(sugTimer); const q=t.value.trim(); if(q.length<3) return sugHide(); sugTimer=setTimeout(()=>sugFetch(q),250); });
+  t.addEventListener('input',()=>{ clearTimeout(sugTimer); const q=t.value.trim(); if(q.length<3) return sugHide(); sugTimer=setTimeout(()=>sugFetch(q),LIVE?550:250); });
   t.addEventListener('keydown',e=>{ if(e.key==="Enter"){ e.preventDefault(); $('locUseTyped').click(); } });
 });
 
@@ -3207,7 +3216,8 @@ function check2(){
     if(!state.loc.ok) return ["This location is outside our doorstep area. Change your location or choose Drive-through.",$('locOpen')];
     if(!$('addrArea').value.trim()) return ["Enter your area or street.",$('addrArea')];
     if(!$('address').value.trim()) return ["Add your house or flat number and building.",$('address')];
-    if(pinState()!=="ok") return ["Enter a PIN code we serve: 700156, 700157, 700160, 700161 or 700135. Or choose Drive-through.",$('addrPin')];
+    if(pinState()==="bad") return ["We do not serve that PIN code yet. Clear it, fix it, or choose Drive-through.",$('addrPin')];
+    if(pinState()==="short" && $('addrPin').value.trim()) return ["A PIN code has 6 digits. Fix it or leave it empty.",$('addrPin')];
   }
   if(!$('date').value||$('date').value<todayStr()) return ["Choose today or a future date.",$('date')];
   if(!state.slot) return ["Pick a time slot.",document.querySelector('#slots input:not(:disabled)')];
