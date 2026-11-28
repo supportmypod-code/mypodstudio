@@ -2286,6 +2286,99 @@ button.v3lg-row:hover{background:var(--panel2)}
 body.v3lg-on .nbar,body.v3lg-on .v3-appban,body.v3lg-on .fabs{visibility:hidden}
 @media(prefers-reduced-motion:reduce){.v3lg-pin,.v3lg-shadow,.v3lg-ring{animation:none}}
 .v3lg-en:focus-visible{outline:2px solid #fff;outline-offset:2px}
+/* ===== vehicle services: animated scenes instead of plain icons ===== */
+.v3vs-c{padding:12px 12px 16px;gap:2px}
+.v3vs-art{display:block;width:100%;margin-bottom:12px;border-radius:14px;overflow:hidden}
+.v3vs-art svg{display:block;width:100%;height:auto}
+.v3vs-c b{margin-top:0;padding:0 6px}.v3vs-c small{padding:0 6px}
+.vsa-bg{fill:#0b0d10}
+.vsa *{transform-box:fill-box;transform-origin:center}
+.v3vs-desk .vsa-bg{fill:#14120a}
+html[data-theme="light"] .vsa-bg{fill:#f3f4f6}
+/* paused until the section is on screen */
+.vsa *{animation-play-state:paused}
+.v3vs.play .vsa *{animation-play-state:running}
+/* check challan: lens sweeps the plate, then the ticket pops */
+.vsa-lens{animation:vsaSweep 4.5s ease-in-out infinite}
+@keyframes vsaSweep{0%,8%{transform:translate(-6px,0)}35%{transform:translate(52px,0)}50%,100%{transform:translate(52px,0);opacity:0}}
+.vsa-ticket{animation:vsaPop 4.5s cubic-bezier(.2,1.5,.4,1) infinite}
+@keyframes vsaPop{0%,40%{transform:scale(0) rotate(-12deg);opacity:0}52%{transform:scale(1.08) rotate(4deg);opacity:1}60%,88%{transform:scale(1) rotate(4deg);opacity:1}100%{transform:scale(.9) rotate(4deg);opacity:0}}
+.vsa-check .vsa-btn{animation:vsaBlink 4.5s infinite}
+@keyframes vsaBlink{0%,4%{opacity:1}6%{opacity:.4}10%,100%{opacity:1}}
+/* pay challan: receipt rises, UPI hops in, PAID stamp lands */
+.vsa-rcpt{animation:vsaRise 4.5s cubic-bezier(.2,.9,.2,1) infinite}
+@keyframes vsaRise{0%{transform:translateY(70px)}22%,92%{transform:translateY(0)}100%{transform:translateY(70px)}}
+.vsa-upi{animation:vsaHop 4.5s ease-in-out infinite}
+@keyframes vsaHop{0%,22%{transform:translate(0,0) scale(0)}30%{transform:translate(0,0) scale(1)}45%{transform:translate(52px,30px) scale(.6);opacity:1}50%,100%{transform:translate(52px,30px) scale(.2);opacity:0}}
+.vsa-stamp{animation:vsaStamp 4.5s cubic-bezier(.3,1.6,.5,1) infinite}
+@keyframes vsaStamp{0%,48%{transform:scale(2.2) rotate(-14deg);opacity:0}56%,92%{transform:scale(1) rotate(-14deg);opacity:1}100%{opacity:0;transform:scale(1) rotate(-14deg)}}
+.vsa-tick{animation:vsaPop 4.5s cubic-bezier(.2,1.5,.4,1) .9s infinite}
+/* FASTag: car drives up, the barrier lifts, money lands on the tag */
+.vsa-lane{animation:vsaLane .9s linear infinite}
+@keyframes vsaLane{to{stroke-dashoffset:-32}}
+.vsa-car{animation:vsaDrive 4.5s cubic-bezier(.45,0,.3,1) infinite}
+@keyframes vsaDrive{0%{transform:translateX(-90px)}30%,42%{transform:translateX(52px)}80%{transform:translateX(250px)}100%{transform:translateX(250px)}}
+.vsa-arm{transform-origin:0% 50%;animation:vsaArm 4.5s ease-in-out infinite}
+@keyframes vsaArm{0%,36%{transform:rotate(0)}46%,72%{transform:rotate(-70deg)}84%,100%{transform:rotate(0)}}
+.vsa-sticker{animation:vsaGlow 4.5s infinite}
+@keyframes vsaGlow{0%,30%{fill:#1fae5b}34%,40%{fill:#9dffc4}44%,100%{fill:#1fae5b}}
+.vsa-plus{animation:vsaFloat 4.5s ease-out infinite}
+@keyframes vsaFloat{0%,32%{transform:translateY(14px);opacity:0}40%{transform:translateY(0);opacity:1}62%{transform:translateY(-6px);opacity:1}72%,100%{transform:translateY(-10px);opacity:0}}
+/* help at the studio: car rinsed, sparkles, checklist ticks */
+.vsa-drops rect{animation:vsaDrop .8s linear infinite}
+.vsa-drops rect:nth-child(2){animation-delay:.2s}.vsa-drops rect:nth-child(3){animation-delay:.4s}.vsa-drops rect:nth-child(4){animation-delay:.1s}.vsa-drops rect:nth-child(5){animation-delay:.3s}
+@keyframes vsaDrop{0%{transform:translateY(0);opacity:0}20%{opacity:1}100%{transform:translateY(34px);opacity:0}}
+.vsa-spark path{animation:vsaTw 1.8s ease-in-out infinite}.vsa-spark .s2{animation-delay:.9s}
+@keyframes vsaTw{0%,100%{transform:scale(0) rotate(0);opacity:0}50%{transform:scale(1.2) rotate(45deg);opacity:1}}
+.vsa-row{animation:vsaRow 4.5s ease-out infinite;opacity:0}
+.vsa-row.r2{animation-delay:.5s}.vsa-row.r3{animation-delay:1s}
+@keyframes vsaRow{0%,10%{opacity:0;transform:translateX(-8px)}20%,85%{opacity:1;transform:none}100%{opacity:0}}
+@media(max-width:520px){
+  .v3vs-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+  .v3vs .v3vs-c{display:flex;flex-direction:column;align-items:stretch;padding:8px 8px 12px;min-height:0}
+  .v3vs .v3vs-art{margin-bottom:9px;border-radius:11px}
+  .v3vs .v3vs-c b{font-size:14.5px;padding:0 4px}.v3vs .v3vs-c small{font-size:12px;padding:0 4px}
+}
+@media(prefers-reduced-motion:reduce){.vsa *{animation:none!important}.vsa-row,.vsa-ticket,.vsa-stamp,.vsa-plus,.vsa-tick{opacity:1}}
+/* Doorstep / Drive-through animated pictures */
+.opt svg.oimg{display:block;width:100%;height:auto;aspect-ratio:2/1;border-radius:12px;margin-bottom:10px}
+.booking .opt input:checked+span svg.oimg{box-shadow:0 0 0 2px #07080a}
+.opts .vsa *{animation-play-state:running}
+.vsa-van{animation:vsaVan 5s cubic-bezier(.45,0,.3,1) infinite}
+@keyframes vsaVan{0%{transform:translateX(-150px)}35%,78%{transform:translateX(40px)}100%{transform:translateX(40px);opacity:0}}
+.vsa-pinbob{animation:vsaBob 1.6s ease-in-out infinite}
+@keyframes vsaBob{50%{transform:translateY(-6px)}}
+.vsa-door .vsa-spark path{animation-delay:1.8s}
+.vsa-dcar{animation:vsaThru 5s cubic-bezier(.45,0,.3,1) infinite}
+@keyframes vsaThru{0%{transform:translateX(-140px)}30%,55%{transform:translateX(98px)}90%{transform:translateX(330px)}100%{transform:translateX(330px)}}
+.vsa-glint{opacity:0;animation:vsaGl 5s infinite}
+@keyframes vsaGl{0%,56%{opacity:0}62%,80%{opacity:1}86%,100%{opacity:0}}
+.vsa-drive .vsa-drops rect{animation-duration:.7s}
+.opt.v3-na svg.oimg{filter:grayscale(1) brightness(.6);opacity:.55}
+.opt.v3-na .vsa *{animation:none}
+@keyframes vsaVan{0%{transform:translateX(-150px);opacity:1}30%,86%{transform:translateX(40px);opacity:1}94%{transform:translateX(40px);opacity:0}100%{transform:translateX(-150px);opacity:0}}
+html[data-theme="light"] .booking .opt input:checked+span,html[data-theme="light"] .booking .svcrow:has(input:checked),html[data-theme="light"] .booking .addon-option:has(input:checked){background:#ffd51b;border-color:#e6b800;color:#07080a}
+/* hand pressure-wash: the washer sweeps the jet over the car */
+.vsa-man *{transform-box:view-box}
+.vsa-gun{transform-origin:240px 86px}
+.vsa-drive .vsa-gun{animation:vsaAim 5s ease-in-out infinite}
+@keyframes vsaAim{0%,30%{transform:rotate(-6deg)}40%{transform:rotate(6deg)}50%{transform:rotate(-8deg)}60%{transform:rotate(5deg)}70%,100%{transform:rotate(-6deg)}}
+.vsa-drive .vsa-jet{opacity:0;animation:vsaJet 5s infinite}
+@keyframes vsaJet{0%,30%{opacity:0}33%,68%{opacity:1}71%,100%{opacity:0}}
+.vsa-jet .j1{animation:vsaSpray .35s linear infinite}.vsa-jet .j2{animation:vsaSpray .45s linear infinite}
+@keyframes vsaSpray{to{stroke-dashoffset:-12}}
+.vsa-mist circle{animation:vsaMist 1s ease-out infinite;opacity:0}
+.vsa-mist circle:nth-child(2){animation-delay:.25s}.vsa-mist circle:nth-child(3){animation-delay:.5s}.vsa-mist circle:nth-child(4){animation-delay:.75s}
+@keyframes vsaMist{0%{opacity:0;transform:translate(0,0)}30%{opacity:1}100%{opacity:0;transform:translate(-6px,10px)}}
+.vsa-drive .vsa-mist{opacity:0;animation:vsaJet 5s infinite}
+@keyframes vsaThru{0%{transform:translateX(-140px)}28%,72%{transform:translateX(84px)}100%{transform:translateX(340px)}}
+@keyframes vsaGl{0%,70%{opacity:0}74%,84%{opacity:1}90%,100%{opacity:0}}
+.vsa-drive .vsa-spark path{animation-delay:3.5s}
+.vsa-desk .vsa-gun{transform-origin:128px 76px;animation:vsaAim2 2.4s ease-in-out infinite}
+@keyframes vsaAim2{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(7deg)}}
+.vsa-drive .vsa-gun,.vsa-desk .vsa-gun{transform-origin:-6px -38px}
+@keyframes vsaAim{0%,30%{transform:rotate(-12deg)}40%{transform:rotate(-2deg)}50%{transform:rotate(-16deg)}60%{transform:rotate(-4deg)}70%,100%{transform:rotate(-12deg)}}
+@keyframes vsaAim2{0%,100%{transform:rotate(-14deg)}50%{transform:rotate(-2deg)}}
 
 </style>
 </head><body>
@@ -2315,8 +2408,8 @@ body.v3lg-on .nbar,body.v3lg-on .v3-appban,body.v3lg-on .fabs{visibility:hidden}
 <section class="pane" data-pane="1">
 <div class="lbl" style="margin-top:0">How should we take care of you?</div>
 <div class="opts" role="radiogroup" aria-label="Service type">
-<label class="opt"><input type="radio" name="serviceMode" value="Doorstep" checked><span><img class="oimg" src="images/doorstep.svg" width="320" height="160" alt="" loading="lazy"><b>Doorstep</b><small>We come to your door in Newtown</small></span></label>
-<label class="opt"><input type="radio" name="serviceMode" value="Drive-through"><span><img class="oimg" src="images/drivethrough.svg" width="320" height="160" alt="" loading="lazy"><b>Drive-through</b><small>Drive in to our studio</small></span></label>
+<label class="opt"><input type="radio" name="serviceMode" value="Doorstep" checked><span><svg class="oimg vsa vsa-door" viewBox="0 0 320 160" aria-hidden="true"><rect class="vsa-bg" width="320" height="160" rx="12"/><rect x="0" y="124" width="320" height="36" fill="#1b1e24"/><path class="vsa-lane" d="M-20 142h360" stroke="#3a3f48" stroke-width="3" stroke-dasharray="18 14"/><g><path d="M196 124V76l46-34 46 34v48z" fill="#2a2f37"/><path d="M188 80l54-42 54 42" fill="none" stroke="#ffd51b" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><rect x="230" y="92" width="24" height="32" rx="3" fill="#ffd51b"/><circle cx="249" cy="109" r="2" fill="#07080a"/><rect x="206" y="88" width="16" height="14" rx="2" fill="#7cc6ff" opacity=".7"/><rect x="262" y="88" width="16" height="14" rx="2" fill="#7cc6ff" opacity=".7"/></g><g class="vsa-pinbob"><path d="M242 6c-8 0-14 6-14 14 0 10 14 22 14 22s14-12 14-22c0-8-6-14-14-14z" fill="#ff5a4f"/><circle cx="242" cy="20" r="5" fill="#fff"/></g><g class="vsa-van"><path d="M14 124V86a6 6 0 0 1 6-6h84l22 22v22z" fill="#ffd51b"/><path d="M106 84l18 18h-18z" fill="#07080a" opacity=".85"/><rect x="24" y="90" width="56" height="16" rx="3" fill="#07080a"/><text x="52" y="102" text-anchor="middle" font-size="10" font-weight="900" fill="#ffd51b" font-family="inherit">MYPOD</text><circle cx="40" cy="125" r="10" fill="#07080a"/><circle cx="104" cy="125" r="10" fill="#07080a"/><circle cx="40" cy="125" r="4" fill="#6d747d"/><circle cx="104" cy="125" r="4" fill="#6d747d"/></g><g class="vsa-spark" fill="#fff"><path class="s1" d="M150 70l2.4 6 6 2.4-6 2.4-2.4 6-2.4-6-6-2.4 6-2.4z"/><path class="s2" d="M176 92l1.8 4.4 4.4 1.8-4.4 1.8-1.8 4.4-1.8-4.4-4.4-1.8 4.4-1.8z"/></g></svg><b>Doorstep</b><small>We come to your door in Newtown</small></span></label>
+<label class="opt"><input type="radio" name="serviceMode" value="Drive-through"><span><svg class="oimg vsa vsa-drive" viewBox="0 0 320 160" aria-hidden="true"><rect class="vsa-bg" width="320" height="160" rx="12"/><rect x="0" y="124" width="320" height="36" fill="#1b1e24"/><path class="vsa-lane" d="M-20 142h360" stroke="#ffd51b" stroke-width="3" stroke-dasharray="18 14"/><rect x="56" y="34" width="10" height="90" fill="#2d323a"/><rect x="264" y="34" width="10" height="90" fill="#2d323a"/><rect x="44" y="16" width="242" height="22" rx="5" fill="#ffd51b"/><text x="165" y="31.5" text-anchor="middle" font-size="12" font-weight="900" fill="#07080a" font-family="inherit" letter-spacing="1">MYPOD SERVICE STATION</text><g class="vsa-man" transform="translate(246 120)"><rect x="-7" y="-22" width="6" height="22" rx="2" fill="#2d323a"/><rect x="1" y="-22" width="6" height="22" rx="2" fill="#2d323a"/><rect x="-10" y="-44" width="20" height="25" rx="5" fill="#07080a" stroke="#3a3f48" stroke-width="1.5"/><rect x="-10" y="-35" width="20" height="4" fill="#ffd51b"/><circle cx="0" cy="-51" r="7" fill="#c98b5e"/><path d="M-8 -53a8 8 0 0 1 16 0z" fill="#ffd51b"/><rect x="-12" y="-54" width="10" height="3" rx="1.5" fill="#ffd51b"/><g class="vsa-gun"><path d="M-6 -38-20 -30" stroke="#c98b5e" stroke-width="5" stroke-linecap="round"/><rect x="-26" y="-34" width="9" height="7" rx="2" fill="#ff5a4f"/><path d="M-26 -31H-52" stroke="#9aa1a9" stroke-width="3" stroke-linecap="round"/><g class="vsa-jet"><path d="M-52 -31-96 -42-96 -18z" fill="rgba(124,198,255,.28)"/><path class="j1" d="M-52 -31H-96" stroke="#cfeaff" stroke-width="2.4" stroke-dasharray="6 6" stroke-linecap="round"/><path class="j2" d="M-52 -31-96 -40" stroke="#7cc6ff" stroke-width="1.8" stroke-dasharray="4 7" stroke-linecap="round"/><path class="j2" d="M-52 -31-96 -21" stroke="#7cc6ff" stroke-width="1.8" stroke-dasharray="4 7" stroke-linecap="round"/></g></g></g><g class="vsa-dcar"><path d="M10 124v-16l14-20h64l18 20h14a8 8 0 0 1 8 8v8z" fill="#ffd51b"/><path d="M30 92h20v14H22zM56 92h28l12 14H56z" fill="#07080a" opacity=".85"/><circle cx="34" cy="125" r="10" fill="#07080a"/><circle cx="106" cy="125" r="10" fill="#07080a"/><circle cx="34" cy="125" r="4" fill="#6d747d"/><circle cx="106" cy="125" r="4" fill="#6d747d"/><path class="vsa-glint" d="M40 98l10-6" stroke="#fff" stroke-width="3" stroke-linecap="round"/><g class="vsa-mist" fill="#cfeaff"><circle cx="96" cy="100" r="2"/><circle cx="112" cy="108" r="1.6"/><circle cx="86" cy="112" r="1.8"/><circle cx="104" cy="116" r="1.4"/></g></g><g class="vsa-spark" fill="#fff"><path class="s1" d="M120 70l2.4 6 6 2.4-6 2.4-2.4 6-2.4-6-6-2.4 6-2.4z"/><path class="s2" d="M86 80l1.8 4.4 4.4 1.8-4.4 1.8-1.8 4.4-1.8-4.4-4.4-1.8 4.4-1.8z"/></g></svg><b>Drive-through</b><small>Drive in to our studio</small></span></label>
 </div>
 <div class="nav2 one"><button class="btn" type="button" data-next>Continue →</button></div>
 </section>
@@ -2372,8 +2465,8 @@ body.v3lg-on .nbar,body.v3lg-on .v3-appban,body.v3lg-on .fabs{visibility:hidden}
 
 <section class="pane" data-pane="6" hidden>
 <input class="field" id="customerName" autocomplete="name" placeholder="Full name" style="margin-bottom:8px">
-<input class="field" id="customerPhone" type="tel" autocomplete="tel" inputmode="tel" placeholder="Mobile number (10 digits)" style="margin-bottom:8px">
-<input class="field" id="customerEmail" type="email" autocomplete="email" inputmode="email" placeholder="Email address (we send your confirmation here)" required>
+<input class="field" id="customerPhone" type="tel" autocomplete="tel" inputmode="tel" placeholder="Mobile number (10 digits, required)" required aria-required="true" style="margin-bottom:8px">
+<input class="field" id="customerEmail" type="email" autocomplete="email" inputmode="email" placeholder="Email (optional, for a confirmation email)" aria-required="false">
 <div class="couponrow"><input class="field" id="couponCode" autocomplete="off" placeholder="Promo / flyer code (optional)" maxlength="40" aria-required="false" aria-describedby="couponHint" autocapitalize="characters" spellcheck="false"><button class="secondary-btn" type="button" id="applyCoupon">Apply</button></div>
 <div class="small-note" id="couponHint">Got a MyPod flyer code? Enter it to apply your offer. No code? Just continue.</div>
 <div class="small-note" id="couponMsg"></div>
@@ -2401,7 +2494,7 @@ body.v3lg-on .nbar,body.v3lg-on .v3-appban,body.v3lg-on .fabs{visibility:hidden}
 <div class="wrap v3-facts" aria-label="MyPod at a glance">
 <div><b data-count="4.7">4.7</b><span>Google rating from 165 reviews of our Newtown studio</span></div>
 <div><b data-count="3">3</b><span>Action Areas covered at your doorstep: I, II and III</span></div>
-<div><b data-count="7">7</b><span>Bookable slots a day, from 9:00 AM to 7:00 PM</span></div>
+<div><b data-count="15">15</b><span>Doorstep slots a day, from 9:00 AM to 9:00 PM</span></div>
 <div><b data-count="250" data-pre="₹">₹250</b><span>Starting price for a bike wash. Cars from ₹550</span></div>
 </div></section>
 
@@ -2603,10 +2696,10 @@ s.addEventListener('pointerleave',function(){tx=0;ty=0;kick()});
 
 <section class="sec v3vs" id="vehicle-services"><div class="wrap"><div class="sec-head"><span class="kicker">Vehicle services</span><h2>More for your <span class="y">vehicle.</span></h2><p class="lead">Check and pay traffic challans and recharge your FASTag on the official sites. It takes about a minute, and the money goes straight to the government or your bank.</p></div>
 <div class="v3vs-grid">
-<button type="button" class="v3vs-c" data-veh="challan"><span class="v3vs-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><circle cx="11.5" cy="14" r="2.5"/><path d="m13.5 16 2 2"/></svg></span><b>Check challan</b><small>Fines on your vehicle number</small></button>
-<button type="button" class="v3vs-c" data-veh="challan"><span class="v3vs-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg></span><b>Pay challan</b><small>Parivahan or Kolkata Traffic Police</small></button>
-<button type="button" class="v3vs-c" data-veh="fastag"><span class="v3vs-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 21 9 3M19 21 15 3"/><path d="M12 5v2M12 11v2M12 17v2"/></svg></span><b>Recharge FASTag</b><small>From any UPI app, any bank</small></button>
-<button type="button" class="v3vs-c v3vs-desk" data-veh="desk"><span class="v3vs-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 16V11l2-5h10l2 5v5"/><path d="M3 16h18v3H3z"/></svg></span><b>Washing with us?</b><small>We help with challans and FASTag while we wash</small></button>
+<button type="button" class="v3vs-c" data-veh="challan"><span class="v3vs-art"><svg class="vsa vsa-check" viewBox="0 0 240 130" aria-hidden="true"><rect class="vsa-bg" width="240" height="130" rx="14"/><g class="vsa-phone"><rect x="70" y="10" width="100" height="112" rx="14" fill="#1b1e24" stroke="#3a3f48" stroke-width="2"/><rect x="104" y="15" width="32" height="4" rx="2" fill="#3a3f48"/><rect x="80" y="30" width="80" height="26" rx="5" fill="#fff" stroke="#07080a" stroke-width="2"/><rect x="80" y="30" width="12" height="26" rx="3" fill="#1f4fbf"/><text x="126" y="47" text-anchor="middle" font-size="9.2" font-weight="800" letter-spacing=".2" fill="#07080a" font-family="inherit">WB 02 AB 1234</text><rect x="80" y="64" width="80" height="6" rx="3" fill="#2d323a"/><rect x="80" y="76" width="56" height="6" rx="3" fill="#2d323a"/><rect class="vsa-btn" x="80" y="92" width="80" height="18" rx="6" fill="#ffd51b"/><text x="120" y="104.5" text-anchor="middle" font-size="9" font-weight="800" fill="#07080a" font-family="inherit">CHECK</text></g><g class="vsa-lens"><circle cx="98" cy="43" r="17" fill="rgba(255,213,27,.18)" stroke="#ffd51b" stroke-width="4"/><path d="M110 55 122 67" stroke="#ffd51b" stroke-width="7" stroke-linecap="round"/></g><g class="vsa-ticket"><rect x="160" y="58" width="66" height="50" rx="8" fill="#ff5a4f"/><path d="M160 74h66" stroke="rgba(255,255,255,.35)" stroke-dasharray="4 3"/><text x="193" y="70" text-anchor="middle" font-size="8.5" font-weight="800" fill="#fff" font-family="inherit">1 CHALLAN</text><text x="193" y="96" text-anchor="middle" font-size="17" font-weight="900" fill="#fff" font-family="inherit">₹500</text></g></svg></span><b>Check challan</b><small>Fines on your vehicle number</small></button>
+<button type="button" class="v3vs-c" data-veh="challan"><span class="v3vs-art"><svg class="vsa vsa-pay" viewBox="0 0 240 130" aria-hidden="true"><rect class="vsa-bg" width="240" height="130" rx="14"/><rect x="58" y="96" width="124" height="16" rx="8" fill="#1b1e24" stroke="#3a3f48" stroke-width="2"/><g class="vsa-rcpt"><path d="M78 20h84v76l-7-5-7 5-7-5-7 5-7-5-7 5-7-5-7 5-7-5-7 5-7-5z" fill="#fff"/><text x="120" y="36" text-anchor="middle" font-size="9" font-weight="800" fill="#07080a" font-family="inherit">e-CHALLAN</text><rect x="88" y="44" width="64" height="5" rx="2.5" fill="#d9dbe0"/><rect x="88" y="54" width="44" height="5" rx="2.5" fill="#d9dbe0"/><text x="120" y="80" text-anchor="middle" font-size="18" font-weight="900" fill="#07080a" font-family="inherit">₹500</text></g><g class="vsa-stamp"><rect x="128" y="46" width="70" height="30" rx="7" fill="none" stroke="#1fae5b" stroke-width="4"/><text x="163" y="67" text-anchor="middle" font-size="15" font-weight="900" fill="#1fae5b" font-family="inherit">PAID</text></g><g class="vsa-upi"><circle cx="40" cy="40" r="18" fill="#ffd51b"/><text x="40" y="45" text-anchor="middle" font-size="12" font-weight="900" fill="#07080a" font-family="inherit">UPI</text></g><g class="vsa-tick"><circle cx="206" cy="30" r="13" fill="#1fae5b"/><path d="m200 30 4.5 4.5 8-8" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></g></svg></span><b>Pay challan</b><small>Parivahan or Kolkata Traffic Police</small></button>
+<button type="button" class="v3vs-c" data-veh="fastag"><span class="v3vs-art"><svg class="vsa vsa-tag" viewBox="0 0 240 130" aria-hidden="true"><rect class="vsa-bg" width="240" height="130" rx="14"/><rect x="0" y="92" width="240" height="26" fill="#1b1e24"/><path class="vsa-lane" d="M-20 105h260" stroke="#ffd51b" stroke-width="3" stroke-dasharray="18 14"/><rect x="150" y="34" width="14" height="60" fill="#2d323a"/><rect x="104" y="24" width="60" height="13" rx="3" fill="#ffd51b"/><text x="134" y="33.5" text-anchor="middle" font-size="8" font-weight="900" fill="#07080a" font-family="inherit">FASTag</text><g class="vsa-arm"><rect x="160" y="62" width="70" height="7" rx="3.5" fill="#fff"/><rect x="176" y="62" width="10" height="7" fill="#ff5a4f"/><rect x="198" y="62" width="10" height="7" fill="#ff5a4f"/></g><g class="vsa-car"><path d="M8 92V80l10-14h36l12 14h8a6 6 0 0 1 6 6v6z" fill="#ffd51b"/><path d="M22 70h12v10H16zM38 70h14l8 10H38z" fill="#07080a" opacity=".85"/><rect class="vsa-sticker" x="44" y="72" width="6" height="6" rx="1" fill="#1fae5b"/><circle cx="22" cy="93" r="7" fill="#07080a"/><circle cx="64" cy="93" r="7" fill="#07080a"/><circle cx="22" cy="93" r="3" fill="#6d747d"/><circle cx="64" cy="93" r="3" fill="#6d747d"/></g><g class="vsa-plus"><rect x="92" y="10" width="64" height="22" rx="11" fill="#1fae5b"/><text x="124" y="25.5" text-anchor="middle" font-size="12" font-weight="900" fill="#fff" font-family="inherit">+ ₹500</text></g></svg></span><b>Recharge FASTag</b><small>From any UPI app, any bank</small></button>
+<button type="button" class="v3vs-c v3vs-desk" data-veh="desk"><span class="v3vs-art"><svg class="vsa vsa-desk" viewBox="0 0 240 130" aria-hidden="true"><rect class="vsa-bg" width="240" height="130" rx="14"/><rect x="0" y="110" width="150" height="20" fill="#1b1e24"/><g class="vsa-wcar" transform="translate(-6 4) scale(.86)"><path d="M18 100V86l12-18h60l16 18h12a8 8 0 0 1 8 8v6z" fill="#ffd51b"/><path d="M36 72h18v12H28zM60 72h24l10 12H60z" fill="#07080a" opacity=".85"/><circle cx="38" cy="101" r="9" fill="#07080a"/><circle cx="102" cy="101" r="9" fill="#07080a"/><circle cx="38" cy="101" r="3.5" fill="#6d747d"/><circle cx="102" cy="101" r="3.5" fill="#6d747d"/><g class="vsa-mist" fill="#cfeaff"><circle cx="92" cy="80" r="2"/><circle cx="104" cy="90" r="1.6"/><circle cx="84" cy="94" r="1.8"/></g></g><g class="vsa-man" transform="translate(134 110) scale(.9)"><rect x="-7" y="-22" width="6" height="22" rx="2" fill="#2d323a"/><rect x="1" y="-22" width="6" height="22" rx="2" fill="#2d323a"/><rect x="-10" y="-44" width="20" height="25" rx="5" fill="#07080a" stroke="#3a3f48" stroke-width="1.5"/><rect x="-10" y="-35" width="20" height="4" fill="#ffd51b"/><circle cx="0" cy="-51" r="7" fill="#c98b5e"/><path d="M-8 -53a8 8 0 0 1 16 0z" fill="#ffd51b"/><rect x="-12" y="-54" width="10" height="3" rx="1.5" fill="#ffd51b"/><g class="vsa-gun"><path d="M-6 -38-20 -30" stroke="#c98b5e" stroke-width="5" stroke-linecap="round"/><rect x="-26" y="-34" width="9" height="7" rx="2" fill="#ff5a4f"/><path d="M-26 -31H-44" stroke="#9aa1a9" stroke-width="3" stroke-linecap="round"/><g class="vsa-jet on"><path d="M-44 -31-74 -40-74 -20z" fill="rgba(124,198,255,.28)"/><path class="j1" d="M-44 -31H-74" stroke="#cfeaff" stroke-width="2.4" stroke-dasharray="6 6" stroke-linecap="round"/><path class="j2" d="M-44 -31-74 -38" stroke="#7cc6ff" stroke-width="1.8" stroke-dasharray="4 7" stroke-linecap="round"/></g></g></g><g class="vsa-spark" fill="#fff"><path class="s1" d="M24 52l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/><path class="s2" d="M100 50l1.6 4 4 1.6-4 1.6-1.6 4-1.6-4-4-1.6 4-1.6z"/></g><g class="vsa-board"><rect x="160" y="30" width="66" height="80" rx="9" fill="#fff"/><rect x="180" y="25" width="26" height="10" rx="4" fill="#3a3f48"/><g class="vsa-row r1"><circle cx="172" cy="52" r="5" fill="#1fae5b"/><path d="m169.5 52 2 2 3.5-3.5" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/><rect x="182" y="49" width="34" height="6" rx="3" fill="#cfd3d9"/></g><g class="vsa-row r2"><circle cx="172" cy="70" r="5" fill="#1fae5b"/><path d="m169.5 70 2 2 3.5-3.5" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/><rect x="182" y="67" width="28" height="6" rx="3" fill="#cfd3d9"/></g><g class="vsa-row r3"><circle cx="172" cy="88" r="5" fill="#1fae5b"/><path d="m169.5 88 2 2 3.5-3.5" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/><rect x="182" y="85" width="32" height="6" rx="3" fill="#cfd3d9"/></g></g></svg></span><b>Washing with us?</b><small>We help with challans and FASTag while we wash</small></button>
 </div></div></section><section class="sec" id="how"><div class="wrap"><div class="sec-head"><span class="kicker">How it works</span><h2>Booked in <span class="y">about a minute.</span></h2></div>
 <ol class="steps">
 <li><span class="n">STEP 01</span><h3>Choose your package</h3><p>Pick your car or bike, then the care you want. The price shows straight away.</p></li>
@@ -2695,8 +2788,8 @@ const store = {
   get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } },
   set(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
 };
-const SLOTS = ["8:30 AM","9:15 AM","10:00 AM","10:45 AM","11:30 AM","12:15 PM","1:00 PM","1:45 PM","2:30 PM","3:15 PM","4:00 PM","4:45 PM","5:30 PM","6:00 PM"];
-const LAST_SLOT_MINUTES = 19 * 60;   // last slot a customer can start: 7:00 PM
+const SLOTS = ["9:00 AM","10:00 AM","10:30 AM","11:00 AM","12:00 PM","12:30 PM","1:00 PM","2:00 PM","2:30 PM","3:30 PM","5:00 PM","6:00 PM","7:00 PM","8:00 PM","9:00 PM"];   // preview mode only
+const LAST_SLOT_MINUTES = 21 * 60;   // last slot a customer can start: 9:00 PM (doorstep)
 const DEMO_END_MINUTES = 20 * 60;   // demo (not available) times are shown in the gaps up to 8:00 PM
 /* Menu and prices from MY_POD_Master_Service_Pricing.xlsx. The booking backend (Apps Script) keeps its own copy: change both together. */
 const SIZES = {
@@ -3126,7 +3219,7 @@ async function nextStep(){
     const fail3 = (m, el) => { haptic("error"); setMsg($('msg3'), m, "bad"); if(el) el.focus(); };
     if ($('customerName').value.trim().length < 2) return fail3("Enter your full name.", $('customerName'));
     if (!validPhone($('customerPhone').value)) return fail3("Enter a valid 10-digit mobile number.", $('customerPhone'));
-    if (!validEmail($('customerEmail').value)) return fail3("Enter a valid email address. We send your confirmation there.", $('customerEmail'));
+    if ($('customerEmail').value.trim() && !validEmail($('customerEmail').value)) return fail3("Check your email address, or leave it empty.", $('customerEmail'));
     const code = formatCouponInput();
     if (code) {
       if (!state.coupon || state.coupon.code.toUpperCase() !== code) {
@@ -3416,7 +3509,7 @@ async function submitBooking(ev){
   const e = check2(); if (e) { haptic("error"); go(5,true); setMsg($('msg2'), e[0], "bad"); return; }
   if ($('customerName').value.trim().length < 2) return fail("Enter your full name.", $('customerName'));
   if (!validPhone($('customerPhone').value)) return fail("Enter a valid 10-digit mobile number.", $('customerPhone'));
-  if (!validEmail($('customerEmail').value)) return fail("Enter a valid email address. We send your confirmation there.", $('customerEmail'));
+  if ($('customerEmail').value.trim() && !validEmail($('customerEmail').value)) return fail("Check your email address, or leave it empty.", $('customerEmail'));
   if (payMethodName() === "UPI" && !/^\d{12}$/.test(state.payRef || "")) return fail("Enter the 12-digit UPI transaction ID (UTR) from your payment receipt. We use it to match your payment.", $('payRef'));
   // Promo/flyer codes are optional. When a customer enters one, retain the existing validation rules.
   const couponCode = formatCouponInput();
@@ -3443,7 +3536,7 @@ async function submitBooking(ev){
     if (!r.booking || !r.booking.bookingId) throw new Error("Your booking was not saved. Please try again, or call us on 98869 50617.");
     r.booking.paymentMethod = r.booking.paymentMethod || payload.paymentMethod;
     rememberCustomer(); showConfirmation(r.booking, $('customerEmail').value.trim());
-    setMsg($('msg'), "Booking confirmed. " + (LIVE ? "A confirmation email is on its way to " + $('customerEmail').value.trim() + "." : "Save your booking ID."), "ok");
+    setMsg($('msg'), "Booking confirmed. " + (LIVE && $('customerEmail').value.trim() ? "A confirmation email is on its way to " + $('customerEmail').value.trim() + "." : "Save your booking ID. You can find your booking with it and your mobile number."), "ok");
     toast("Booking confirmed: " + r.booking.bookingId);
     loadSlots();
   } catch(err){ haptic("error"); setMsg($('msg'), err.message, "bad"); loadSlots(); }
@@ -4824,6 +4917,13 @@ document.querySelectorAll(".themebtn").forEach(function(b){b.addEventListener("c
   new IntersectionObserver(function(es){ es.forEach(function(e){ document.body.classList.toggle('v3-inform', e.isIntersecting && e.intersectionRatio > 0.15); }); }, {threshold:[0, 0.15, 0.5]}).observe(f);
 })();
 
+/* vehicle services scenes play only while on screen */
+;(function(){
+  var s = document.getElementById('vehicle-services'); if (!s) return;
+  if (!('IntersectionObserver' in window)) { s.classList.add('play'); return; }
+  new IntersectionObserver(function(es){ es.forEach(function(e){ s.classList.toggle('play', e.isIntersecting); }); }, {threshold:0.15}).observe(s);
+})();
+
 /* MyPod v3: thank-you popup -> live tracking (3D scene + car quiz) and the cancellation notice */
 (function(){
   'use strict';
@@ -5186,7 +5286,7 @@ document.querySelectorAll(".themebtn").forEach(function(b){b.addEventListener("c
     return '<div class="v3p-top"><button type="button" class="v3p-back" data-a="home" aria-label="Back to profile">' + ic('back') + '</button><span>' + title + '</span></div>' + body;
   }
   function help(){
-    return sub('Help &amp; support', '<p class="v3p-lead">Talk to a person at the studio. Slots run from 9:00 AM to 7:00 PM.</p><div class="v3p-list">' +
+    return sub('Help &amp; support', '<p class="v3p-lead">Talk to a person at the studio. Slots run from 9:00 AM to 9:00 PM, for doorstep and drive-through.</p><div class="v3p-list">' +
       '<a class="v3p-row" href="https://wa.me/' + WA + '?text=' + encodeURIComponent('Hi MyPod, I need help with my booking.') + '" target="_blank" rel="noopener"><i>' + ic('chat') + '</i><span><b>WhatsApp the studio</b><small>' + STUDIO_SHOW + '</small></span><em>' + ic('go') + '</em></a>' +
       '<a class="v3p-row" href="tel:' + STUDIO_TEL + '"><i>' + ic('phone') + '</i><span><b>Call the studio</b><small>' + STUDIO_SHOW + '</small></span><em>' + ic('go') + '</em></a>' +
       '<a class="v3p-row" href="tel:' + MGR_TEL + '"><i>' + ic('phone') + '</i><span><b>Call the service manager</b><small>Chanchal Hazra · ' + MGR_SHOW + '</small></span><em>' + ic('go') + '</em></a>' +
