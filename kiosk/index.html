@@ -420,6 +420,13 @@ body{background-image:none}
 .fullnote{border:2px solid #ffd51b;border-radius:14px;padding:18px 20px;margin-top:6px;background:#13161a}
 .fullnote b{display:block;font-size:28px;line-height:1.15;color:#ffd51b}
 .fullnote p{margin:8px 0 0;color:#c3c8ce;font-size:16px}
+/* per-panel add-ons: quantity stepper inside the tile */
+.price small{font:500 12px 'JetBrains Mono',Menlo,Courier,monospace;color:#9aa1a9;letter-spacing:0}
+.tile>.qty{display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;margin:12px 0 0}
+.qty button{width:58px;height:58px;-webkit-flex:none;flex:none;border-radius:12px;background:#13161a;border:1px solid rgba(255,255,255,.2);font:700 30px/1 'Inter',-apple-system,'Helvetica Neue',Helvetica,Arial,sans-serif;color:#ffd51b}
+.qty button:active{background:#ffd51b;color:#111}
+.qty b{-webkit-flex:1 1 auto;flex:1 1 auto;text-align:center;font:600 17px/1.3 'JetBrains Mono',Menlo,Courier,monospace}
+.qty b small{display:block;color:#ffd51b;font-size:15px}
 </style>
 <script>
 /* QR code generator (MIT, Kazuhiko Arase), inlined so the kiosk works offline. */
@@ -532,7 +539,10 @@ var SERVICES={
     {id:'freshener',name:'Air freshener',desc:'Cabin air freshener.',price:120,mins:5,add:true},
     {id:'steam',name:'Engine steam wash',desc:'Steam clean for the engine bay. Drive-through only.',price:499,mins:30,add:true},
     {id:'degrease',name:'Full-body degreasing',desc:'Full-body degrease.',price:200,mins:30,add:true},
-    {id:'doublefoam',name:'Double foam wash',desc:'Second foam wash pass.',price:150,mins:20,add:true}
+    {id:'doublefoam',name:'Double foam wash',desc:'Second foam wash pass.',price:150,mins:20,add:true},
+    /* qty:true = priced per panel; the tile shows a - / + stepper once ticked */
+    {id:'repaint',name:'Car Panel Repainting',desc:'Repaint one body panel (door, bonnet, bumper, fender). Priced per panel.',price:3500,mins:240,add:true,qty:true,unit:'panel'},
+    {id:'panelpolish',name:'Car Panel Polish',desc:'Machine polish for one body panel. Priced per panel.',price:500,mins:30,add:true,qty:true,unit:'panel'}
   ],
   bike:[
     {id:'gopremium',name:'Go Premium',inc:['Foam wash','Cloth drying','Instant dressing','Chain clean and lube'],prices:{naked:250,covered:300},mins:30},
@@ -552,7 +562,15 @@ var RAIL=[['vehicle','Vehicle'],['services','Services'],['slot','Slot'],['detail
 var S;
 function fresh(){return{step:'welcome',vt:null,size:null,sel:{},slot:null,startNow:false,name:'',phone:'',plate:'',email:'',field:'phone',q:'',matches:[],ret:false,auto:'',method:'upi',disc:'',discOpen:false,token:null,paid:false,tried:false};}
 S=fresh();
-var tokenSeq=47;
+/* Token number is saved on the iPad and starts again at A1 each day, so a reload never hands out the same token twice. */
+var TKEY='mypod_kiosk_token';
+function nextToken(){
+  var d=ymd(new Date()),o=null;
+  try{o=JSON.parse(localStorage.getItem(TKEY)||'null')}catch(e){}
+  var n=(o&&o.d===d&&o.n>0)?o.n+1:1;
+  try{localStorage.setItem(TKEY,JSON.stringify({d:d,n:n}))}catch(e){}
+  return 'A'+n;
+}
 var jobs=[
   {tk:'A41',veh:'Hyundai Creta',svc:'Exterior Gold (Polish)',p:62,eta:'about 6 hrs'},
   {tk:'A44',veh:'Honda City',svc:'Detail Boost',p:48,eta:'about 2 hrs'},
@@ -565,11 +583,17 @@ function dur(m){if(m>=1440){var d=Math.round(m/720)/2;return d+' day'+(d>1?'s':'
 function sizeObj(){return SIZES[S.vt].filter(function(x){return x.id===S.size})[0]}
 function price(sv){return sv.prices?sv.prices[S.size]:sv.price}
 function chosen(){if(!S.vt||!S.size)return [];return SERVICES[S.vt].filter(function(sv){return S.sel[sv.id]})}
-function total(){return chosen().reduce(function(a,sv){return a+price(sv)},0)}
+/* quantity: 1 for normal services, 1-10 for per-panel add-ons */
+var MAXQ=10;
+function qty(sv){var n=S.sel[sv.id];return n===true?1:(Number(n)||0)}
+function line(sv){return price(sv)*qty(sv)}
+function nm(sv){return sv.name+(sv.qty?' × '+qty(sv):'')}
+function svById(id){return S.vt?SERVICES[S.vt].filter(function(x){return x.id===id})[0]:null}
+function total(){return chosen().reduce(function(a,sv){return a+line(sv)},0)}
 /* counter discount: a flat rupee amount off the bill, never more than the bill. The UPI QR is built from the amount after discount. */
 function disc(){var n=parseInt(S.disc,10)||0;return Math.max(0,Math.min(n,total()))}
 function net(){return total()-disc()}
-function mins(){return chosen().reduce(function(a,sv){return a+sv.mins},0)}
+function mins(){return chosen().reduce(function(a,sv){return a+sv.mins*qty(sv)},0)}
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 
 /* slots */
@@ -599,7 +623,7 @@ function render(){
     h='<div class="hero"><span class="kicker">Booking open · Newtown, Kolkata</span><div class="big">Clean cars.<br>Zero <em>hassle.</em></div><p>Pick a service, choose a slot and get your token in under a minute. No queue at the counter.</p></div>'+
       '<div class="offer"><span><b>Experience our doorstep service with exciting offers:</b> 20% off Ceramic and 10% off PPF. T&amp;C apply.</span>'+(dayFull()?'<span>Fully booked for today</span>':'')+'</div>'+
       (dayFull()?fullHtml():'<button class="btn pri start" data-a="start">Touch to start</button><button class="btn ret" data-a="ret">Existing customer</button>'+qrCard('small'));
-    f='<div class="cart"><small>Open daily</small><em>'+fmtMin(HRS.open)+' to '+fmtMin(HRS.close)+'</em></div>';
+    f='<div class="cart"><small>Open daily</small><em>'+((HRS.open<=0&&HRS.close>=1440)?'24 hours, drive-through':fmtMin(HRS.open)+' to '+fmtMin(HRS.close))+'</em></div>';
   }
   else if(S.step==='find'){
     var qq=S.q,srch=!!RMP[qq];
@@ -627,7 +651,8 @@ function render(){
   }
   else if(S.step==='services'){
     var main=SERVICES[S.vt].filter(function(x){return !x.add}),add=SERVICES[S.vt].filter(function(x){return x.add});
-    var tile=function(sv){return '<div role="button" tabindex="0" class="tile" data-a="svc" data-v="'+sv.id+'" aria-pressed="'+!!S.sel[sv.id]+'"><span class="chk"></span>'+(sv.tag?'<span class="badge">'+sv.tag+'</span>':'')+'<h3>'+sv.name+(sv.pet?'<span class="ast">*</span>':'')+'</h3>'+(sv.desc?'<p>'+sv.desc+'</p>':'')+(sv.inc?'<ul class="inc">'+sv.inc.map(function(x){return '<li>'+x+'</li>'}).join('')+'</ul>':'')+'<div class="meta"><span class="price">'+inr(price(sv))+'</span><span class="dur">'+dur(sv.mins)+'</span></div></div>'};
+    var tile=function(sv){return '<div role="button" tabindex="0" class="tile" data-a="svc" data-v="'+sv.id+'" aria-pressed="'+!!S.sel[sv.id]+'"><span class="chk"></span>'+(sv.tag?'<span class="badge">'+sv.tag+'</span>':'')+'<h3>'+sv.name+(sv.pet?'<span class="ast">*</span>':'')+'</h3>'+(sv.desc?'<p>'+sv.desc+'</p>':'')+(sv.inc?'<ul class="inc">'+sv.inc.map(function(x){return '<li>'+x+'</li>'}).join('')+'</ul>':'')+'<div class="meta"><span class="price">'+inr(price(sv))+(sv.qty?'<small> / '+sv.unit+'</small>':'')+'</span><span class="dur">'+dur(sv.mins)+(sv.qty?' each':'')+'</span></div>'+
+      (sv.qty&&S.sel[sv.id]?'<div class="qty" data-a="noop"><button data-a="qty" data-v="'+sv.id+'" data-d="-1" aria-label="One less '+sv.unit+'">&minus;</button><b>'+qty(sv)+' '+sv.unit+(qty(sv)>1?'s':'')+'<small>'+inr(line(sv))+'</small></b><button data-a="qty" data-v="'+sv.id+'" data-d="1" aria-label="One more '+sv.unit+'"'+(qty(sv)>=MAXQ?' disabled':'')+'>+</button></div>':'')+'</div>'};
     h='<h2>Choose your services</h2><p class="sub">'+(S.ret?'Your last services are ticked. Change anything you like. ':'')+sizeObj().label+' prices shown. Pick as many as you like.'+(S.vt==='car'?' Packages marked * may have extra charges for pet hair removal.':'')+'</p>'+
       '<div class="group"><h4>Packages</h4><div class="grid">'+main.map(tile).join('')+'</div>'+(S.vt==='car'?'<p class="foot-ast"><span class="ast">*</span> Extra charges may apply for pet hair removal.</p>':'')+'</div>'+
       '<div class="group"><h4>Add-ons</h4><div class="grid">'+add.map(tile).join('')+'</div></div>';
@@ -655,22 +680,22 @@ function render(){
   else if(S.step==='pay'){
     var t0=total(),dc=disc(),d=t0-dc,adv=Math.round(d*(longJob()?0.3:1));
     h='<h2>Review and pay</h2><p class="sub">'+(longJob()?'A 30% advance holds your slot. Pay the balance on delivery.':'Pay now by UPI or at the counter when you collect.')+'</p>'+
-      '<div class="pay"><div class="summary">'+chosen().map(function(sv){return '<div class="ln"><span>'+sv.name+(sv.pet?' <span class="ast">*</span>':'')+'</span><span>'+inr(price(sv))+'</span></div>'}).join('')+(chosen().some(function(x){return x.pet})?'<div class="dur"><span class="ast">*</span> Extra charges may apply for pet hair removal.</div>':'')+(dc>0?'<hr><div class="ln"><span>Subtotal</span><span>'+inr(t0)+'</span></div><div class="ln dscln"><span>Discount</span><span>&minus;'+inr(dc)+'</span></div>':'')+'<hr><div class="ln"><span>GST included (18%)</span><span>'+inr(Math.round(d-d/1.18))+'</span></div><div class="ln tot"><span>Total</span><span>'+inr(d)+'</span></div>'+(longJob()?'<div class="ln"><span>Advance due now</span><span>'+inr(adv)+'</span></div>':'')+
-      '<hr><div class="ln"><span>'+S.vt+' · '+sizeObj().label+'</span><span>'+esc(S.plate)+'</span></div>'+(S.email?'<div class="ln"><span>Invoice to</span><span class="em">'+esc(S.email)+'</span></div>':'')+'<div class="ln"><span>Slot</span><span>'+slotText()+'</span></div></div>'+
+      '<div class="pay"><div class="summary">'+chosen().map(function(sv){return '<div class="ln"><span>'+nm(sv)+(sv.pet?' <span class="ast">*</span>':'')+'</span><span>'+inr(line(sv))+'</span></div>'}).join('')+(chosen().some(function(x){return x.pet})?'<div class="dur"><span class="ast">*</span> Extra charges may apply for pet hair removal.</div>':'')+(dc>0?'<hr><div class="ln"><span>Subtotal</span><span>'+inr(t0)+'</span></div><div class="ln dscln"><span>Discount</span><span>&minus;'+inr(dc)+'</span></div>':'')+'<hr><div class="ln"><span>GST included (18%)</span><span>'+inr(Math.round(d-d/1.18))+'</span></div><div class="ln tot"><span>Total</span><span>'+inr(d)+'</span></div>'+(longJob()?'<div class="ln"><span>Advance due now</span><span>'+inr(adv)+'</span></div>':'')+
+      '<hr><div class="ln"><span>'+(S.vt==='bike'?'Bike':'Car')+' · '+sizeObj().label+'</span><span>'+esc(S.plate)+'</span></div>'+(S.email?'<div class="ln"><span>Invoice to</span><span class="em">'+esc(S.email)+'</span></div>':'')+'<div class="ln"><span>Slot</span><span>'+slotText()+'</span></div></div>'+
       '<div class="group">'+discBox()+'<div class="methods">'+[['upi','UPI QR'],['card','Card'],['counter','Pay at counter']].map(function(m){return '<button data-a="method" data-v="'+m[0]+'" aria-pressed="'+(S.method===m[0])+'">'+m[1]+'</button>'}).join('')+'</div>'+
       (S.method==='upi'&&adv<=0?'<div class="summary"><div class="ln"><span>Nothing to pay after the discount. Tap Confirm booking.</span></div></div>':'')+(S.method==='upi'&&adv>0?'<div class="qrbox"><canvas id="qr" width="400" height="400"></canvas><small>Scan with any UPI app<br>Amount '+inr(adv)+' is filled in for you</small><small style="margin-top:6px;font-weight:600;color:#111">UPI ID: '+UPI_ID+'</small><small>'+UPI_NAME+'</small></div>':'')+
       (S.method==='card'?'<div class="summary"><div class="ln"><span>Tap, insert or swipe your card on the terminal below the screen.</span></div><div class="dur">Prototype: press the button to simulate.</div></div>':'')+
       (S.method==='counter'?'<div class="summary"><div class="ln"><span>Show your token at the counter. Payment is taken before the work starts.</span></div></div>':'')+'</div></div>';
   }
   else if(S.step==='done'){
-    var sum=chosen().map(function(x){return x.name}).join(', ');
+    var sum=chosen().map(nm).join(', ');
     h='<h2>You are booked in, '+esc(S.name.split(' ')[0])+'.</h2><div class="two"><div class="col"><div class="token"><small>Your token</small><b>'+S.token+'</b></div><p class="sub" style="margin:0">'+(S.paid?'Payment received.':'Pay at the counter on arrival.')+' Watch your status on the lounge TV.</p>'+(S.email?'<p class="sub" style="margin:8px 0 0">Your invoice will be emailed to <b>'+esc(S.email)+'</b>.</p>':'')+'</div>'+
       '<div class="wa"><small>WhatsApp to +91 '+esc(S.phone)+'</small>Hi '+esc(S.name.split(' ')[0])+', your booking at MyPod Detailing Studio is confirmed.\nToken '+S.token+' · '+esc(S.plate)+'\n'+esc(sum)+'\n'+slotText()+'\nWe will message you when it is ready.</div></div>'+qrCard('small');
     f='<div class="cart"><small>Screen resets in</small><strong id="cd">20</strong></div><div class="btns"><button class="btn pri" data-a="restart">New booking</button></div>';
   }
   if(!f){
     var showCart=S.step!=='welcome';
-    f=(showCart?'<div class="cart"><small>'+(chosen().length?chosen().length+' service'+(chosen().length>1?'s':''):'Your total')+'</small><strong>'+inr(total())+'</strong><em>'+(chosen().length?dur(mins())+' of work':'Nothing selected yet')+'</em></div>':'')+
+    f=(showCart?'<div class="cart"><small>'+(chosen().length?chosen().length+' service'+(chosen().length>1?'s':''):'Your total')+'</small><strong>'+inr(S.step==='pay'?net():total())+'</strong><em>'+(chosen().length?dur(mins())+' of work':'Nothing selected yet')+'</em></div>':'')+
       '<div class="btns"><button class="btn" data-a="back">Back</button><button class="btn pri" data-a="next"'+((S.step!=='details'&&!canNext())?' disabled':'')+'>'+(S.step==='pay'?((S.method==='counter'||adv<=0)?'Confirm booking':S.method==='upi'?'I have paid':'Simulate payment'):'Continue')+'</button></div>';
   }
   sc.innerHTML=h;$('foot').innerHTML=f;
@@ -772,7 +797,9 @@ function onTap(e){
   if(a==='start')go('vehicle');
   else if(a==='vt'){if(S.vt!==v){S.vt=v;S.size=null;S.sel={}}render()}
   else if(a==='size'){S.size=v;S.sel={};render()}
-  else if(a==='svc'){S.sel[v]=!S.sel[v];S.slot=null;S.startNow=false;render()}
+  else if(a==='noop'){}
+  else if(a==='svc'){if(S.sel[v])delete S.sel[v];else S.sel[v]=1;S.slot=null;S.startNow=false;render()}
+  else if(a==='qty'){var qs=svById(v);if(!qs)return;var qn=Math.max(0,Math.min(MAXQ,qty(qs)+(parseInt(b.dataset.d,10)||0)));if(qn)S.sel[v]=qn;else delete S.sel[v];S.slot=null;S.startNow=false;render()}
   else if(a==='slot'){S.slot=v;S.startNow=false;render()}
   else if(a==='slotnow'){S.slot=v;S.startNow=true;render()}
   else if(a==='field'){setField(v)}
@@ -784,7 +811,7 @@ function onTap(e){
     var ds=String(S.disc||'');
     if(v==='DEL')ds=ds.slice(0,-1);else if(v==='CLR')ds='';else if(/^\d$/.test(v)&&ds.length<6)ds=(ds+v).replace(/^0+(?=\d)/,'');
     S.disc=ds;S.disc=disc()>0?String(disc()):'';render()}
-  else if(a==='restart'){S=fresh();render()}
+  else if(a==='restart'){if(new Date().getTime()-(S.doneAt||0)<1500)return;S=fresh();render()}  /* a double tap on "I have paid" must not wipe the token screen */
   else if(a==='ret'){S.q='';S.matches=[];go('find')}
   else if(a==='fkey'){var q=S.q||'';if(v==='DEL')q=q.slice(0,-1);else if(v==='CLR')q='';else if(/^\d$/.test(v)&&q.length<10)q+=v;S.q=q;render()}
   else if(a==='pick'){pickCust(parseInt(v,10))}
@@ -824,7 +851,8 @@ function plk(p){return String(p||'').replace(/\s+/g,'').toUpperCase()}
 function cbRemember(){
   var ph=S.phone,c=cbGet(ph)||{name:'',email:'',visits:0,vehicles:[]};
   c.phone=ph;c.name=S.name.trim();if(S.email)c.email=S.email;c.visits=(c.visits||0)+1;c.last=Date.now();
-  var rec={plate:S.plate.trim(),vt:S.vt,size:S.size,svc:Object.keys(S.sel).filter(function(k){return S.sel[k]}),svcNames:chosen().map(function(x){return x.name}),at:Date.now()};
+  var qm={};chosen().forEach(function(x){if(x.qty)qm[x.id]=qty(x)});
+  var rec={plate:S.plate.trim(),vt:S.vt,size:S.size,svc:Object.keys(S.sel).filter(function(k){return S.sel[k]}),svcNames:chosen().map(function(x){return x.name}),qty:qm,at:Date.now()};
   c.vehicles=[rec].concat(c.vehicles.filter(function(v){return plk(v.plate)!==plk(rec.plate)})).slice(0,6);
   CB[ph]=c;cbSave();
 }
@@ -833,7 +861,7 @@ var RM={},RMP={};
 function cbNormV(v){
   var vt=String(v.vt||'').toLowerCase();if(!SIZES[vt])return null;
   var z=SIZES[vt].filter(function(x){return x.id===v.size||x.label===v.size})[0];
-  return {plate:String(v.plate||'').trim(),vt:vt,size:z?z.id:null,svc:v.svc||[],svcNames:v.svcNames||[],at:Number(v.at)||0};
+  return {plate:String(v.plate||'').trim(),vt:vt,size:z?z.id:null,svc:v.svc||[],svcNames:v.svcNames||[],qty:v.qty||{},at:Number(v.at)||0};
 }
 function remoteFind(q,done){
   if(RM[q]!==undefined){if(done)done();return}
@@ -871,7 +899,7 @@ function pickCust(i){
   S.name=c.name;S.phone=c.phone;S.email=c.email||'';S.plate=v.plate;S.vt=v.vt;
   S.size=SIZES[v.vt].some(function(z){return z.id===v.size})?v.size:null;
   S.sel={};
-  if(S.size)SERVICES[v.vt].forEach(function(x){if((v.svc||[]).indexOf(x.id)>=0||(v.svcNames||[]).indexOf(x.name)>=0)S.sel[x.id]=true});
+  if(S.size)SERVICES[v.vt].forEach(function(x){if((v.svc||[]).indexOf(x.id)>=0||(v.svcNames||[]).indexOf(x.name)>=0)S.sel[x.id]=(x.qty&&v.qty&&Number(v.qty[x.id]))?Math.min(MAXQ,Number(v.qty[x.id])):1});
   S.slot=null;S.startNow=false;S.auto=c.phone;S.ret=true;S.field='phone';
   go(S.size?'services':'vehicle');
 }
@@ -893,7 +921,7 @@ var QKEY='mypod_kiosk_queue',syncing=false;
 function p2(n){return (n<10?'0':'')+n}
 function ymd(d){return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate())}
 /* ---------- Today's open slots: 9 AM to 9 PM, 40-minute buffer after every job ---------- */
-var HRS={open:540,close:1260,buffer:0,step:40,job:40,bays:2};   /* every booking uses the same fixed block (job + buffer), whatever the work */
+var HRS={open:0,close:1440,buffer:0,step:40,job:40,bays:2};   /* every booking uses the same fixed block (job + buffer), whatever the work */
 var SB={loading:false,ready:false,busy:[],nowMin:0,date:'',at:0,count:0,limit:25};
 /* Doorstep QR code (scans to the MyPod website). */
 var QR_BIG={w:315,src:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAATsAAAE7AQAAAACKpxtqAAACx0lEQVR42u2aMY7zNhCFv7E2oDv5BvRNuLlYRN2MPkJuQN+AKgLIiMSXgvLuHyDFdikoNhSkp2Yw8+Y9Dk38aD0v/HCdwBN4Ak/gz4CLmZldeVo0u8IjmtmNR2Q3M7NL53H0kjbwCdtY7mBa20cnSR1nD5KKT9jmJKnilENsm2xzBSaTlPsMz8f343IDiSVkxMsg1r137vklPKNAv/3l//z8/Q/cClz+7j08rbgkba74BDgpTRWnzHRUXMfFdQF4mtkHwHRQ87CxhAS8zMw6z55jFZjqoEKQNlcI0b4/9p09kf065mCX/TpmZoblBlPd7fb8PPUjs9y6hESLy9fvw7qEuXdZuIRESxvAFaDuV3yaZdcxM/XeuQiqg6SENiBE28CnSVoh9Mw9X9S8ueIlhhXfWrkUbWPMIXYengKTtI7NTRRoSXRoxdSzqTiyJ1aaLBxWvGLzqVFax8wZnjTVYQUmScoh2uak1ADdc0/xidrchG2u+DRVGCXZ1ra+ZeGYgWGxO9T3W1een/NbMnZuKjJTBXzi2BrpUIcVf1JzpgUkiGFtusdJaWKQ8ql7MpNt4NtpoRSlJn82Jyla97qHOqxjDlEtIBw1tjHmoLOxUxtD651Eja/h5B4V4DjaaY2dY27RUurUPc1ztSOMUentNA5Z2H3nao49tyRqRD2+O1fXpuICLHfm4WU3r7jbdbmD3ArAfn07MPr2XAwqPk3gSiunNrdoE9S+x4DLDdgND1ZZfJorL1+QAc/PdKn0fJg6fk0q2O3K0yS7LvdHNKnA3HlxFQCcmtIZc4jWLMY5Y/+lsSsHMXwzkWTtHLr3KSmPNqxh1stuBKu8bjDL7OZTz8X1L+BD5vS0z6lVFSYVHvEMD8AS0qyXec2mD3iaWhLRcXj+64bGcVdM4pi4n5b0uLly+HeTytfAomdqtvPa9wk8gSfwfwD+AwsdpTlxZaJ1AAAAAElFTkSuQmCC'};
@@ -909,7 +937,7 @@ function fullHtml(){
   return '<div class="fullnote"><b>Fully booked for today</b><p>We have reached our limit of '+(SB.limit||25)+' bookings for today. Please visit us again tomorrow, or book doorstep service on our website.</p></div>'+qrCard('big');
 }
 var tvq=$('tvqr');if(tvq)tvq.innerHTML=qrCard('big');
-function fmtMin(m){var h=Math.floor(m/60),mm=m%60;return ((h%12)||12)+':'+p2(mm)+' '+(h>=12?'PM':'AM')}
+function fmtMin(m){m=((m%1440)+1440)%1440;var h=Math.floor(m/60),mm=m%60;   /* wraps past midnight: 1455 -> 12:15 AM */return ((h%12)||12)+':'+p2(mm)+' '+(h>=12?'PM':'AM')}
 function parseMin(t){var m=/^(\d{1,2}):(\d{2}) (AM|PM)$/.exec(String(t||'').trim());if(!m)return NaN;var h=Number(m[1])%12;if(m[3]==='PM')h+=12;return h*60+Number(m[2])}
 function todayLabel(){var d=new Date();return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()]+' '+d.getDate()+' '+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()]}
 function nowMinute(){
@@ -927,6 +955,7 @@ function isFree(t,busy){return bayLoad(t,busy)<HRS.bays}
 /* Start now = the earliest time from right now when a bay is free. It is never switched off: the daily limit is what closes it. */
 function slotPlan(){
   var busy=(SB.ready?SB.busy:[]).concat(localBusy()),t0=Math.max(HRS.open,Math.ceil((nowMinute()+5)/5)*5),grid=[],t,startAt=null,guard=0;
+  /* 24-hour drive-through: "Start now" is always on. Earliest free time if there is one, otherwise right now. Only the daily booking limit closes it. */
   for(t=t0;t+HRS.job<=HRS.close&&guard++<400;t+=5){if(isFree(t,busy)){startAt=t;break}}
   if(startAt===null)startAt=t0;
   for(t=HRS.open;t+HRS.job<=HRS.close;t+=HRS.step){if(t>=t0&&isFree(t,busy))grid.push(t)}
@@ -1024,13 +1053,13 @@ if(window.addEventListener)window.addEventListener('online',syncQueue);
 syncQueue();
 
 function confirmBooking(){
-  S.paid=S.method!=='counter';
-  tokenSeq++;S.token='A'+tokenSeq;
+  S.paid=S.method!=='counter';S.doneAt=new Date().getTime();
+  S.token=nextToken();
   var sv=chosen();
-  jobs.unshift({tk:S.token,veh:S.plate+' · '+sizeObj().label,svc:sv.map(function(x){return x.name}).join(', '),p:0,eta:'starts '+(S.startNow?'now':S.slot),fresh:true});
+  jobs.unshift({tk:S.token,veh:S.plate+' · '+sizeObj().label,svc:sv.map(nm).join(', '),p:0,eta:'starts '+(S.startNow?'now':S.slot),fresh:true});
   if(jobs.length>6)jobs.pop();
   var now=new Date(),pk=sv.filter(function(x){return !x.add}),ad=sv.filter(function(x){return x.add});
-  var sum=function(a){return a.reduce(function(t,x){return t+price(x)},0)};
+  var sum=function(a){return a.reduce(function(t,x){return t+line(x)},0)};
   var q=qGet();
   q.push({
     action:'kioskBooking',kioskKey:KIOSK_KEY,website:'',source:'Kiosk',
@@ -1038,7 +1067,7 @@ function confirmBooking(){
     status:'Confirmed',createdAt:now.toISOString(),token:S.token,
     customerName:S.name.trim(),customerPhone:S.phone,customerEmail:S.email,
     vehicleType:S.vt==='car'?'Car':'Bike',vehicleSize:sizeObj().label,vehicleNumber:S.plate,
-    serviceName:(pk.length?pk:ad).map(function(x){return x.name}).join(', '),addOns:ad.map(function(x){return x.name}),
+    serviceName:(pk.length?pk:ad).map(nm).join(', '),addOns:ad.map(nm),
     serviceMode:'Walk-in (Kiosk)',address:STUDIO_ADDRESS,landmark:'',couponCode:'',
     date:(SB.ready&&SB.date)?SB.date:ymd(now),time:S.slot,
     listPrice:sum(pk),discount:disc(),addOnTotal:sum(ad),price:total(),
