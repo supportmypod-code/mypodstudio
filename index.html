@@ -2198,6 +2198,94 @@ body:has(#installModal:not([hidden])) .nbar,body:has(.v3v:not([hidden])) .nbar,b
   .hero-copy .v3an-x{top:6px;right:6px;width:24px;height:24px;border-radius:8px}.hero-copy .v3an-x svg{width:12px;height:12px}
 }
 .v3an-code{cursor:default}.v3an-code b{letter-spacing:.06em}
+/* ===== v3.20 booking form: yellow cards + phone fit ===== */
+.booking{background:linear-gradient(180deg,#121418,#0b0c0f);border-color:rgba(255,213,27,.22);box-shadow:0 30px 80px rgba(0,0,0,.55),0 0 0 1px rgba(255,213,27,.06)}
+.booking .bhead{position:relative;margin:-22px -22px 16px;padding:18px 22px 16px;border-radius:22px 22px 0 0;background:#ffd51b;color:#07080a}
+.booking .bhead h2{color:#07080a}.booking .bhead span{color:rgba(7,8,10,.68);font-weight:600}
+.booking .bhead::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background-image:linear-gradient(rgba(7,8,10,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(7,8,10,.07) 1px,transparent 1px);background-size:22px 22px;mask-image:linear-gradient(110deg,transparent 35%,#000);-webkit-mask-image:linear-gradient(110deg,transparent 35%,#000)}
+/* unselected cards: dark with a faint yellow edge; selected cards: solid yellow */
+.booking .opt span,.booking .svcrow,.booking .addon-option{background:linear-gradient(160deg,rgba(255,213,27,.07),rgba(255,255,255,.02) 55%);border-color:rgba(255,213,27,.18)}
+.booking .opt input:checked+span,.booking .svcrow:has(input:checked),.booking .addon-option:has(input:checked){position:relative;background:#ffd51b;border-color:#ffd51b;color:#07080a;box-shadow:0 10px 26px rgba(255,213,27,.22)}
+.booking .opt input:checked+span b,.booking .opt input:checked+span small,
+.booking .svcrow:has(input:checked) :is(b,strong,small,span,p,.t,.price,.vt),
+.booking .addon-option:has(input:checked) :is(span,small,b){color:#07080a!important}
+.booking .opt input:checked+span small,.booking .svcrow:has(input:checked) small,.booking .addon-option:has(input:checked) small{opacity:.72}
+.booking .opt input:checked+span::after,.booking .svcrow:has(input:checked)::after{content:"";position:absolute;top:10px;right:10px;width:22px;height:22px;border-radius:50%;background:#07080a url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffd51b' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 12 4 4 8-8'/%3E%3C/svg%3E") center/14px no-repeat}
+.booking .opt input:checked+span .oimg{border-color:#07080a}
+.booking .svcrow:has(input:checked) .badge{background:#07080a;color:#ffd51b}
+.booking .opt input:focus-visible+span{outline:2px solid #fff;outline-offset:2px}
+.booking .prog li.on i,.booking .prog li.done i{background:#ffd51b;color:#07080a}
+html[data-theme="light"] .booking{background:#fff}
+html[data-theme="light"] .booking .opt span,html[data-theme="light"] .booking .svcrow,html[data-theme="light"] .booking .addon-option{background:#fffbe6;border-color:#f0dc8a}
+/* phones: less padding, nothing cut off */
+@media(max-width:560px){
+  .hero .wrap.grid,.hero .grid{min-width:0}
+  .booking{max-width:none;width:auto;margin-inline:-6px;padding:14px 12px 16px;border-radius:20px;overflow:hidden}
+  .booking .bhead{margin:-14px -12px 14px;padding:14px 14px 13px;border-radius:20px 20px 0 0;display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+  .booking .bhead h2{font-size:21px;line-height:1.1;margin:0}.booking .bhead span{font-size:12px;white-space:nowrap}
+  .booking .lbl{font-size:17px}
+  .booking .opts.sizes{gap:7px}.booking .opts.sizes .opt span{padding:11px 9px}
+  .booking .opts.sizes .opt b{font-size:14.5px}.booking .opts.sizes .opt small{font-size:11.5px;line-height:1.3}
+  .booking .opt input:checked+span::after,.booking .svcrow:has(input:checked)::after{top:7px;right:7px;width:18px;height:18px;background-size:11px}
+  .booking :is(.v3-bill,.v3-promo,.v3-sumcard,.paybox,.upibox,#upiPanel,.loccard,.coupon,.couponbox){padding-left:12px;padding-right:12px;margin-left:0;margin-right:0;max-width:100%;box-sizing:border-box}
+  .booking :is(input,select,textarea){max-width:100%;min-width:0;box-sizing:border-box}
+  .booking .nav2{gap:8px}.booking .nav2 .btn{min-width:0}
+  #upiPanel .upiapps{grid-template-columns:1fr 1fr;gap:8px}
+  #upiPanel .upiapp{min-width:0;padding:10px;gap:8px;font-size:14px}
+}
+/* the install buttons step aside while the booking form is on screen */
+body.v3-inform .fabs{opacity:0;pointer-events:none;transform:translateY(16px);transition:opacity .25s,transform .25s}
+.fabs{transition:opacity .25s,transform .25s}
+
+.booking .svcrow:has(input:checked) *:not(.badge):not(.v3-save):not(.svcbook):not(.svcbook *){color:#07080a!important;border-color:rgba(7,8,10,.25)}
+.booking .svcrow:has(input:checked) svg{stroke:#07080a}
+.booking .svcrow:has(input:checked) li::before,.booking .svcrow:has(input:checked) li::marker{color:#07080a;background-color:#07080a}
+.booking .svcrow:has(input:checked) .inc-toggle{background:transparent!important}
+.booking .svcrow:has(input:checked) .svcbook{background:#07080a!important;color:#ffd51b!important}.booking .svcrow:has(input:checked) .svcbook *{color:#ffd51b!important}
+/* ===== location sheet (first open) ===== */
+.v3lg{position:fixed;inset:0;z-index:140;display:flex;align-items:flex-end;justify-content:center;background:rgba(4,5,6,.6);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);opacity:0;transition:opacity .3s}
+.v3lg.in{opacity:1}
+.v3lg-sheet{position:relative;width:min(480px,100%);max-height:92dvh;overflow-y:auto;overscroll-behavior:contain;border-radius:28px 28px 0 0;background:var(--bg);border:1px solid var(--line2);border-bottom:0;transform:translateY(60px);transition:transform .45s cubic-bezier(.2,.9,.2,1)}
+.v3lg.in .v3lg-sheet{transform:none}
+@media(min-width:700px){.v3lg{align-items:center}.v3lg-sheet{border-radius:28px;border-bottom:1px solid var(--line2)}}
+.v3lg-art{position:relative;height:190px;overflow:hidden;border-radius:28px 28px 0 0;background:#ffd51b}
+.v3lg-art::before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(7,8,10,.1) 1px,transparent 1px),linear-gradient(90deg,rgba(7,8,10,.1) 1px,transparent 1px);background-size:28px 28px;mask-image:radial-gradient(circle at 50% 60%,#000 20%,transparent 75%);-webkit-mask-image:radial-gradient(circle at 50% 60%,#000 20%,transparent 75%)}
+.v3lg-art::after{content:"";position:absolute;left:-10%;right:-10%;bottom:-1px;height:46px;background:var(--bg);border-radius:50% 50% 0 0/100% 100% 0 0}
+.v3lg-pin{position:absolute;left:50%;top:30px;z-index:2;width:96px;height:96px;margin-left:-48px;display:grid;place-items:center;color:#07080a;animation:v3lgBob 2.4s ease-in-out infinite}
+.v3lg-pin svg{width:96px;height:96px;fill:#07080a;stroke:#07080a;stroke-width:1.2}
+.v3lg-pin svg circle{fill:#ffd51b;stroke:#ffd51b}
+.v3lg-shadow{position:absolute;left:50%;top:136px;z-index:1;width:56px;height:12px;margin-left:-28px;border-radius:50%;background:rgba(7,8,10,.28);animation:v3lgSh 2.4s ease-in-out infinite}
+.v3lg-ring{position:absolute;left:50%;top:142px;width:40px;height:14px;margin:-7px 0 0 -20px;border-radius:50%;border:2px solid rgba(7,8,10,.5);animation:v3lgRing 2.4s ease-out infinite}
+.v3lg-ring.r2{animation-delay:1.2s}
+@keyframes v3lgBob{50%{transform:translateY(-10px)}}
+@keyframes v3lgSh{50%{transform:scale(.75);opacity:.6}}
+@keyframes v3lgRing{0%{transform:scale(.6);opacity:.9}100%{transform:scale(3.2);opacity:0}}
+.v3lg-x{position:absolute;top:14px;right:14px;z-index:3;width:36px;height:36px;border-radius:12px;border:0;background:rgba(7,8,10,.85);color:#ffd51b;display:grid;place-items:center;cursor:pointer}
+.v3lg-x svg{width:18px;height:18px}
+.v3lg-body{padding:4px 18px calc(18px + env(safe-area-inset-bottom,0px))}
+.v3lg h2{margin:0;text-align:center;font:900 24px/1.15 var(--body);letter-spacing:-.02em;color:var(--text)}
+.v3lg-sub{margin:8px auto 18px;max-width:36ch;text-align:center;color:var(--muted);font-size:14.5px;line-height:1.5}
+.v3lg-card{border-radius:20px;background:var(--panel);border:1px solid var(--line2);overflow:hidden}
+.v3lg-row{display:flex;align-items:center;gap:14px;width:100%;padding:15px 16px;border:0;background:none;color:var(--text);text-align:left;font-family:inherit;cursor:pointer}
+.v3lg-row+.v3lg-row,.v3lg-help+.v3lg-row{border-top:1px solid var(--line2)}
+.v3lg-row>i{flex:none;display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:rgba(255,213,27,.12);color:var(--y)}
+.v3lg-row>i svg{width:21px;height:21px}
+.v3lg-row>span{flex:1;min-width:0}.v3lg-row b{display:block;font-size:15.5px;font-weight:700}
+.v3lg-row small{display:block;margin-top:2px;color:var(--muted);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v3lg-row>em{color:var(--muted);display:grid}.v3lg-row>em svg{width:18px;height:18px}
+button.v3lg-row:hover{background:var(--panel2)}
+.v3lg-main{cursor:default}
+.v3lg-en{flex:none;height:40px;padding:0 18px;border-radius:12px;border:0;background:#ffd51b;color:#07080a;font:800 15px var(--body);cursor:pointer;box-shadow:0 6px 18px rgba(255,213,27,.25)}
+.v3lg-en:disabled{opacity:.7}
+.v3lg-help{padding:0 16px 14px 68px;color:var(--muted);font-size:13.5px;line-height:1.5}
+.v3lg-help b{color:var(--text)}.v3lg-help ol{margin:6px 0 10px;padding-left:18px}
+.v3lg-h{display:flex;justify-content:space-between;align-items:center;margin:20px 4px 10px}.v3lg-h b{font-size:16px;font-weight:800}
+.v3lg-search{display:flex;align-items:center;justify-content:center;gap:10px;width:calc(100% - 24px);height:50px;margin:6px 12px 12px;border-radius:14px;border:1.5px solid var(--line2);background:var(--panel2);color:var(--text);font:800 15px var(--body);cursor:pointer}
+.v3lg-search svg{width:19px;height:19px}
+.v3lg-later{display:block;margin:12px auto 0;padding:8px 16px;border:0;background:none;color:var(--muted);font:700 14px var(--body);cursor:pointer}
+body.v3lg-on .nbar,body.v3lg-on .v3-appban,body.v3lg-on .fabs{visibility:hidden}
+@media(prefers-reduced-motion:reduce){.v3lg-pin,.v3lg-shadow,.v3lg-ring{animation:none}}
+.v3lg-en:focus-visible{outline:2px solid #fff;outline-offset:2px}
 
 </style>
 </head><body>
@@ -4191,9 +4279,8 @@ function nbInit(){
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && nbOpen) { nbSetOpen(false); $('nbBar').focus(); } });
   if (state.loc) nbRefresh();                          // location remembered from an earlier visit: show it straight away
   const ask = () => nbLocate();
-  if (navigator.permissions && navigator.permissions.query)
-    navigator.permissions.query({name: 'geolocation'}).then(s => s.state === 'denied' ? (state.loc || nbRender({status: 'denied'})) : ask()).catch(ask);
-  else ask();
+  const gate = () => { if (window.v3LocGate) window.v3LocGate(ask); else ask(); };   // v3.20: our own location sheet first
+  if (document.readyState === 'complete') setTimeout(gate, 400); else addEventListener('load', () => setTimeout(gate, 400));
 }
 
 renderServiceCards(); loadNextSlot(); nbInit();
@@ -4729,6 +4816,12 @@ document.querySelectorAll(".themebtn").forEach(function(b){b.addEventListener("c
   /* open the sheet when a UPI app is tapped (the link itself still opens the app) */
   document.addEventListener('click', function(e){ var a = e.target.closest && e.target.closest('#upiPanel .upiapp'); if (a) open(a); });
   window.v3PaySheet = { open:open, close:close };
+})();
+
+/* hide the floating install buttons while the booking form is on screen (they covered fields on phones) */
+;(function(){
+  var f = document.getElementById('booking'); if (!f || !('IntersectionObserver' in window)) return;
+  new IntersectionObserver(function(es){ es.forEach(function(e){ document.body.classList.toggle('v3-inform', e.isIntersecting && e.intersectionRatio > 0.15); }); }, {threshold:[0, 0.15, 0.5]}).observe(f);
 })();
 
 /* MyPod v3: thank-you popup -> live tracking (3D scene + car quiz) and the cancellation notice */
@@ -5525,6 +5618,120 @@ document.querySelectorAll(".themebtn").forEach(function(b){b.addEventListener("c
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', refresh); else refresh();
   document.addEventListener('visibilitychange', function(){ if (!document.hidden) refresh(); });
   window.v3Announce = { show:show, refresh:refresh };
+})();
+
+/* ---------- Location sheet on first open (Zepto style), in MyPod colours ----------
+   Shown once when the site opens and we do not know where the customer is.
+   Granted already: we locate quietly. "Not now" hides it for a day. */
+(function(){
+  var SNOOZE = 'mypod_locgate', DAY = 864e5, el = null, onAsk = null, denied = false;
+  var J = function(k){ try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch(e){ return null; } };
+  var isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  var esc = function(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); };
+  var SV = function(p){ return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + p + '</svg>'; };
+  var IC = {
+    target:SV('<circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.5" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>'),
+    car:SV('<path d="M5 16V11l2-5h10l2 5v5"/><path d="M3 16h18v3H3z"/><circle cx="7.5" cy="13" r="1"/><circle cx="16.5" cy="13" r="1"/>'),
+    pin:SV('<path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21Z"/><circle cx="12" cy="9.5" r="2.5"/>'),
+    search:SV('<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>'), go:SV('<path d="m9 6 6 6-6 6"/>'), x:SV('<path d="M6 6l12 12M18 6 6 18"/>')
+  };
+  function saved(){
+    var c = J('mypod_customer') || {};
+    var a = [c.address, c.landmark, c.area].filter(Boolean).join(', ');
+    return a ? { label:'Saved address', text:a, area:c.area || a, pin:c.pin || '' } : null;
+  }
+  function areaRow(n){ return '<button type="button" class="v3lg-row" data-lg="area" data-v="' + n + '"><i>' + IC.pin + '</i><span><b>Action Area ' + n + '</b><small>Newtown, Kolkata</small></span><em>' + IC.go + '</em></button>'; }
+  function html(){
+    var s = saved();
+    return '<div class="v3lg-sheet" role="dialog" aria-modal="true" aria-labelledby="v3lgT">' +
+      '<div class="v3lg-art" aria-hidden="true"><i class="v3lg-ring"></i><i class="v3lg-ring r2"></i><span class="v3lg-pin">' + IC.pin + '</span><i class="v3lg-shadow"></i></div>' +
+      '<button type="button" class="v3lg-x" data-lg="later" aria-label="Not now">' + IC.x + '</button>' +
+      '<div class="v3lg-body">' +
+        '<h2 id="v3lgT">' + (denied ? 'Location permission is off' : 'Allow location access') + '</h2>' +
+        '<p class="v3lg-sub">We use it to check if we come to your doorstep, fill in your address and show the nearest open slot.</p>' +
+        '<div class="v3lg-card">' +
+          '<div class="v3lg-row v3lg-main"><i>' + IC.target + '</i><span><b>Use my current location</b></span><button type="button" class="v3lg-en" data-lg="enable">Enable</button></div>' +
+          '<div class="v3lg-help" hidden></div>' +
+          '<button type="button" class="v3lg-row" data-lg="drive"><i>' + IC.car + '</i><span><b>Drive to our studio instead</b><small>Action Area I, Newtown. No address needed</small></span><em>' + IC.go + '</em></button>' +
+        '</div>' +
+        '<div class="v3lg-h"><b>Select your address</b></div>' +
+        '<div class="v3lg-card">' +
+          (s ? '<button type="button" class="v3lg-row" data-lg="saved"><i>' + IC.pin + '</i><span><b>' + esc(s.label) + '</b><small>' + esc(s.text) + '</small></span><em>' + IC.go + '</em></button>' : '') +
+          areaRow('I') + areaRow('II') + areaRow('III') +
+          '<button type="button" class="v3lg-search" data-lg="search">' + IC.search + 'Search your location</button>' +
+        '</div>' +
+        '<button type="button" class="v3lg-later" data-lg="later">Not now</button>' +
+      '</div></div>';
+  }
+  function helpHtml(){
+    return '<b>Location is blocked for this site</b>' + (isIOS
+      ? '<ol><li>Open <b>Settings</b>, then <b>Privacy &amp; Security</b>, then <b>Location Services</b>.</li><li>Tap <b>Safari Websites</b> and choose <b>While Using the App</b>.</li><li>Come back here and tap <b>Try again</b>.</li></ol>'
+      : '<ol><li>Tap the icon on the left of the address bar.</li><li>Tap <b>Permissions</b>, then <b>Location</b>, and choose <b>Allow</b>.</li><li>Come back here and tap <b>Try again</b>.</li></ol>') +
+      '<button type="button" class="v3lg-en" data-lg="enable">Try again</button>';
+  }
+  function open(){
+    if (el) return;
+    el = document.createElement('div'); el.className = 'v3lg'; el.innerHTML = html();
+    document.body.appendChild(el); document.body.classList.add('v3lg-on'); document.body.style.overflow = 'hidden';
+    requestAnimationFrame(function(){ el.classList.add('in'); });
+    el.addEventListener('click', act);
+    document.addEventListener('keydown', esc_);
+    setTimeout(function(){ var b = el && el.querySelector('.v3lg-en'); if (b) try { b.focus({preventScroll:true}); } catch(_){} }, 350);
+  }
+  function esc_(e){ if (e.key === 'Escape') later(); }
+  function close(){
+    if (!el) return; var x = el; el = null;
+    x.classList.remove('in'); document.body.classList.remove('v3lg-on'); document.body.style.overflow = '';
+    document.removeEventListener('keydown', esc_);
+    setTimeout(function(){ x.remove(); }, 320);
+  }
+  function later(){ try { localStorage.setItem(SNOOZE, String(Date.now())); } catch(_){} close(); }
+  function setArea(area, short, pin){
+    if (typeof setLoc === 'function') setLoc({lat:null, lng:null, ok:true, area:area, short:short.slice(0, 24), pin:pin || ''});
+    close();
+    if (typeof toast === 'function') toast('Location set to ' + short + '. We come to your doorstep there.');
+  }
+  function act(e){
+    if (e.target === el) return later();
+    var b = e.target.closest('[data-lg]'); if (!b) return;
+    var k = b.dataset.lg;
+    if (k === 'later') return later();
+    if (k === 'enable') {
+      if (!navigator.geolocation) { if (typeof toast === 'function') toast('This browser cannot share location. Pick your area instead.'); return; }
+      b.disabled = true; b.textContent = 'Finding…';
+      navigator.geolocation.getCurrentPosition(function(){            // permission given: the site's own locator fills in the address
+        close(); if (onAsk) onAsk();
+      }, function(err){
+        b.disabled = false; b.textContent = 'Try again';
+        if (err.code === 1) { var h = el && el.querySelector('.v3lg-help'); if (h) { h.innerHTML = helpHtml(); h.hidden = false; } var t = el && el.querySelector('#v3lgT'); if (t) t.textContent = 'Location permission is off'; }
+        else if (typeof toast === 'function') toast('Could not get your location. Try again or pick your area.');
+      }, {enableHighAccuracy:true, timeout:12000, maximumAge:120000});
+    }
+    else if (k === 'drive') {
+      close();
+      var r = document.querySelector('input[name="serviceMode"][value="Drive-through"]'); if (r && !r.checked) r.click();
+      var f = document.getElementById('booking'); if (f) setTimeout(function(){ f.scrollIntoView({behavior:'smooth', block:'start'}); }, 200);
+    }
+    else if (k === 'area') setArea('Action Area ' + b.dataset.v + ', Newtown, Kolkata', 'Action Area ' + b.dataset.v);
+    else if (k === 'saved') { var s = saved(); if (s) setArea(s.text, String(s.area).split(',')[0], s.pin); }
+    else if (k === 'search') { close(); if (typeof openLoc === 'function') openLoc(); }
+  }
+  /* called by the page on load, in place of asking the browser straight away */
+  window.v3LocGate = function(ask){
+    onAsk = ask;
+    var known = typeof state !== 'undefined' && state.loc;
+    var snoozed = Date.now() - (+localStorage.getItem(SNOOZE) || 0) < DAY;
+    var decide = function(st){
+      denied = st === 'denied';
+      if (st === 'granted') return ask();                  // already allowed: locate quietly
+      if (known) return;                                   // we remember their area from last time
+      if (snoozed) { if (denied && typeof nbRender === 'function') nbRender({status:'denied'}); return; }
+      open();
+    };
+    if (navigator.permissions && navigator.permissions.query) navigator.permissions.query({name:'geolocation'}).then(function(s){ decide(s.state); }, function(){ decide('prompt'); });
+    else decide('prompt');
+  };
+  window.v3LocSheet = { open:open, close:close };
 })();
 
 </script></body></html>
